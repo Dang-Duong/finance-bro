@@ -1,14 +1,21 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import mongoose from "mongoose";
 import dbConnect from "../db/dbConnect";
 import Transaction from "../models/Transaction";
 import User from "../models/User";
+import { withAuth } from "../middleware/auth";
 
-export async function GET() {
+// PROTECTED ENDPOINT - Requires JWT token
+// Returns only transactions for the authenticated user
+export const GET = withAuth(async (request, context, payload) => {
   try {
     await dbConnect();
-    const transactions = await Transaction.find({})
+
+    // Get only transactions for the authenticated user
+    const transactions = await Transaction.find({ userId: payload.userId })
       .populate("userId", "username")
       .sort({ createdAt: -1 });
+
     return NextResponse.json({
       success: true,
       data: transactions,
@@ -20,18 +27,23 @@ export async function GET() {
       { status: 500 }
     );
   }
-}
+});
 
-export async function POST(request: Request) {
+// PROTECTED ENDPOINT - Requires JWT token
+// Creates transaction for the authenticated user
+export const POST = withAuth(async (request, context, payload) => {
   try {
     await dbConnect();
     const body = await request.json();
-    const { userId, amount, description, date } = body;
+    const { amount, description, date } = body;
 
-    // Validate userId
-    if (!userId) {
+    // userId is taken from JWT token, not from request body
+    const userId = payload.userId;
+
+    // Validate required fields
+    if (!amount || !description) {
       return NextResponse.json(
-        { success: false, error: "userId is required" },
+        { success: false, error: "amount and description are required" },
         { status: 400 }
       );
     }
@@ -54,7 +66,7 @@ export async function POST(request: Request) {
     });
 
     // Add transaction to user's transactions array
-    user.transactions.push(transaction._id);
+    user.transactions.push(transaction._id as mongoose.Types.ObjectId);
     await user.save();
 
     return NextResponse.json(
@@ -71,4 +83,4 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   }
-}
+});

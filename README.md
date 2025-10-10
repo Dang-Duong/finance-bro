@@ -35,3 +35,10 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 as
+
+
+## Auth Endpoints
+- `POST /api/auth/login`: Authenticate a user and return a JWT token.
+
+You need add header Authorization Bearer {token} to access the following endpoints.
+- `GET /api/transactions` : Retrieve a list of all transactions.

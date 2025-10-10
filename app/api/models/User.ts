@@ -7,7 +7,7 @@ export interface IUser {
 }
 
 export interface IUserDocument extends IUser, Document {
-  transactions: mongoose.Types.ObjectId[] | ITransactionDocument[];
+  transactions: mongoose.Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }
