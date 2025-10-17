@@ -25,13 +25,16 @@ export default function LoginForm() {
       const data = await response.json();
 
       if (response.ok) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
         setMessage("Login successful!");
-        // You can redirect or update state here
+        // Redirect to /
+        window.location.href = "/dashboard";
       } else {
         setMessage(data.error || "Login failed");
       }
     } catch (error) {
-      setMessage("Network error. Please try again.");
+      setMessage(`Network error. Please try again. ${error}`);
     } finally {
       setLoading(false);
     }
