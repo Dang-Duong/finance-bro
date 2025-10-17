@@ -1,9 +1,11 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 import { ITransactionDocument } from "./Transaction";
 
+
 export interface IUser {
   username: string;
   password: string;
+  role: "user" | "admin";
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -23,6 +25,11 @@ const userSchema = new Schema<IUserDocument>(
     password: {
       type: String,
       required: true,
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
     },
     transactions: [
       {

@@ -39,6 +39,7 @@ export async function POST(req: Request) {
     const newUser = await User.create({
       username,
       password: hashedPassword,
+      role: "user",
     });
 
     const maybe = newUser as unknown as {
@@ -50,6 +51,7 @@ export async function POST(req: Request) {
         : (newUser as unknown as Record<string, unknown>);
     const userSafe: Record<string, unknown> = { ...userObj };
     if ("password" in userSafe) delete userSafe["password"];
+    if ("_id" in userSafe) delete userSafe["_id"];
 
     return NextResponse.json(
       { message: "User registered", user: userSafe },

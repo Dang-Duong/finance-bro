@@ -21,12 +21,12 @@ export async function POST(req: Request) {
     }
 
     const token = jwt.sign(
-      { id: user._id, username: user.username },
+      { username: user.username, role: user.role },
       process.env.JWT_SECRET as string,
       { expiresIn: "7d" }
     );
 
-    return new Response(JSON.stringify({ token, user }), { status: 200 });
+    return new Response(JSON.stringify({ token, user: { username: user.username, role: user.role } }), { status: 200 });
   } catch (error) {
     console.error(error);
     return new Response(JSON.stringify({ message: "Server error" }), { status: 500 });
