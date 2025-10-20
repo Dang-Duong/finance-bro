@@ -1,58 +1,34 @@
-import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
 import dbConnect from "@/app/api/db/dbConnect";
-import User from "@/app/api/models/User";
+import User from "../../models/User";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
-export async function POST(request: NextRequest) {
+
+
+export async function POST(req: Request) {
   try {
+    const { username, password } = await req.json();
     await dbConnect();
 
-    const body = await request.json();
-    const { username, password } = body;
-
-    // Validation
-    if (!username || !password) {
-      return NextResponse.json(
-        { error: "Username and password are required" },
-        { status: 400 }
-      );
-    }
-
-    // Find user
     const user = await User.findOne({ username });
     if (!user) {
-      return NextResponse.json(
-        { error: "Invalid username or password" },
-        { status: 401 }
-      );
+      return new Response(JSON.stringify({ message: "User not found" }), { status: 404 });
     }
 
-    // Check password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return NextResponse.json(
-        { error: "Invalid username or password" },
-        { status: 401 }
-      );
+      return new Response(JSON.stringify({ message: "Invalid credentials" }), { status: 401 });
     }
 
-    // Return user without password
-    return NextResponse.json(
-      {
-        message: "Login successful",
-        user: {
-          id: user._id,
-          username: user.username,
-          createdAt: user.createdAt,
-        },
-      },
-      { status: 200 }
+    const token = jwt.sign(
+      { username: user.username, role: user.role },
+      process.env.JWT_SECRET as string,
+      { expiresIn: "7d" }
     );
+
+    return new Response(JSON.stringify({ token, user: { username: user.username, role: user.role } }), { status: 200 });
   } catch (error) {
-    console.error("Login error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    console.error(error);
+    return new Response(JSON.stringify({ message: "Server error" }), { status: 500 });
   }
 }
