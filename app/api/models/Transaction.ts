@@ -4,6 +4,9 @@ import { IUserDocument } from "./User";
 export interface ITransaction {
   amount: number;
   description?: string;
+  state?: "pending" | "completed" | "failed";
+  category?: string;
+  incoming: boolean;
   date: Date;
   userId: mongoose.Types.ObjectId;
 }
@@ -24,10 +27,19 @@ const transactionSchema = new Schema<ITransactionDocument>(
       type: String,
       required: false,
     },
-    date: {
-      type: Date,
+    category: {
+      type: String,
+      required: false,
+    },
+    state: {
+      type: String,
+      enum: ["pending", "completed", "failed"],
+      default: "pending",
+      required: false,
+    },
+    incoming: {
+      type: Boolean,
       required: true,
-      default: Date.now,
     },
     userId: {
       type: Schema.Types.ObjectId,
