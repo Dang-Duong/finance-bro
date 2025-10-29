@@ -1,11 +1,13 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 import { ITransactionDocument } from "./Transaction";
 
-
 export interface IUser {
   username: string;
   password: string;
-  role: "user" | "admin";
+  email: string;
+  name: string;
+  surname: string;
+  tokens: string[];
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -22,14 +24,25 @@ const userSchema = new Schema<IUserDocument>(
       unique: true,
       trim: true,
     },
+    email: {
+      type: String,
+      required: true,
+    },
+    name: {
+      type: String,
+      required: true,
+    },
+    surname: {
+      type: String,
+      required: true,
+    },
     password: {
       type: String,
       required: true,
     },
-    role: {
-      type: String,
-      enum: ["user", "admin"],
-      default: "user",
+    tokens: {
+      type: [String],
+      default: [],
     },
     transactions: [
       {
