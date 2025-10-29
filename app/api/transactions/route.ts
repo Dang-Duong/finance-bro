@@ -2,13 +2,32 @@ import { NextResponse } from "next/server";
 import dbConnect from "../db/dbConnect";
 import Transaction from "../models/Transaction";
 import User from "../models/User";
+import { verifyToken, unauthorizedResponse } from "../utils/auth";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    // Verify JWT token
+    const authResult = verifyToken(request);
+    if (!authResult.success) {
+      return unauthorizedResponse(authResult.error);
+    }
+
     await dbConnect();
-    const transactions = await Transaction.find({})
+
+    // Get user to find their userId
+    const user = await User.findOne({ username: authResult.payload!.username });
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: "User not found" },
+        { status: 404 }
+      );
+    }
+
+    // Fetch only transactions for the authenticated user
+    const transactions = await Transaction.find({ userId: user._id })
       .populate("userId", "username")
       .sort({ createdAt: -1 });
+
     return NextResponse.json({
       success: true,
       data: transactions,
@@ -24,20 +43,33 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    // Verify JWT token
+    const authResult = verifyToken(request);
+    if (!authResult.success) {
+      return unauthorizedResponse(authResult.error);
+    }
+
     await dbConnect();
     const body = await request.json();
-    const { userId, amount, description, date } = body;
+    const { amount, description, category, state, incoming, date } = body;
 
-    // Validate userId
-    if (!userId) {
+    // Validate required fields
+    if (amount === undefined || amount === null) {
       return NextResponse.json(
-        { success: false, error: "userId is required" },
+        { success: false, error: "amount is required" },
         { status: 400 }
       );
     }
 
-    // Check if user exists
-    const user = await User.findById(userId);
+    if (incoming === undefined || incoming === null) {
+      return NextResponse.json(
+        { success: false, error: "incoming is required" },
+        { status: 400 }
+      );
+    }
+
+    // Get user from token
+    const user = await User.findOne({ username: authResult.payload!.username });
     if (!user) {
       return NextResponse.json(
         { success: false, error: "User not found" },
@@ -47,9 +79,12 @@ export async function POST(request: Request) {
 
     // Create transaction
     const transaction = await Transaction.create({
-      userId,
+      userId: user._id,
       amount,
       description,
+      category,
+      state: state || "pending",
+      incoming,
       date: date || new Date(),
     });
 
