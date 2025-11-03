@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
+import BrandLogo from "../components/welcome/BrandLogo";
 import LoginForm from "../components/LoginForm";
 import RegisterForm from "../components/RegisterForm";
 
@@ -8,57 +10,37 @@ export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Finance Bro</h1>
-          <p className="text-gray-600">
-            {isLogin ? "Welcome back!" : "Create your account"}
-          </p>
+    <div className="min-h-screen bg-[#1F3141] relative">
+      {/* Logo - centered on mobile, top-left on desktop */}
+      <div className="flex justify-center pt-8 pb-4 lg:absolute lg:top-12 lg:left-12 lg:justify-start lg:pt-0 lg:pb-0 z-10">
+        <BrandLogo />
+      </div>
+
+      {/* Main content area */}
+      <div className="min-h-screen flex flex-col lg:flex-row">
+        {/* Left Section - Branding and Illustration - Hidden on mobile */}
+        <div className="hidden lg:flex flex-1 flex-col items-center justify-center p-8 lg:p-12">
+          <div className="flex items-center justify-center">
+            <Image
+              src="/imgs/loginImg.png"
+              alt="Finance app illustration"
+              width={600}
+              height={600}
+              className="w-[500px] h-auto"
+              priority
+            />
+          </div>
         </div>
 
-        {/* Toggle buttons */}
-        <div className="flex rounded-md shadow-sm" role="group">
-          <button
-            type="button"
-            onClick={() => setIsLogin(true)}
-            className={`px-4 py-2 text-sm font-medium border rounded-l-lg ${
-              isLogin
-                ? "bg-blue-600 text-white border-blue-600"
-                : "bg-white text-gray-900 border-gray-200 hover:bg-gray-50"
-            }`}
-          >
-            Login
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsLogin(false)}
-            className={`px-4 py-2 text-sm font-medium border rounded-r-lg ${
-              !isLogin
-                ? "bg-green-600 text-white border-green-600"
-                : "bg-white text-gray-900 border-gray-200 hover:bg-gray-50"
-            }`}
-          >
-            Register
-          </button>
-        </div>
-
-        {/* Form */}
-        <div className="bg-white p-8 rounded-lg shadow-md">
-          {isLogin ? <LoginForm /> : <RegisterForm />}
-        </div>
-
-        {/* Footer */}
-        <div className="text-center text-sm text-gray-500">
-          <p>
-            {isLogin ? "Don't have an account? " : "Already have an account? "}
-            <button
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-blue-600 hover:text-blue-500 font-medium"
-            >
-              {isLogin ? "Register here" : "Login here"}
-            </button>
-          </p>
+        {/* Right Section - Form */}
+        <div className="flex-1 flex items-center justify-center p-8 lg:p-12">
+          <div className="w-full max-w-md">
+            {isLogin ? (
+              <LoginForm setIsLogin={setIsLogin} />
+            ) : (
+              <RegisterForm setIsLogin={setIsLogin} />
+            )}
+          </div>
         </div>
       </div>
     </div>

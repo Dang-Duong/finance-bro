@@ -5,10 +5,15 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 const registerSchema = z.object({
-  username: z.string().min(2).max(100).trim().toLowerCase(),
+  email: z.string().email({ message: "Invalid email address" }),
+  name: z.string().min(1, { message: "Name is required" }),
+  surname: z.string().min(1, { message: "Surname is required" }),
   password: z
     .string()
-    .min(6, { message: "Password must be at least 6 characters" }),
+    .min(6, { message: "Password must be at least 6 characters" })
+    .regex(/[A-Z]/, { message: "Password must contain at least 1 capital letter" }),
+  // Support legacy username for backwards compatibility
+  username: z.string().optional(),
 });
 
 export async function POST(req: Request) {
@@ -23,21 +28,37 @@ export async function POST(req: Request) {
       );
     }
 
-    const { username, password } = parsed.data;
+    const { email, name, surname, password, username } = parsed.data;
 
     await dbConnect();
 
-    const existingUser = await User.findOne({ username });
-    if (existingUser) {
+    // Check if email already exists
+    const existingUserByEmail = await User.findOne({ email });
+    if (existingUserByEmail) {
       return NextResponse.json(
-        { message: "User already exists" },
+        { message: "User with this email already exists" },
+        { status: 400 }
+      );
+    }
+
+    // Generate username from email if not provided
+    const generatedUsername = username || email.toLowerCase().split("@")[0];
+    
+    // Check if username already exists
+    const existingUserByUsername = await User.findOne({ username: generatedUsername });
+    if (existingUserByUsername) {
+      return NextResponse.json(
+        { message: "Username already exists" },
         { status: 400 }
       );
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await User.create({
-      username,
+      username: generatedUsername,
+      email,
+      name,
+      surname,
       password: hashedPassword,
       role: "user",
     });

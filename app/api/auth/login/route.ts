@@ -7,10 +7,19 @@ import jwt from "jsonwebtoken";
 
 export async function POST(req: Request) {
   try {
-    const { username, password } = await req.json();
+    const { username, email, password } = await req.json();
     await dbConnect();
 
-    const user = await User.findOne({ username });
+    // Support both username and email login
+    let user;
+    if (email) {
+      user = await User.findOne({ email });
+    } else if (username) {
+      user = await User.findOne({ username });
+    } else {
+      return new Response(JSON.stringify({ message: "Email or username required" }), { status: 400 });
+    }
+
     if (!user) {
       return new Response(JSON.stringify({ message: "User not found" }), { status: 404 });
     }
