@@ -27,8 +27,8 @@ export default function Navbar() {
         <Image
           src="/logo.svg"
           alt="FinanceBro logo"
-          width={350}
-          height={350}
+          width={150}   // reduced from 350
+          height={150}
           priority
         />
 
