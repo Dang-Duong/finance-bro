@@ -3,32 +3,78 @@ import User from "../../models/User";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-
-
 export async function POST(req: Request) {
   try {
-    const { username, password } = await req.json();
+    const { email, password } = await req.json();
     await dbConnect();
 
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ email });
     if (!user) {
-      return new Response(JSON.stringify({ message: "User not found" }), { status: 404 });
+      return new Response(JSON.stringify({ message: "User not found" }), {
+        status: 404,
+      });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return new Response(JSON.stringify({ message: "Invalid credentials" }), { status: 401 });
+      return new Response(JSON.stringify({ message: "Invalid credentials" }), {
+        status: 401,
+      });
     }
 
     const token = jwt.sign(
-      { username: user.username, role: user.role },
+      { username: user.username, email: user.email, userId: String(user._id) },
       process.env.JWT_SECRET as string,
       { expiresIn: "7d" }
     );
 
-    return new Response(JSON.stringify({ token, user: { username: user.username, role: user.role } }), { status: 200 });
+    // Uložení tokenu do databáze
+    user.tokens.push(token);
+    await user.save();
+
+    // Vytvoření response s cookies
+    const response = new Response(
+      JSON.stringify({
+        message: "Login successful",
+        user: {
+          username: user.username,
+          email: user.email,
+          name: user.name,
+          surname: user.surname,
+        },
+      }),
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    // Nastavení HTTP-only cookie s tokenem (bezpečné, nepřístupné z JavaScriptu)
+    const isProduction = process.env.NODE_ENV === "production";
+    const secureFlag = isProduction ? "Secure;" : "";
+
+    response.headers.append(
+      "Set-Cookie",
+      `token=${token}; HttpOnly; ${secureFlag} SameSite=Strict; Max-Age=${
+        7 * 24 * 60 * 60
+      }; Path=/`
+    );
+
+    // Volitelně můžete přidat i další cookie s user info (bez hesla)
+    response.headers.append(
+      "Set-Cookie",
+      `user=${encodeURIComponent(
+        JSON.stringify({ username: user.username, email: user.email })
+      )}; ${secureFlag} SameSite=Strict; Max-Age=${7 * 24 * 60 * 60}; Path=/`
+    );
+
+    return response;
   } catch (error) {
     console.error(error);
-    return new Response(JSON.stringify({ message: "Server error" }), { status: 500 });
+    return new Response(JSON.stringify({ message: "Server error" }), {
+      status: 500,
+    });
   }
 }

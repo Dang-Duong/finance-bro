@@ -2,13 +2,27 @@ import { NextResponse } from "next/server";
 import dbConnect from "../db/dbConnect";
 import Transaction from "../models/Transaction";
 import User from "../models/User";
+import { authenticateUser } from "../auth/middleware";
+import mongoose from "mongoose";
 
 export async function GET() {
   try {
+    // Ověření autentizace
+    const authUser = await authenticateUser();
+    if (!authUser) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     await dbConnect();
-    const transactions = await Transaction.find({})
+
+    // Získání pouze transakcí přihlášeného uživatele
+    const transactions = await Transaction.find({ userId: authUser.userId })
       .populate("userId", "username")
       .sort({ createdAt: -1 });
+
     return NextResponse.json({
       success: true,
       data: transactions,
@@ -24,17 +38,21 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    await dbConnect();
-    const body = await request.json();
-    const { userId, amount, description, date } = body;
-
-    // Validate userId
-    if (!userId) {
+    // Ověření autentizace
+    const authUser = await authenticateUser();
+    if (!authUser) {
       return NextResponse.json(
-        { success: false, error: "userId is required" },
-        { status: 400 }
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
       );
     }
+
+    await dbConnect();
+    const body = await request.json();
+    const { amount, description, incoming, date } = body;
+
+    // Použití userId z autentizovaného uživatele
+    const userId = authUser.userId;
 
     // Check if user exists
     const user = await User.findById(userId);
@@ -50,11 +68,14 @@ export async function POST(request: Request) {
       userId,
       amount,
       description,
+      incoming,
       date: date || new Date(),
     });
 
     // Add transaction to user's transactions array
-    user.transactions.push(transaction._id);
+    (user.transactions as mongoose.Types.ObjectId[]).push(
+      transaction._id as mongoose.Types.ObjectId
+    );
     await user.save();
 
     return NextResponse.json(
