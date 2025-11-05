@@ -3,16 +3,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Geist } from "next/font/google"; 
-
-// lokální použítí fontu
-const geist = Geist({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
 
 const navItems = [
-  { label: "Home Page", href: "/home" },
+  { label: "Home Page", href: "/dashboard" },
   { label: "Transaction", href: "/transaction" },
   { label: "Budget", href: "/budget" },
   { label: "Savings", href: "/savings" },
@@ -29,9 +22,8 @@ export default function Navbar() {
   const activeClasses = "bg-white text-black border-white shadow";
 
   return (
-    <header className={`w-full bg-[#061E34] ${geist.className}`}> {/* ✅ font jen tady */}
+    <header className="w-full bg-[#061E34]">
       <div className="mx-auto flex items-center gap-12 px-6 py-3">
-        {/* Logo */}
         <Image
           src="/logo.svg"
           alt="FinanceBro logo"
@@ -40,13 +32,9 @@ export default function Navbar() {
           priority
         />
 
-        {/* Navigace */}
         <nav className="flex items-center gap-3">
           {navItems.map((item) => {
-            const isActive =
-              pathname === item.href ||
-              (item.href === "/home" &&
-                (pathname === "/" || pathname === "/dashboard"));
+            const isActive = pathname === item.href;
 
             return (
               <Link

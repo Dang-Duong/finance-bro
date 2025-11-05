@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import Navbar from "../components/Navbar";
 
 export default function BudgetPage() {
   useEffect(() => {
@@ -12,11 +11,8 @@ export default function BudgetPage() {
   }, []);
 
   return (
-    <>
-      <Navbar />
-      <main className="min-h-screen bg-[#061E34] text-white p-6">
-        <h1 className="text-2xl font-semibold">Dočasná stránka Budget</h1>
-      </main>
-    </>
+    <main className="min-h-screen bg-[#061E34] text-white p-6">
+      <h1 className="text-2xl font-semibold">Dočasná stránka Budget</h1>
+    </main>
   );
 }
