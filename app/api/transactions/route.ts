@@ -5,7 +5,7 @@ import User from "../models/User";
 import { authenticateUser } from "../auth/middleware";
 import mongoose from "mongoose";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     // Ověření autentizace
     const authUser = await authenticateUser();
@@ -65,7 +65,7 @@ export async function POST(request: Request) {
 
     // Create transaction
     const transaction = await Transaction.create({
-      userId,
+      userId: user._id,
       amount,
       description,
       incoming,

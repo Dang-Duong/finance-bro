@@ -15,7 +15,7 @@ export default function Dashboard() {
 
     if (!token) {
       // není přihlášen → redirect na login
-      window.location.href = "/auth";
+      window.location.href = "/login";
       return;
     }
 
@@ -30,11 +30,11 @@ export default function Dashboard() {
     <div className="p-6">
       <h1 className="text-xl">Vítej, {user.username}</h1>
       <button
-        className="mt-4 bg-red-500 text-white px-4 py-2 rounded"
+        className="mt-4 bg-danger text-white px-4 py-2 rounded"
         onClick={() => {
           localStorage.removeItem("token");
           localStorage.removeItem("user");
-          window.location.href = "/auth";
+          window.location.href = "/login";
         }}
       >
         Odhlásit se
