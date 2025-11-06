@@ -1,6 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import AccountBalance from "@/components/dashboard/AccountBalance";
+import ExpensesVsIncomesSummary from "@/components/dashboard/ExpensesVsIncomesSummary";
+import ExpensesVsIncomesChart from "@/components/dashboard/ExpensesVsIncomesChart";
+import Transactions from "@/components/dashboard/Transactions";
+import SpendByCategory from "@/components/dashboard/SpendByCategory";
 
 type User = {
   username: string;
@@ -25,21 +30,34 @@ export default function Dashboard() {
     }
   }, []);
 
-  if (!user) return <p>Načítám...</p>;
+  if (!user) return <p className="p-6 text-white">Načítám...</p>;
 
   return (
-    <main className="p-6">
-      <h1 className="text-xl">Vítej, {user.username}</h1>
-      <button
-        className="mt-4 bg-danger text-white px-4 py-2 rounded"
-        onClick={() => {
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
-          window.location.href = "/login";
-        }}
-      >
-        Odhlásit se
-      </button>
+    <main className="min-h-screen bg-primary-dark p-6">
+      <div className="mx-auto max-w-7xl">
+        {/* Top Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          <div className="lg:col-span-1">
+            <AccountBalance />
+          </div>
+          <div className="lg:col-span-1">
+            <ExpensesVsIncomesSummary />
+          </div>
+          <div className="lg:col-span-1">
+            <ExpensesVsIncomesChart />
+          </div>
+        </div>
+
+        {/* Bottom Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div>
+            <Transactions />
+          </div>
+          <div>
+            <SpendByCategory />
+          </div>
+        </div>
+      </div>
     </main>
   );
 }
