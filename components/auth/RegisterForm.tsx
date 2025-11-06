@@ -4,8 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import EnvelopeIcon from "../icons/EnvelopeIcon";
-import LockIcon from "../icons/LockIcon";
 import UserIcon from "../icons/UserIcon";
+import EyeIcon from "../icons/EyeIcon";
+import EyeOffIcon from "../icons/EyeOffIcon";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -13,6 +14,8 @@ export default function RegisterForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -152,7 +155,7 @@ export default function RegisterForm() {
           </label>
           <div className="relative">
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -162,7 +165,18 @@ export default function RegisterForm() {
             />
             {/* Dark mode input: bg-gray-700 border-gray-600 text-white placeholder-gray-400 */}
             <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-              <LockIcon />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="focus:outline-none hover:text-gray-600 transition-colors"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? (
+                  <EyeOffIcon className="w-5 h-5 text-gray-400" />
+                ) : (
+                  <EyeIcon className="w-5 h-5 text-gray-400" />
+                )}
+              </button>
             </div>
           </div>
         </div>
@@ -177,7 +191,7 @@ export default function RegisterForm() {
           </label>
           <div className="relative">
             <input
-              type="password"
+              type={showConfirmPassword ? "text" : "password"}
               id="confirm-password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
@@ -187,7 +201,20 @@ export default function RegisterForm() {
             />
             {/* Dark mode input: bg-gray-700 border-gray-600 text-white placeholder-gray-400 */}
             <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-              <LockIcon />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="focus:outline-none hover:text-gray-600 transition-colors"
+                aria-label={
+                  showConfirmPassword ? "Hide password" : "Show password"
+                }
+              >
+                {showConfirmPassword ? (
+                  <EyeOffIcon className="w-5 h-5 text-gray-400" />
+                ) : (
+                  <EyeIcon className="w-5 h-5 text-gray-400" />
+                )}
+              </button>
             </div>
           </div>
         </div>
@@ -206,8 +233,8 @@ export default function RegisterForm() {
         <div
           className={`mt-4 p-3 rounded-lg text-sm ${
             message.includes("successful")
-              ? "bg-success-bg text-success-text"
-              : "bg-error-bg text-error-text"
+              ? "bg-[var(--color-success-bg)] text-[var(--color-success-text)]"
+              : "bg-[var(--color-error-bg)] text-[var(--color-error-text)]"
           }`}
         >
           {/* Dark mode message: bg-green-900/50 text-green-300 border border-green-700 | bg-red-900/50 text-red-300 border border-red-700 */}

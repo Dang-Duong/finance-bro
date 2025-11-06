@@ -6,12 +6,12 @@ export default function BudgetPage() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      window.location.href = "/auth";
+      window.location.href = "/login";
     }
   }, []);
 
   return (
-    <main className="min-h-screen bg-[#061E34] text-white p-6">
+    <main className="min-h-screen bg-navbar-bg text-white p-6">
       <h1 className="text-2xl font-semibold">Dočasná stránka Budget</h1>
     </main>
   );

@@ -10,6 +10,11 @@
   --color-primary-dark: #1f3141;
   --color-primary-gradient: rgba(10, 102, 232, 0.25);
 
+  /* Navigation Colors */
+  --color-navbar-bg: #061e34;
+  --color-nav-inactive: #0e304c;
+  --color-nav-inactive-hover: #153a5a;
+
   /* Status Colors */
   --color-success-bg: #dcfce7; /* green-100 */
   --color-success-text: #15803d; /* green-700 */
@@ -37,6 +42,11 @@
   --color-primary: var(--color-primary);
   --color-primary-hover: var(--color-primary-hover);
   --color-primary-dark: var(--color-primary-dark);
+
+  /* Navigation Colors - Tailwind Theme */
+  --color-navbar-bg: var(--color-navbar-bg);
+  --color-nav-inactive: var(--color-nav-inactive);
+  --color-nav-inactive-hover: var(--color-nav-inactive-hover);
 
   /* Status Colors - Tailwind Theme */
   --color-success-bg: var(--color-success-bg);

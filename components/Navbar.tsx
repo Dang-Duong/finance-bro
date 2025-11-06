@@ -18,16 +18,16 @@ export default function Navbar() {
   const baseButtonClasses =
     "rounded-full px-6 py-2 text-sm font-medium border transition-all";
   const inactiveClasses =
-    "bg-[#0E304C] text-gray-100 border-transparent hover:bg-[#153A5A]";
+    "bg-nav-inactive text-gray-100 border-transparent hover:bg-nav-inactive-hover";
   const activeClasses = "bg-white text-black border-white shadow";
 
   return (
-    <header className="w-full bg-[#061E34]">
+    <header className="w-full bg-navbar-bg">
       <div className="mx-auto flex items-center gap-12 px-6 py-3">
         <Image
-          src="/logo.svg"
+          src="/Logo.svg"
           alt="FinanceBro logo"
-          width={150}   // reduced from 350
+          width={150} // reduced from 350
           height={150}
           priority
         />

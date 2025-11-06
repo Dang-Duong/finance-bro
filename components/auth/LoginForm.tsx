@@ -3,11 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import EnvelopeIcon from "../icons/EnvelopeIcon";
-import LockIcon from "../icons/LockIcon";
+import EyeIcon from "../icons/EyeIcon";
+import EyeOffIcon from "../icons/EyeOffIcon";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -81,7 +83,7 @@ export default function LoginForm() {
           </label>
           <div className="relative">
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -90,7 +92,18 @@ export default function LoginForm() {
               placeholder="6+ Characters, 1 Capital letter"
             />
             <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-              <LockIcon />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="focus:outline-none hover:text-gray-600 transition-colors"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? (
+                  <EyeOffIcon className="w-5 h-5 text-gray-400" />
+                ) : (
+                  <EyeIcon className="w-5 h-5 text-gray-400" />
+                )}
+              </button>
             </div>
           </div>
         </div>
