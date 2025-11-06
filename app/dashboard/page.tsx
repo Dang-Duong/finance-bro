@@ -1,5 +1,7 @@
 "use client";
+
 import { useEffect, useState } from "react";
+import Navbar from "../components/Navbar"; 
 
 type User = {
   username: string;
@@ -27,18 +29,21 @@ export default function Dashboard() {
   if (!user) return <p>Načítám...</p>;
 
   return (
-    <div className="p-6">
-      <h1 className="text-xl">Vítej, {user.username}</h1>
-      <button
-        className="mt-4 bg-danger text-white px-4 py-2 rounded"
-        onClick={() => {
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
-          window.location.href = "/login";
-        }}
-      >
-        Odhlásit se
-      </button>
-    </div>
+    <>
+      <Navbar />
+      <main className="p-6">
+        <h1 className="text-xl">Vítej, {user.username}</h1>
+        <button
+          className="mt-4 bg-red-500 text-white px-4 py-2 rounded"
+          onClick={() => {
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            window.location.href = "/auth";
+          }}
+        >
+          Odhlásit se
+        </button>
+      </main>
+    </>
   );
 }
