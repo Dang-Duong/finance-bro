@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import dbConnect from "../../db/dbConnect";
 import Transaction from "../../models/Transaction";
 import User from "../../models/User";
-import { verifyToken, unauthorizedResponse } from "../../utils/auth";
+import { authenticateUser } from "../../auth/middleware";
 import mongoose from "mongoose";
 
 export async function GET(
@@ -10,10 +10,13 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Verify JWT token
-    const authResult = verifyToken(request);
-    if (!authResult.success) {
-      return unauthorizedResponse(authResult.error);
+    // Ověření autentizace
+    const authUser = await authenticateUser();
+    if (!authUser) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
     }
 
     const { id } = await params;
@@ -27,15 +30,6 @@ export async function GET(
     }
 
     await dbConnect();
-
-    // Get user to verify ownership
-    const user = await User.findOne({ username: authResult.payload!.username });
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: "User not found" },
-        { status: 404 }
-      );
-    }
 
     // Find transaction and verify it belongs to the user
     const transaction = await Transaction.findById(id).populate(
@@ -51,7 +45,7 @@ export async function GET(
     }
 
     // Check if transaction belongs to the authenticated user
-    if (transaction.userId._id.toString() !== user._id.toString()) {
+    if (transaction.userId._id.toString() !== authUser.userId) {
       return NextResponse.json(
         { success: false, error: "Unauthorized to access this transaction" },
         { status: 403 }
@@ -76,10 +70,13 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Verify JWT token
-    const authResult = verifyToken(request);
-    if (!authResult.success) {
-      return unauthorizedResponse(authResult.error);
+    // Ověření autentizace
+    const authUser = await authenticateUser();
+    if (!authUser) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
     }
 
     const { id } = await params;
@@ -94,15 +91,6 @@ export async function PUT(
 
     await dbConnect();
 
-    // Get user to verify ownership
-    const user = await User.findOne({ username: authResult.payload!.username });
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: "User not found" },
-        { status: 404 }
-      );
-    }
-
     // Find transaction and verify it belongs to the user
     const transaction = await Transaction.findById(id);
 
@@ -114,7 +102,7 @@ export async function PUT(
     }
 
     // Check if transaction belongs to the authenticated user
-    if (transaction.userId.toString() !== user._id.toString()) {
+    if (transaction.userId.toString() !== authUser.userId) {
       return NextResponse.json(
         { success: false, error: "Unauthorized to update this transaction" },
         { status: 403 }
@@ -153,10 +141,13 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Verify JWT token
-    const authResult = verifyToken(request);
-    if (!authResult.success) {
-      return unauthorizedResponse(authResult.error);
+    // Ověření autentizace
+    const authUser = await authenticateUser();
+    if (!authUser) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
     }
 
     const { id } = await params;
@@ -171,15 +162,6 @@ export async function DELETE(
 
     await dbConnect();
 
-    // Get user to verify ownership
-    const user = await User.findOne({ username: authResult.payload!.username });
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: "User not found" },
-        { status: 404 }
-      );
-    }
-
     // Find transaction and verify it belongs to the user
     const transaction = await Transaction.findById(id);
 
@@ -191,7 +173,7 @@ export async function DELETE(
     }
 
     // Check if transaction belongs to the authenticated user
-    if (transaction.userId.toString() !== user._id.toString()) {
+    if (transaction.userId.toString() !== authUser.userId) {
       return NextResponse.json(
         { success: false, error: "Unauthorized to delete this transaction" },
         { status: 403 }
@@ -199,10 +181,13 @@ export async function DELETE(
     }
 
     // Remove transaction from user's transactions array
-    user.transactions = user.transactions.filter(
-      (transactionId) => transactionId.toString() !== id
-    );
-    await user.save();
+    const user = await User.findById(authUser.userId);
+    if (user) {
+      (user.transactions as mongoose.Types.ObjectId[]) = (
+        user.transactions as mongoose.Types.ObjectId[]
+      ).filter((transactionId) => transactionId.toString() !== id);
+      await user.save();
+    }
 
     // Delete the transaction
     await Transaction.findByIdAndDelete(id);
