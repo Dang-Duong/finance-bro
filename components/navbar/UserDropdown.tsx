@@ -73,10 +73,8 @@ export default function UserDropdown() {
   };
 
   const getUserDisplayName = () => {
-    if (user?.name && user?.surname) {
-      return `${user.name} ${user.surname}`;
-    }
-    return user?.username || "User";
+    if (!user?.username) return "User";
+    return user.username.charAt(0).toUpperCase() + user.username.slice(1);
   };
 
   return (

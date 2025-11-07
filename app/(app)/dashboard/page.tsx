@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import AccountBalance from "@/components/dashboard/AccountBalance";
-import ExpensesVsIncomesSummary from "@/components/dashboard/ExpensesVsIncomesSummary";
-import ExpensesVsIncomesChart from "@/components/dashboard/ExpensesVsIncomesChart";
+import ExpensesVsIncomes from "@/components/dashboard/ExpensesVsIncomes";
 import Transactions from "@/components/dashboard/Transactions";
 import SpendByCategory from "@/components/dashboard/SpendByCategory";
 
@@ -40,11 +39,8 @@ export default function Dashboard() {
           <div className="lg:col-span-1">
             <AccountBalance />
           </div>
-          <div className="lg:col-span-1">
-            <ExpensesVsIncomesSummary />
-          </div>
-          <div className="lg:col-span-1">
-            <ExpensesVsIncomesChart />
+          <div className="lg:col-span-2">
+            <ExpensesVsIncomes />
           </div>
         </div>
 
