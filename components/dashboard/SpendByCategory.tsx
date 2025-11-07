@@ -79,7 +79,7 @@ export default function SpendByCategory() {
                 animationDuration={1000}
                 {...(activeIndex !== null && {
                   activeIndex: activeIndex,
-                  activeShape: (props: any) => {
+                  activeShape: (props: unknown) => {
                     const {
                       cx,
                       cy,
@@ -88,7 +88,15 @@ export default function SpendByCategory() {
                       startAngle,
                       endAngle,
                       fill,
-                    } = props;
+                    } = props as {
+                      cx: number;
+                      cy: number;
+                      innerRadius: number;
+                      outerRadius: number;
+                      startAngle: number;
+                      endAngle: number;
+                      fill: string;
+                    };
                     return (
                       <Sector
                         cx={cx}

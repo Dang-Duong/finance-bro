@@ -38,7 +38,7 @@ export default function LoginForm() {
       } else {
         setMessage(data.error || data.message || "Login failed");
       }
-    } catch (error) {
+    } catch {
       setMessage(`Network error. Please try again.`);
     } finally {
       setLoading(false);
@@ -130,7 +130,7 @@ export default function LoginForm() {
       )}
 
       <p className="mt-6 text-center text-sm text-gray-600">
-        Don't have any account?{" "}
+        Don&apos;t have any account?{" "}
         <Link
           href="/signup"
           className="text-primary font-medium hover:underline"

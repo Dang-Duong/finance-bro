@@ -79,7 +79,7 @@ export default function RegisterForm() {
       } else {
         setMessage(data.message || data.error || "Registration failed");
       }
-    } catch (error) {
+    } catch {
       setMessage("Network error. Please try again.");
     } finally {
       setLoading(false);

@@ -5,7 +5,7 @@ import User from "../models/User";
 import { authenticateUser } from "../auth/middleware";
 import mongoose from "mongoose";
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     // Ověření autentizace
     const authUser = await authenticateUser();
