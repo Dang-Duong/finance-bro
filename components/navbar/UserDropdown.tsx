@@ -21,7 +21,9 @@ export default function UserDropdown() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch("/api/auth/verify");
+        const response = await fetch("/api/auth/verify", {
+          credentials: "include",
+        });
         if (response.ok) {
           const data = await response.json();
           if (data.valid && data.user) {
@@ -57,6 +59,7 @@ export default function UserDropdown() {
     try {
       const response = await fetch("/api/auth/logout", {
         method: "POST",
+        credentials: "include",
       });
 
       if (response.ok) {

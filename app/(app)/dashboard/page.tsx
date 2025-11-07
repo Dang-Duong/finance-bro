@@ -1,35 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useAuth } from "@/lib/auth";
 import AccountBalance from "@/components/dashboard/AccountBalance";
 import ExpensesVsIncomes from "@/components/dashboard/ExpensesVsIncomes";
 import Transactions from "@/components/dashboard/Transactions";
 import SpendByCategory from "@/components/dashboard/SpendByCategory";
 
-type User = {
-  username: string;
-  // add other user fields as needed
-};
-
 export default function Dashboard() {
-  const [user, setUser] = useState<User | null>(null);
+  const { user, loading } = useAuth();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const userData = localStorage.getItem("user");
-
-    if (!token) {
-      // není přihlášen → redirect na login
+    if (!loading && !user) {
       window.location.href = "/login";
-      return;
     }
+  }, [user, loading]);
 
-    if (userData) {
-      setUser(JSON.parse(userData));
-    }
-  }, []);
-
-  if (!user) return <p className="p-6 text-white">Načítám...</p>;
+  if (loading || !user) return <p className="p-6 text-white">Loading...</p>;
 
   return (
     <main className="min-h-screen bg-primary-dark p-6">

@@ -1,13 +1,17 @@
 "use client";
 
 import { useEffect } from "react";
+import { checkAuth } from "@/lib/auth";
 
 export default function TransactionPage() {
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      window.location.href = "/login";
-    }
+    const verifyAuth = async () => {
+      const user = await checkAuth();
+      if (!user) {
+        window.location.href = "/login";
+      }
+    };
+    verifyAuth();
   }, []);
 
   return (

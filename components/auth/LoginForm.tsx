@@ -24,14 +24,13 @@ export default function LoginForm() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
         setMessage("Login successful!");
         // Redirect to dashboard
         window.location.href = "/dashboard";
