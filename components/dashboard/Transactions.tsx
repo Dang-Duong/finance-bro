@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
+import AddTransactionModal from "@/components/transactions/AddTransactionModal";
 
 type Transaction = {
   date: string;
@@ -49,80 +51,124 @@ const mockTransactions: Transaction[] = [
 ];
 
 export default function Transactions() {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.3 }}
-      className="bg-white/5 rounded-lg p-6 border border-white/10"
-    >
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold text-white">Transactions</h2>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-hover transition-colors"
-        >
-          Add transactions
-        </motion.button>
-      </div>
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-white/10">
-              <th className="text-left py-3 px-2 text-sm text-white/60 font-medium">
-                Date
-              </th>
-              <th className="text-left py-3 px-2 text-sm text-white/60 font-medium">
-                Category
-              </th>
-              <th className="text-left py-3 px-2 text-sm text-white/60 font-medium">
-                Type
-              </th>
-              <th className="text-left py-3 px-2 text-sm text-white/60 font-medium">
-                Amount
-              </th>
-              <th className="text-left py-3 px-2 text-sm text-white/60 font-medium">
-                Description
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {mockTransactions.map((transaction, index) => (
-              <motion.tr
-                key={index}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3, delay: 0.4 + index * 0.1 }}
-                className="border-b border-white/5 hover:bg-white/5 transition-colors"
-              >
-                <td className="py-3 px-2 text-sm text-white/80">
-                  {transaction.date}
-                </td>
-                <td className="py-3 px-2 text-sm text-white/80">
-                  {transaction.category}
-                </td>
-                <td className="py-3 px-2 text-sm text-white/80">
-                  {transaction.type}
-                </td>
-                <td
-                  className={`py-3 px-2 text-sm font-semibold ${
-                    transaction.type === "Income"
-                      ? "text-green-500"
-                      : "text-red-500"
-                  }`}
+  const handleSubmit = async (data: {
+    category: string;
+    type: "Income" | "Expense";
+    amount: number;
+    description: string;
+    date: Date;
+  }) => {
+    try {
+      const response = await fetch("/api/transactions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          amount: data.amount,
+          description: data.description,
+          incoming: data.type === "Income",
+          date: data.date.toISOString(),
+          category: data.category,
+        }),
+      });
+
+      if (response.ok) {
+        setIsModalOpen(false);
+        // Optionally refresh the page or update the transaction list
+        window.location.reload();
+      } else {
+        console.error("Failed to create transaction");
+      }
+    } catch (error) {
+      console.error("Error creating transaction:", error);
+    }
+  };
+
+  return (
+    <>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        className="bg-white/5 rounded-lg p-6 border border-white/10"
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-white">Transactions</h2>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setIsModalOpen(true)}
+            className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-hover transition-colors"
+          >
+            Add transactions
+          </motion.button>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-white/10">
+                <th className="text-left py-3 px-2 text-sm text-white/60 font-medium">
+                  Date
+                </th>
+                <th className="text-left py-3 px-2 text-sm text-white/60 font-medium">
+                  Category
+                </th>
+                <th className="text-left py-3 px-2 text-sm text-white/60 font-medium">
+                  Type
+                </th>
+                <th className="text-left py-3 px-2 text-sm text-white/60 font-medium">
+                  Amount
+                </th>
+                <th className="text-left py-3 px-2 text-sm text-white/60 font-medium">
+                  Description
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {mockTransactions.map((transaction, index) => (
+                <motion.tr
+                  key={index}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: 0.4 + index * 0.1 }}
+                  className="border-b border-white/5 hover:bg-white/5 transition-colors"
                 >
-                  {transaction.amount.toLocaleString("cs-CZ")} CZK
-                </td>
-                <td className="py-3 px-2 text-sm text-white/80">
-                  {transaction.description}
-                </td>
-              </motion.tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </motion.div>
+                  <td className="py-3 px-2 text-sm text-white/80">
+                    {transaction.date}
+                  </td>
+                  <td className="py-3 px-2 text-sm text-white/80">
+                    {transaction.category}
+                  </td>
+                  <td className="py-3 px-2 text-sm text-white/80">
+                    {transaction.type}
+                  </td>
+                  <td
+                    className={`py-3 px-2 text-sm font-semibold ${
+                      transaction.type === "Income"
+                        ? "text-green-500"
+                        : "text-red-500"
+                    }`}
+                  >
+                    {transaction.amount.toLocaleString("cs-CZ")} CZK
+                  </td>
+                  <td className="py-3 px-2 text-sm text-white/80">
+                    {transaction.description}
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </motion.div>
+      <AddTransactionModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleSubmit}
+      />
+    </>
   );
 }
