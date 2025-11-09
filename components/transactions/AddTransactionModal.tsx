@@ -27,7 +27,7 @@ interface AddTransactionModalProps {
     amount: number;
     description: string;
     date: Date;
-  }) => void;
+  }) => Promise<void>;
 }
 
 export default function AddTransactionModal({
@@ -41,24 +41,32 @@ export default function AddTransactionModal({
   const [description, setDescription] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    e.stopPropagation();
+
     if (!selectedCategory || !amount) {
-      return;
+      return false;
     }
-    onSubmit({
-      category: selectedCategory,
-      type: selectedType,
-      amount: parseFloat(amount),
-      description,
-      date: selectedDate,
-    });
-    // Reset form
-    setSelectedCategory("");
-    setSelectedType("Income");
-    setAmount("");
-    setDescription("");
-    setSelectedDate(new Date());
+
+    try {
+      await onSubmit({
+        category: selectedCategory,
+        type: selectedType,
+        amount: parseFloat(amount),
+        description,
+        date: selectedDate,
+      });
+      setSelectedCategory("");
+      setSelectedType("Income");
+      setAmount("");
+      setDescription("");
+      setSelectedDate(new Date());
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    }
+
+    return false;
   };
 
   if (!isOpen) return null;
@@ -67,14 +75,12 @@ export default function AddTransactionModal({
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
           />
-          {/* Modal */}
           <div
             className="fixed inset-0 z-50 flex items-start lg:items-center justify-center p-0 lg:p-4"
             onClick={onClose}
@@ -87,7 +93,6 @@ export default function AddTransactionModal({
               className="bg-[#1a2b3d] rounded-none lg:rounded-2xl w-full lg:max-w-4xl h-full lg:h-auto lg:max-h-[90vh] flex flex-col lg:flex-row shadow-2xl relative overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Close Button */}
               <button
                 onClick={onClose}
                 className="absolute top-4 right-4 z-20 p-2.5 text-white/90 hover:text-white active:bg-white/20 hover:bg-white/10 rounded-lg transition-colors touch-manipulation bg-white/10 lg:bg-transparent"
@@ -96,7 +101,6 @@ export default function AddTransactionModal({
                 <CloseIcon className="w-6 h-6" />
               </button>
 
-              {/* Left Section - Form */}
               <div className="flex-1 p-4 lg:p-8 overflow-y-auto min-h-0 max-h-[50vh] lg:max-h-none">
                 <h2 className="text-xl lg:text-2xl font-semibold text-white mb-4 lg:mb-6 pr-10">
                   Add transactions
@@ -105,8 +109,8 @@ export default function AddTransactionModal({
                 <form
                   onSubmit={handleSubmit}
                   className="space-y-3 lg:space-y-6"
+                  noValidate
                 >
-                  {/* Category */}
                   <div>
                     <label className="block text-sm font-medium text-white/80 mb-2 lg:mb-3">
                       Category
@@ -129,7 +133,6 @@ export default function AddTransactionModal({
                     </div>
                   </div>
 
-                  {/* Type */}
                   <div>
                     <label className="block text-sm font-medium text-white/80 mb-2 lg:mb-3">
                       Type
@@ -140,8 +143,8 @@ export default function AddTransactionModal({
                         onClick={() => setSelectedType("Income")}
                         className={`flex-1 px-4 lg:px-6 py-2 rounded-full text-sm font-medium transition-all touch-manipulation active:scale-95 ${
                           selectedType === "Income"
-                            ? "bg-white text-[#1a2b3d] border-2 border-white"
-                            : "bg-transparent text-white/70 border-2 border-white/30 hover:border-white/50 active:border-white/70"
+                            ? "bg-green-500 text-white border-2 border-green-500"
+                            : "bg-transparent text-green-400 border-2 border-green-500/50 hover:border-green-500/70 active:border-green-500"
                         }`}
                       >
                         Income
@@ -151,8 +154,8 @@ export default function AddTransactionModal({
                         onClick={() => setSelectedType("Expense")}
                         className={`flex-1 px-4 lg:px-6 py-2 rounded-full text-sm font-medium transition-all touch-manipulation active:scale-95 ${
                           selectedType === "Expense"
-                            ? "bg-white text-[#1a2b3d] border-2 border-white"
-                            : "bg-transparent text-white/70 border-2 border-white/30 hover:border-white/50 active:border-white/70"
+                            ? "bg-red-500 text-white border-2 border-red-500"
+                            : "bg-transparent text-red-400 border-2 border-red-500/50 hover:border-red-500/70 active:border-red-500"
                         }`}
                       >
                         Expense
@@ -160,7 +163,6 @@ export default function AddTransactionModal({
                     </div>
                   </div>
 
-                  {/* Amount */}
                   <div>
                     <label className="block text-sm font-medium text-white/80 mb-2 lg:mb-3">
                       Amount
@@ -175,7 +177,6 @@ export default function AddTransactionModal({
                     />
                   </div>
 
-                  {/* Description */}
                   <div>
                     <label className="block text-sm font-medium text-white/80 mb-2 lg:mb-3">
                       Description
@@ -189,7 +190,6 @@ export default function AddTransactionModal({
                     />
                   </div>
 
-                  {/* Submit Button */}
                   <button
                     type="submit"
                     className="w-full py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary-hover active:bg-primary-hover transition-colors mt-4 lg:mt-8 touch-manipulation text-base lg:text-sm"
@@ -199,7 +199,6 @@ export default function AddTransactionModal({
                 </form>
               </div>
 
-              {/* Right Section - Calendar */}
               <div className="flex-1 p-4 lg:p-8 pt-6 lg:pt-16 border-t lg:border-t-0 lg:border-l border-white/10 bg-[#152431] overflow-y-auto min-h-0 max-h-[50vh] lg:max-h-none">
                 <Calendar
                   selectedDate={selectedDate}

@@ -5,15 +5,6 @@ import { motion } from "framer-motion";
 import AddTransactionModal from "@/components/transactions/AddTransactionModal";
 import { useTransactions } from "@/lib/transactionsContext";
 
-type Transaction = {
-  _id: string;
-  date: string | Date;
-  category?: string;
-  incoming: boolean;
-  amount: number;
-  description?: string;
-};
-
 export default function Transactions() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { transactions, loading, refreshTransactions } = useTransactions();
@@ -50,14 +41,16 @@ export default function Transactions() {
       });
 
       if (response.ok) {
+        await response.json();
         setIsModalOpen(false);
-        // Refresh all components using the context
         refreshTransactions();
       } else {
         console.error("Failed to create transaction");
+        alert("Failed to create transaction. Please try again.");
       }
     } catch (error) {
       console.error("Error creating transaction:", error);
+      alert("Error creating transaction. Please try again.");
     }
   };
 

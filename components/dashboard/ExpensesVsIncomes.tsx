@@ -50,51 +50,146 @@ export default function ExpensesVsIncomes() {
 
   const calculateChartData = () => {
     const now = new Date();
-    const data: { [key: string]: { expenses: number; incomes: number } } = {};
+    const data: { [key: string]: { expenses: number; incomes: number; label: string } } = {};
 
-    // Initialize last 12 months
-    for (let i = 11; i >= 0; i--) {
-      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-      data[key] = { expenses: 0, incomes: 0 };
-    }
-
-    // Process transactions
-    transactions.forEach((transaction) => {
-      const transactionDate = new Date(transaction.date);
-      const key = `${transactionDate.getFullYear()}-${String(transactionDate.getMonth() + 1).padStart(2, "0")}`;
-
-      if (data[key]) {
-        if (transaction.incoming) {
-          data[key].incomes += transaction.amount;
-        } else {
-          data[key].expenses += transaction.amount;
-        }
+    if (selectedPeriod === "Week") {
+      // Initialize last 7 days
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i);
+        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+        const dayName = date.toLocaleDateString("en-US", { weekday: "short" });
+        data[key] = { expenses: 0, incomes: 0, label: dayName };
       }
-    });
 
-    // Convert to chart data format
-    const chartDataArray: MonthData[] = Object.keys(data)
-      .map((key) => {
-        const [year, month] = key.split("-");
-        const monthIndex = parseInt(month) - 1;
-        return {
-          month: monthNames[monthIndex],
-          expenses: data[key].expenses,
-          incomes: data[key].incomes,
-          net: data[key].incomes - data[key].expenses,
-        };
-      })
-      .slice(-12); // Last 12 months
+      // Process transactions
+      transactions.forEach((transaction) => {
+        const transactionDate = new Date(transaction.date);
+        const key = `${transactionDate.getFullYear()}-${String(transactionDate.getMonth() + 1).padStart(2, "0")}-${String(transactionDate.getDate()).padStart(2, "0")}`;
 
-    setChartData(chartDataArray);
+        if (data[key]) {
+          if (transaction.incoming) {
+            data[key].incomes += transaction.amount;
+          } else {
+            data[key].expenses += transaction.amount;
+          }
+        }
+      });
+
+      // Convert to chart data format
+      const chartDataArray: MonthData[] = Object.keys(data)
+        .map((key) => {
+          return {
+            month: data[key].label,
+            expenses: data[key].expenses,
+            incomes: data[key].incomes,
+            net: data[key].incomes - data[key].expenses,
+          };
+        });
+
+      setChartData(chartDataArray);
+    } else if (selectedPeriod === "Month") {
+      // Initialize last 12 months
+      for (let i = 11; i >= 0; i--) {
+        const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+        data[key] = { expenses: 0, incomes: 0, label: monthNames[date.getMonth()] };
+      }
+
+      // Process transactions
+      transactions.forEach((transaction) => {
+        const transactionDate = new Date(transaction.date);
+        const key = `${transactionDate.getFullYear()}-${String(transactionDate.getMonth() + 1).padStart(2, "0")}`;
+
+        if (data[key]) {
+          if (transaction.incoming) {
+            data[key].incomes += transaction.amount;
+          } else {
+            data[key].expenses += transaction.amount;
+          }
+        }
+      });
+
+      // Convert to chart data format
+      const chartDataArray: MonthData[] = Object.keys(data)
+        .map((key) => {
+          return {
+            month: data[key].label,
+            expenses: data[key].expenses,
+            incomes: data[key].incomes,
+            net: data[key].incomes - data[key].expenses,
+          };
+        });
+
+      setChartData(chartDataArray);
+    } else if (selectedPeriod === "Year") {
+      // Initialize last 5 years
+      for (let i = 4; i >= 0; i--) {
+        const year = now.getFullYear() - i;
+        const key = `${year}`;
+        data[key] = { expenses: 0, incomes: 0, label: year.toString() };
+      }
+
+      // Process transactions
+      transactions.forEach((transaction) => {
+        const transactionDate = new Date(transaction.date);
+        const key = `${transactionDate.getFullYear()}`;
+
+        if (data[key]) {
+          if (transaction.incoming) {
+            data[key].incomes += transaction.amount;
+          } else {
+            data[key].expenses += transaction.amount;
+          }
+        }
+      });
+
+      // Convert to chart data format
+      const chartDataArray: MonthData[] = Object.keys(data)
+        .map((key) => {
+          return {
+            month: data[key].label,
+            expenses: data[key].expenses,
+            incomes: data[key].incomes,
+            net: data[key].incomes - data[key].expenses,
+          };
+        });
+
+      setChartData(chartDataArray);
+    }
   };
 
-  const yearlyTotal = chartData.reduce((sum, item) => sum + item.net, 0);
+  const periodTotal = chartData.reduce((sum, item) => sum + item.net, 0);
   const maxValue = Math.max(
     ...chartData.map((d) => Math.max(d.expenses, d.incomes)),
     10000
   );
+
+  const getPeriodLabel = () => {
+    if (selectedPeriod === "Week") return "this week";
+    if (selectedPeriod === "Month") return "this year";
+    return "overall";
+  };
+
+  const getDateRange = () => {
+    if (chartData.length === 0) return "No data";
+    if (selectedPeriod === "Week") {
+      const firstDate = new Date();
+      firstDate.setDate(firstDate.getDate() - 6);
+      const lastDate = new Date();
+      return `${firstDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${lastDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
+    } else if (selectedPeriod === "Month") {
+      const firstMonth = chartData[0].month;
+      const lastMonth = chartData[chartData.length - 1].month;
+      const currentYear = new Date().getFullYear();
+      const prevYear = currentYear - 1;
+      return `${firstMonth} ${prevYear} - ${lastMonth} ${currentYear}`;
+    } else {
+      const firstYear = chartData[0].month;
+      const lastYear = chartData[chartData.length - 1].month;
+      return `${firstYear} - ${lastYear}`;
+    }
+  };
 
   if (loading) {
     return (
@@ -119,11 +214,32 @@ export default function ExpensesVsIncomes() {
       transition={{ duration: 0.5, delay: 0.1 }}
       className="bg-white/5 rounded-lg p-6 border border-white/10 lg:col-span-2"
     >
-      <h2 className="text-xl font-semibold mb-4 text-white">
-        Expenses vs Incomes
-      </h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-semibold text-white">
+          Expenses vs Incomes
+        </h2>
+        
+        {/* Filter Buttons */}
+        <div className="flex gap-2">
+          {["Week", "Month", "Year"].map((period) => (
+            <motion.button
+              key={period}
+              onClick={() => setSelectedPeriod(period)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`px-4 py-1 text-sm rounded transition-colors ${
+                selectedPeriod === period
+                  ? "bg-white/20 text-white"
+                  : "bg-white/10 text-white/80 hover:bg-white/20"
+              }`}
+            >
+              {period}
+            </motion.button>
+          ))}
+        </div>
+      </div>
 
-      {/* Yearly Summary */}
+      {/* Period Summary */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -131,13 +247,13 @@ export default function ExpensesVsIncomes() {
         className="flex items-center gap-2 mb-6"
       >
         <span
-          className={`text-xl ${yearlyTotal >= 0 ? "text-green-500" : "text-red-500"}`}
+          className={`text-xl ${periodTotal >= 0 ? "text-green-500" : "text-red-500"}`}
         >
-          {yearlyTotal >= 0 ? "↑" : "↓"}
+          {periodTotal >= 0 ? "↑" : "↓"}
         </span>
         <span className="text-white font-semibold">
-          {yearlyTotal >= 0 ? "+" : ""}
-          {Math.abs(yearlyTotal).toLocaleString("en-US")} CZK this year
+          {periodTotal >= 0 ? "+" : ""}
+          {Math.abs(periodTotal).toLocaleString("en-US")} CZK {getPeriodLabel()}
         </span>
       </motion.div>
 
@@ -193,28 +309,8 @@ export default function ExpensesVsIncomes() {
             </div>
           </div>
 
-          <div className="text-sm text-white/60 mb-2">
-            {chartData.length > 0
-              ? `${chartData[0].month} ${new Date().getFullYear() - 1} - ${chartData[chartData.length - 1].month} ${new Date().getFullYear()}`
-              : "No data"}
-          </div>
-
-          <div className="flex gap-2 mb-4">
-            {["Week", "Month", "Year"].map((period) => (
-              <motion.button
-                key={period}
-                onClick={() => setSelectedPeriod(period)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className={`px-4 py-1 text-sm rounded transition-colors ${
-                  selectedPeriod === period
-                    ? "bg-white/20 text-white"
-                    : "bg-white/10 text-white/80 hover:bg-white/20"
-                }`}
-              >
-                {period}
-              </motion.button>
-            ))}
+          <div className="text-sm text-white/60 mb-4">
+            {getDateRange()}
           </div>
 
           <div className="h-64">

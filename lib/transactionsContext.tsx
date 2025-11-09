@@ -23,6 +23,7 @@ interface TransactionsContextType {
   loading: boolean;
   fetchTransactions: () => Promise<void>;
   refreshTransactions: () => void;
+  addTransaction: (transaction: Transaction) => void;
 }
 
 const TransactionsContext = createContext<TransactionsContextType | undefined>(
@@ -55,6 +56,10 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
     setRefreshTrigger((prev) => prev + 1);
   }, []);
 
+  const addTransaction = useCallback((transaction: Transaction) => {
+    setTransactions((prev) => [transaction, ...prev]);
+  }, []);
+
   useEffect(() => {
     fetchTransactions();
   }, [fetchTransactions, refreshTrigger]);
@@ -66,6 +71,7 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
         loading,
         fetchTransactions,
         refreshTransactions,
+        addTransaction,
       }}
     >
       {children}

@@ -292,7 +292,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
     });
   }, [position]);
 
-  const animateIcon = useCallback((_opening: boolean) => {
+  const animateIcon = useCallback(() => {
     // Icon removed - no animation needed
   }, []);
 
@@ -381,7 +381,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
       playClose();
     }
 
-    animateIcon(target);
+    animateIcon();
     animateColor(target);
     animateText(target);
   }, [
@@ -525,7 +525,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
                           setOpen(target);
                           onMenuClose?.();
                           playClose();
-                          animateIcon(target);
+                          animateIcon();
                           animateColor(target);
                           animateText(target);
                           setTimeout(() => {
