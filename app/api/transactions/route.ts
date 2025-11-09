@@ -49,7 +49,7 @@ export async function POST(request: Request) {
 
     await dbConnect();
     const body = await request.json();
-    const { amount, description, incoming, date } = body;
+    const { amount, description, incoming, date, category } = body;
 
     // Použití userId z autentizovaného uživatele
     const userId = authUser.userId;
@@ -69,7 +69,8 @@ export async function POST(request: Request) {
       amount,
       description,
       incoming,
-      date: date || new Date(),
+      date: date ? new Date(date) : new Date(),
+      category,
     });
 
     // Add transaction to user's transactions array
@@ -90,6 +91,43 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { success: false, error: "Failed to create transaction" },
       { status: 400 }
+    );
+  }
+}
+
+export async function DELETE() {
+  try {
+    // Ověření autentizace
+    const authUser = await authenticateUser();
+    if (!authUser) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    await dbConnect();
+
+    // Delete all transactions for the authenticated user
+    const result = await Transaction.deleteMany({ userId: authUser.userId });
+
+    // Clear transactions array from user
+    const user = await User.findById(authUser.userId);
+    if (user) {
+      user.transactions = [];
+      await user.save();
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: `Deleted ${result.deletedCount} transactions`,
+      deletedCount: result.deletedCount,
+    });
+  } catch (error) {
+    console.error("DELETE /api/transactions error:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to delete transactions" },
+      { status: 500 }
     );
   }
 }

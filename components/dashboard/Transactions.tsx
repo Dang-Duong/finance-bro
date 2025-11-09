@@ -3,55 +3,29 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import AddTransactionModal from "@/components/transactions/AddTransactionModal";
+import { useTransactions } from "@/lib/transactionsContext";
 
 type Transaction = {
-  date: string;
-  category: string;
-  type: "Expense" | "Income";
+  _id: string;
+  date: string | Date;
+  category?: string;
+  incoming: boolean;
   amount: number;
-  description: string;
+  description?: string;
 };
-
-const mockTransactions: Transaction[] = [
-  {
-    date: "5. August 2024",
-    category: "Food",
-    type: "Expense",
-    amount: 120,
-    description: "MC Donald",
-  },
-  {
-    date: "15. August 2024",
-    category: "Food",
-    type: "Expense",
-    amount: 280,
-    description: "Pizza",
-  },
-  {
-    date: "17. August 2024",
-    category: "Transport",
-    type: "Expense",
-    amount: 535,
-    description: "Gas station",
-  },
-  {
-    date: "23. August 2024",
-    category: "Netflix",
-    type: "Expense",
-    amount: 230,
-    description: "Subscription",
-  },
-  {
-    date: "23. August 2024",
-    category: "Work",
-    type: "Income",
-    amount: 50987,
-    description: "Salary",
-  },
-];
 
 export default function Transactions() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { transactions, loading, refreshTransactions } = useTransactions();
+
+  const formatDate = (date: string | Date) => {
+    const d = new Date(date);
+    return d.toLocaleDateString("en-US", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  };
 
   const handleSubmit = async (data: {
     category: string;
@@ -77,8 +51,8 @@ export default function Transactions() {
 
       if (response.ok) {
         setIsModalOpen(false);
-        // Optionally refresh the page or update the transaction list
-        window.location.reload();
+        // Refresh all components using the context
+        refreshTransactions();
       } else {
         console.error("Failed to create transaction");
       }
@@ -129,37 +103,49 @@ export default function Transactions() {
               </tr>
             </thead>
             <tbody>
-              {mockTransactions.map((transaction, index) => (
-                <motion.tr
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3, delay: 0.4 + index * 0.1 }}
-                  className="border-b border-white/5 hover:bg-white/5 transition-colors"
-                >
-                  <td className="py-3 px-2 text-sm text-white/80">
-                    {transaction.date}
+              {loading ? (
+                <tr>
+                  <td colSpan={5} className="py-8 text-center text-white/60">
+                    Loading transactions...
                   </td>
-                  <td className="py-3 px-2 text-sm text-white/80">
-                    {transaction.category}
+                </tr>
+              ) : transactions.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-8 text-center text-white/60">
+                    No transactions yet. Add your first transaction!
                   </td>
-                  <td className="py-3 px-2 text-sm text-white/80">
-                    {transaction.type}
-                  </td>
-                  <td
-                    className={`py-3 px-2 text-sm font-semibold ${
-                      transaction.type === "Income"
-                        ? "text-green-500"
-                        : "text-red-500"
-                    }`}
+                </tr>
+              ) : (
+                transactions.map((transaction, index) => (
+                  <motion.tr
+                    key={transaction._id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: 0.4 + index * 0.1 }}
+                    className="border-b border-white/5 hover:bg-white/5 transition-colors"
                   >
-                    {transaction.amount.toLocaleString("cs-CZ")} CZK
-                  </td>
-                  <td className="py-3 px-2 text-sm text-white/80">
-                    {transaction.description}
-                  </td>
-                </motion.tr>
-              ))}
+                    <td className="py-3 px-2 text-sm text-white/80">
+                      {formatDate(transaction.date)}
+                    </td>
+                    <td className="py-3 px-2 text-sm text-white/80">
+                      {transaction.category || "N/A"}
+                    </td>
+                    <td className="py-3 px-2 text-sm text-white/80">
+                      {transaction.incoming ? "Income" : "Expense"}
+                    </td>
+                    <td
+                      className={`py-3 px-2 text-sm font-semibold ${
+                        transaction.incoming ? "text-green-500" : "text-red-500"
+                      }`}
+                    >
+                      {transaction.amount.toLocaleString("cs-CZ")} CZK
+                    </td>
+                    <td className="py-3 px-2 text-sm text-white/80">
+                      {transaction.description || "N/A"}
+                    </td>
+                  </motion.tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

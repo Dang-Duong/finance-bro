@@ -46,6 +46,11 @@ const transactionSchema = new Schema<ITransactionDocument>(
       ref: "User",
       required: true,
     },
+    date: {
+      type: Date,
+      required: false,
+      default: Date.now,
+    },
   },
   { timestamps: true }
 );
