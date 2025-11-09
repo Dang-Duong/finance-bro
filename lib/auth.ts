@@ -40,7 +40,7 @@ export function useAuth(): AuthState {
           setUser(null);
           setError("Authentication failed");
         }
-      } catch (err) {
+      } catch (_err) {
         setUser(null);
         setError("Network error");
       } finally {

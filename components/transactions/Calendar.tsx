@@ -41,7 +41,7 @@ export default function Calendar({
   const getFirstDayOfMonth = (date: Date) => {
     const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
     // Get day of week (0 = Sunday, 1 = Monday, etc.)
-    let day = firstDay.getDay();
+    const day = firstDay.getDay();
     // Convert to Monday = 0 format
     return day === 0 ? 6 : day - 1;
   };
