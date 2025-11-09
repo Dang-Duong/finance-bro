@@ -19,7 +19,7 @@ export default function Dashboard() {
   if (loading || !user) return <p className="p-6 text-white">Loading...</p>;
 
   return (
-    <main className="min-h-screen bg-primary-dark p-6">
+    <main className="min-h-screen bg-primary-dark p-4 lg:p-6 pt-28 lg:pt-6">
       <div className="mx-auto max-w-7xl">
         {/* Top Row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
