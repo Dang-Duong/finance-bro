@@ -1,14 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import EnvelopeIcon from "./icons/EnvelopeIcon";
-import LockIcon from "./icons/LockIcon";
+import Link from "next/link";
+import EnvelopeIcon from "../icons/EnvelopeIcon";
+import LockIcon from "../icons/LockIcon";
 
-type Props = {
-  setIsLogin: (value: boolean) => void;
-};
-
-export default function LoginForm({ setIsLogin }: Props) {
+export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -101,7 +98,7 @@ export default function LoginForm({ setIsLogin }: Props) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-[#0A66E8] text-white py-3 px-4 rounded-lg font-medium hover:bg-[#0958d1] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-full bg-primary text-white py-3 px-4 rounded-lg font-medium hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {loading ? "Signing in..." : "Sign In"}
         </button>
@@ -111,8 +108,8 @@ export default function LoginForm({ setIsLogin }: Props) {
         <div
           className={`mt-4 p-3 rounded-lg text-sm ${
             message.includes("successful")
-              ? "bg-green-100 text-green-700"
-              : "bg-red-100 text-red-700"
+              ? "bg-success-bg text-success-text"
+              : "bg-error-bg text-error-text"
           }`}
         >
           {message}
@@ -121,12 +118,12 @@ export default function LoginForm({ setIsLogin }: Props) {
 
       <p className="mt-6 text-center text-sm text-gray-600">
         Don't have any account?{" "}
-        <button
-          onClick={() => setIsLogin(false)}
-          className="text-[#0A66E8] font-medium hover:underline"
+        <Link
+          href="/signup"
+          className="text-primary font-medium hover:underline"
         >
           Sign Up
-        </button>
+        </Link>
       </p>
     </div>
   );

@@ -2,29 +2,24 @@ import { NextResponse } from "next/server";
 import dbConnect from "../db/dbConnect";
 import Transaction from "../models/Transaction";
 import User from "../models/User";
-import { verifyToken, unauthorizedResponse } from "../utils/auth";
+import { authenticateUser } from "../auth/middleware";
+import mongoose from "mongoose";
 
 export async function GET(request: Request) {
   try {
-    // Verify JWT token
-    const authResult = verifyToken(request);
-    if (!authResult.success) {
-      return unauthorizedResponse(authResult.error);
+    // Ověření autentizace
+    const authUser = await authenticateUser();
+    if (!authUser) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
     }
 
     await dbConnect();
 
-    // Get user to find their userId
-    const user = await User.findOne({ username: authResult.payload!.username });
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: "User not found" },
-        { status: 404 }
-      );
-    }
-
-    // Fetch only transactions for the authenticated user
-    const transactions = await Transaction.find({ userId: user._id })
+    // Získání pouze transakcí přihlášeného uživatele
+    const transactions = await Transaction.find({ userId: authUser.userId })
       .populate("userId", "username")
       .sort({ createdAt: -1 });
 
@@ -43,33 +38,24 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    // Verify JWT token
-    const authResult = verifyToken(request);
-    if (!authResult.success) {
-      return unauthorizedResponse(authResult.error);
+    // Ověření autentizace
+    const authUser = await authenticateUser();
+    if (!authUser) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
     }
 
     await dbConnect();
     const body = await request.json();
-    const { amount, description, category, state, incoming, date } = body;
+    const { amount, description, incoming, date } = body;
 
-    // Validate required fields
-    if (amount === undefined || amount === null) {
-      return NextResponse.json(
-        { success: false, error: "amount is required" },
-        { status: 400 }
-      );
-    }
+    // Použití userId z autentizovaného uživatele
+    const userId = authUser.userId;
 
-    if (incoming === undefined || incoming === null) {
-      return NextResponse.json(
-        { success: false, error: "incoming is required" },
-        { status: 400 }
-      );
-    }
-
-    // Get user from token
-    const user = await User.findOne({ username: authResult.payload!.username });
+    // Check if user exists
+    const user = await User.findById(userId);
     if (!user) {
       return NextResponse.json(
         { success: false, error: "User not found" },
@@ -82,14 +68,14 @@ export async function POST(request: Request) {
       userId: user._id,
       amount,
       description,
-      category,
-      state: state || "pending",
       incoming,
       date: date || new Date(),
     });
 
     // Add transaction to user's transactions array
-    user.transactions.push(transaction._id);
+    (user.transactions as mongoose.Types.ObjectId[]).push(
+      transaction._id as mongoose.Types.ObjectId
+    );
     await user.save();
 
     return NextResponse.json(

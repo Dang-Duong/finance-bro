@@ -3,6 +3,28 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Brand Colors */
+  --color-primary: #0a66e8;
+  --color-primary-hover: #0958d1;
+  --color-primary-dark: #1f3141;
+  --color-primary-gradient: rgba(10, 102, 232, 0.25);
+
+  /* Status Colors */
+  --color-success-bg: #dcfce7; /* green-100 */
+  --color-success-text: #15803d; /* green-700 */
+  --color-error-bg: #fee2e2; /* red-100 */
+  --color-error-text: #dc2626; /* red-700 */
+  --color-danger: #ef4444; /* red-500 */
+
+  /* Neutral Colors */
+  --color-white: #ffffff;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-900: #111827;
 }
 
 @theme inline {
@@ -10,6 +32,18 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Brand Colors - Tailwind Theme (references CSS variables from :root) */
+  --color-primary: var(--color-primary);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-primary-dark: var(--color-primary-dark);
+
+  /* Status Colors - Tailwind Theme */
+  --color-success-bg: var(--color-success-bg);
+  --color-success-text: var(--color-success-text);
+  --color-error-bg: var(--color-error-bg);
+  --color-error-text: var(--color-error-text);
+  --color-danger: var(--color-danger);
 }
 
 @media (prefers-color-scheme: dark) {

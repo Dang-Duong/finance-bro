@@ -1,15 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import EnvelopeIcon from "./icons/EnvelopeIcon";
-import LockIcon from "./icons/LockIcon";
-import UserIcon from "./icons/UserIcon";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import EnvelopeIcon from "../icons/EnvelopeIcon";
+import LockIcon from "../icons/LockIcon";
+import UserIcon from "../icons/UserIcon";
 
-type Props = {
-  setIsLogin: (value: boolean) => void;
-};
-
-export default function RegisterForm({ setIsLogin }: Props) {
+export default function RegisterForm() {
+  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -64,15 +63,15 @@ export default function RegisterForm({ setIsLogin }: Props) {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage("Registration successful! You can now login.");
+        setMessage("Registration successful! Redirecting to login...");
         // Clear form
         setName("");
         setEmail("");
         setPassword("");
         setConfirmPassword("");
-        // Switch to login after a delay
+        // Redirect to login after a delay
         setTimeout(() => {
-          setIsLogin(true);
+          router.push("/login");
         }, 2000);
       } else {
         setMessage(data.message || data.error || "Registration failed");
@@ -196,7 +195,7 @@ export default function RegisterForm({ setIsLogin }: Props) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-[#0A66E8] text-white py-3 px-4 rounded-lg font-medium hover:bg-[#0958d1] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-full bg-primary text-white py-3 px-4 rounded-lg font-medium hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {/* Dark mode button: focus:ring-offset-gray-800 */}
           {loading ? "Creating account..." : "Create account"}
@@ -207,8 +206,8 @@ export default function RegisterForm({ setIsLogin }: Props) {
         <div
           className={`mt-4 p-3 rounded-lg text-sm ${
             message.includes("successful")
-              ? "bg-green-100 text-green-700"
-              : "bg-red-100 text-red-700"
+              ? "bg-success-bg text-success-text"
+              : "bg-error-bg text-error-text"
           }`}
         >
           {/* Dark mode message: bg-green-900/50 text-green-300 border border-green-700 | bg-red-900/50 text-red-300 border border-red-700 */}
@@ -219,12 +218,12 @@ export default function RegisterForm({ setIsLogin }: Props) {
       <p className="mt-6 text-center text-sm text-gray-600">
         {/* Dark mode: text-gray-400 */}
         Already have an account?{" "}
-        <button
-          onClick={() => setIsLogin(true)}
-          className="text-[#0A66E8] font-medium hover:underline"
+        <Link
+          href="/login"
+          className="text-primary font-medium hover:underline"
         >
           Sign in
-        </button>
+        </Link>
       </p>
     </div>
   );

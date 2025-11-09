@@ -17,7 +17,7 @@ export default function Dashboard() {
 
     if (!token) {
       // není přihlášen → redirect na login
-      window.location.href = "/auth";
+      window.location.href = "/login";
       return;
     }
 

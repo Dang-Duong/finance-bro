@@ -6,7 +6,7 @@ import PhoneMockup from "./PhoneMockup";
 
 export default function WelcomeScreen() {
   return (
-    <main className="min-h-dvh w-full text-white bg-[#1F3141] bg-[radial-gradient(1200px_600px_at_50%_120%,rgba(10,102,232,0.25),transparent)] relative">
+    <main className="min-h-dvh w-full text-white bg-primary-dark bg-[radial-gradient(1200px_600px_at_50%_120%,rgba(10,102,232,0.25),transparent)] relative">
       <div className="mx-auto max-w-7xl px-4 lg:px-12 py-8 lg:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-10 lg:gap-20">
           {/* # Text vpravo na desktopu */}
