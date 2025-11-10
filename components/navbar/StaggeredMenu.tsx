@@ -400,7 +400,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
         isFixed
           ? "fixed top-0 left-0 w-screen h-screen overflow-hidden"
           : "w-full h-full"
-      }`}
+      } ${!open ? "pointer-events-none" : ""}`}
     >
       <div
         className={

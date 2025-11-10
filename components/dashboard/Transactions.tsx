@@ -60,7 +60,7 @@ export default function Transactions() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
-        className="bg-white/5 rounded-lg p-6 border border-white/10"
+        className="bg-white/5 rounded-lg p-6 border border-white/10 relative z-30"
       >
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold text-white">Transactions</h2>
