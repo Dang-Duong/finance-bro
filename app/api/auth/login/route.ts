@@ -66,7 +66,7 @@ export async function POST(req: Request) {
     response.headers.append(
       "Set-Cookie",
       `user=${encodeURIComponent(
-        JSON.stringify({ username: user.username, email: user.email })
+        JSON.stringify({ username: user.username, email: user.email, name: user.name, surname: user.surname })
       )}; ${secureFlag} SameSite=Strict; Max-Age=${7 * 24 * 60 * 60}; Path=/`
     );
 

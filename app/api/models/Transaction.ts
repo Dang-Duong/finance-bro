@@ -27,14 +27,16 @@ const transactionSchema = new Schema<ITransactionDocument>(
       type: String,
       required: false,
     },
+    // po vytvoreni kategorii v db prepsat na required: true
     category: {
-      type: String,
+      type: Schema.Types.String,
+      ref: "Category",
       required: false,
     },
     state: {
       type: String,
-      enum: ["pending", "completed", "failed"],
-      default: "pending",
+      enum: ["cash", "card", "investment", "saving"],
+      default: "card",
       required: false,
     },
     incoming: {
@@ -48,7 +50,7 @@ const transactionSchema = new Schema<ITransactionDocument>(
     },
     date: {
       type: Date,
-      required: false,
+      required: true,
       default: Date.now,
     },
   },

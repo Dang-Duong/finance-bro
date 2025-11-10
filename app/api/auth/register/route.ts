@@ -60,7 +60,6 @@ export async function POST(req: Request) {
       name,
       surname,
       password: hashedPassword,
-      role: "user",
     });
 
     const maybe = newUser as unknown as {
