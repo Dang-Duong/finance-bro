@@ -74,7 +74,60 @@ export default function Transactions() {
           </motion.button>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Mobile Card Layout */}
+        <div className="lg:hidden space-y-3">
+          {loading ? (
+            <div className="py-8 text-center text-white/60">
+              Loading transactions...
+            </div>
+          ) : transactions.length === 0 ? (
+            <div className="py-8 text-center text-white/60">
+              No transactions yet. Add your first transaction!
+            </div>
+          ) : (
+            transactions.map((transaction, index) => (
+              <motion.div
+                key={transaction._id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.4 + index * 0.1 }}
+                className="bg-white/5 rounded-lg p-4 border border-white/10"
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-sm font-medium text-white/80">
+                        {transaction.category || "N/A"}
+                      </span>
+                      <span className="text-xs px-2 py-0.5 rounded bg-white/10 text-white/60">
+                        {transaction.incoming ? "Income" : "Expense"}
+                      </span>
+                    </div>
+                    <p className="text-xs text-white/60 mb-1">
+                      {formatDate(transaction.date)}
+                    </p>
+                    {transaction.description && (
+                      <p className="text-sm text-white/70">
+                        {transaction.description}
+                      </p>
+                    )}
+                  </div>
+                  <div
+                    className={`text-lg font-semibold ml-4 ${
+                      transaction.incoming ? "text-green-500" : "text-red-500"
+                    }`}
+                  >
+                    {transaction.incoming ? "+" : "-"}
+                    {transaction.amount.toLocaleString("cs-CZ")} CZK
+                  </div>
+                </div>
+              </motion.div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop Table Layout */}
+        <div className="hidden lg:block overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-white/10">
