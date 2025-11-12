@@ -11,7 +11,6 @@ const navItems = [
   { label: "Transaction", href: "/transaction" },
   { label: "Budget", href: "/budget" },
   { label: "Savings", href: "/savings" },
-  { label: "Category", href: "/category" },
 ];
 
 export default function Navbar() {
