@@ -11,6 +11,7 @@ import EyeOffIcon from "../icons/EyeOffIcon";
 export default function RegisterForm() {
   const router = useRouter();
   const [name, setName] = useState("");
+  const [surname, setSurname] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -45,11 +46,6 @@ export default function RegisterForm() {
     }
 
     try {
-      // Split name into name and surname
-      const nameParts = name.trim().split(/\s+/);
-      const firstName = nameParts[0] || "";
-      const surname = nameParts.slice(1).join(" ") || firstName; // Use first name as surname if no last name provided
-
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: {
@@ -57,8 +53,8 @@ export default function RegisterForm() {
         },
         body: JSON.stringify({
           email,
-          name: firstName,
-          surname,
+          name: name.trim(),
+          surname: surname.trim(),
           password,
         }),
       });
@@ -69,6 +65,7 @@ export default function RegisterForm() {
         setMessage("Registration successful! Redirecting to login...");
         // Clear form
         setName("");
+        setSurname("");
         setEmail("");
         setPassword("");
         setConfirmPassword("");
@@ -111,7 +108,32 @@ export default function RegisterForm() {
               onChange={(e) => setName(e.target.value)}
               required
               className="w-full px-4 py-3 pr-12 bg-gray-100 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter your full name"
+              placeholder="Enter your first name"
+            />
+            {/* Dark mode input: bg-gray-700 border-gray-600 text-white placeholder-gray-400 */}
+            <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+              <UserIcon />
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label
+            htmlFor="surname"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
+            {/* Dark mode: text-gray-300 */}
+            Surname
+          </label>
+          <div className="relative">
+            <input
+              type="text"
+              id="surname"
+              value={surname}
+              onChange={(e) => setSurname(e.target.value)}
+              required
+              className="w-full px-4 py-3 pr-12 bg-gray-100 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Enter your surname"
             />
             {/* Dark mode input: bg-gray-700 border-gray-600 text-white placeholder-gray-400 */}
             <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
