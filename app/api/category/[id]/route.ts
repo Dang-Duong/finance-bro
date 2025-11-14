@@ -6,7 +6,7 @@ import mongoose from "mongoose";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Ověření autentizace
@@ -20,7 +20,7 @@ export async function GET(
 
     await dbConnect();
 
-    const { id } = params;
+    const { id } = await params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(

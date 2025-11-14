@@ -17,6 +17,9 @@ export async function GET() {
     return NextResponse.json({ success: true, data: categories });
   } catch (error) {
     console.error("GET /api/category error:", error);
-    return { success: false, error: "Failed to fetch categories" };
+    return NextResponse.json(
+      { success: false, error: "Failed to fetch categories" },
+      { status: 500 }
+    );
   }
 }
