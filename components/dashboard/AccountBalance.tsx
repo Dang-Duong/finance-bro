@@ -34,7 +34,7 @@ export default function AccountBalance() {
   const now = new Date();
   const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const thisMonthTransactions = transactions.filter((t) => {
-    const transactionDate = new Date(t.date);
+    const transactionDate = new Date(t.createdAt);
     return transactionDate >= thisMonthStart;
   });
   const thisMonthIncome = thisMonthTransactions

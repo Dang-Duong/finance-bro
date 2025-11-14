@@ -50,22 +50,31 @@ export default function ExpensesVsIncomes() {
 
   const calculateChartData = () => {
     const now = new Date();
-    const data: { [key: string]: { expenses: number; incomes: number; label: string } } = {};
+    const data: {
+      [key: string]: { expenses: number; incomes: number; label: string };
+    } = {};
 
     if (selectedPeriod === "Week") {
       // Initialize last 7 days
       for (let i = 6; i >= 0; i--) {
         const date = new Date(now);
         date.setDate(date.getDate() - i);
-        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+        const key = `${date.getFullYear()}-${String(
+          date.getMonth() + 1
+        ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
         const dayName = date.toLocaleDateString("en-US", { weekday: "short" });
         data[key] = { expenses: 0, incomes: 0, label: dayName };
       }
 
       // Process transactions
       transactions.forEach((transaction) => {
-        const transactionDate = new Date(transaction.date);
-        const key = `${transactionDate.getFullYear()}-${String(transactionDate.getMonth() + 1).padStart(2, "0")}-${String(transactionDate.getDate()).padStart(2, "0")}`;
+        const transactionDate = new Date(transaction.createdAt);
+        const key = `${transactionDate.getFullYear()}-${String(
+          transactionDate.getMonth() + 1
+        ).padStart(2, "0")}-${String(transactionDate.getDate()).padStart(
+          2,
+          "0"
+        )}`;
 
         if (data[key]) {
           if (transaction.incoming) {
@@ -77,29 +86,36 @@ export default function ExpensesVsIncomes() {
       });
 
       // Convert to chart data format
-      const chartDataArray: MonthData[] = Object.keys(data)
-        .map((key) => {
-          return {
-            month: data[key].label,
-            expenses: data[key].expenses,
-            incomes: data[key].incomes,
-            net: data[key].incomes - data[key].expenses,
-          };
-        });
+      const chartDataArray: MonthData[] = Object.keys(data).map((key) => {
+        return {
+          month: data[key].label,
+          expenses: data[key].expenses,
+          incomes: data[key].incomes,
+          net: data[key].incomes - data[key].expenses,
+        };
+      });
 
       setChartData(chartDataArray);
     } else if (selectedPeriod === "Month") {
       // Initialize last 12 months
       for (let i = 11; i >= 0; i--) {
         const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-        data[key] = { expenses: 0, incomes: 0, label: monthNames[date.getMonth()] };
+        const key = `${date.getFullYear()}-${String(
+          date.getMonth() + 1
+        ).padStart(2, "0")}`;
+        data[key] = {
+          expenses: 0,
+          incomes: 0,
+          label: monthNames[date.getMonth()],
+        };
       }
 
       // Process transactions
       transactions.forEach((transaction) => {
-        const transactionDate = new Date(transaction.date);
-        const key = `${transactionDate.getFullYear()}-${String(transactionDate.getMonth() + 1).padStart(2, "0")}`;
+        const transactionDate = new Date(transaction.createdAt);
+        const key = `${transactionDate.getFullYear()}-${String(
+          transactionDate.getMonth() + 1
+        ).padStart(2, "0")}`;
 
         if (data[key]) {
           if (transaction.incoming) {
@@ -111,15 +127,14 @@ export default function ExpensesVsIncomes() {
       });
 
       // Convert to chart data format
-      const chartDataArray: MonthData[] = Object.keys(data)
-        .map((key) => {
-          return {
-            month: data[key].label,
-            expenses: data[key].expenses,
-            incomes: data[key].incomes,
-            net: data[key].incomes - data[key].expenses,
-          };
-        });
+      const chartDataArray: MonthData[] = Object.keys(data).map((key) => {
+        return {
+          month: data[key].label,
+          expenses: data[key].expenses,
+          incomes: data[key].incomes,
+          net: data[key].incomes - data[key].expenses,
+        };
+      });
 
       setChartData(chartDataArray);
     } else if (selectedPeriod === "Year") {
@@ -132,7 +147,7 @@ export default function ExpensesVsIncomes() {
 
       // Process transactions
       transactions.forEach((transaction) => {
-        const transactionDate = new Date(transaction.date);
+        const transactionDate = new Date(transaction.createdAt);
         const key = `${transactionDate.getFullYear()}`;
 
         if (data[key]) {
@@ -145,15 +160,14 @@ export default function ExpensesVsIncomes() {
       });
 
       // Convert to chart data format
-      const chartDataArray: MonthData[] = Object.keys(data)
-        .map((key) => {
-          return {
-            month: data[key].label,
-            expenses: data[key].expenses,
-            incomes: data[key].incomes,
-            net: data[key].incomes - data[key].expenses,
-          };
-        });
+      const chartDataArray: MonthData[] = Object.keys(data).map((key) => {
+        return {
+          month: data[key].label,
+          expenses: data[key].expenses,
+          incomes: data[key].incomes,
+          net: data[key].incomes - data[key].expenses,
+        };
+      });
 
       setChartData(chartDataArray);
     }
@@ -177,7 +191,14 @@ export default function ExpensesVsIncomes() {
       const firstDate = new Date();
       firstDate.setDate(firstDate.getDate() - 6);
       const lastDate = new Date();
-      return `${firstDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })} - ${lastDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
+      return `${firstDate.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      })} - ${lastDate.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })}`;
     } else if (selectedPeriod === "Month") {
       const firstMonth = chartData[0].month;
       const lastMonth = chartData[chartData.length - 1].month;
@@ -218,7 +239,7 @@ export default function ExpensesVsIncomes() {
         <h2 className="text-xl font-semibold text-white">
           Expenses vs Incomes
         </h2>
-        
+
         {/* Filter Buttons */}
         <div className="flex gap-2">
           {["Week", "Month", "Year"].map((period) => (
@@ -247,7 +268,9 @@ export default function ExpensesVsIncomes() {
         className="flex items-center gap-2 mb-6"
       >
         <span
-          className={`text-xl ${periodTotal >= 0 ? "text-green-500" : "text-red-500"}`}
+          className={`text-xl ${
+            periodTotal >= 0 ? "text-green-500" : "text-red-500"
+          }`}
         >
           {periodTotal >= 0 ? "↑" : "↓"}
         </span>
@@ -267,26 +290,26 @@ export default function ExpensesVsIncomes() {
           <div className="grid grid-cols-2 gap-2">
             {chartData.length > 0 ? (
               chartData.map((item, index) => {
-              const isPositive = item.net > 0;
-              return (
-                <motion.div
-                  key={item.month}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3, delay: 0.4 + index * 0.05 }}
-                  className="flex items-center justify-between p-2 rounded bg-white/5"
-                >
-                  <span className="text-sm text-white/80">{item.month}</span>
-                  <span
-                    className={`text-sm font-semibold ${
-                      isPositive ? "text-green-500" : "text-red-500"
-                    }`}
+                const isPositive = item.net > 0;
+                return (
+                  <motion.div
+                    key={item.month}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: 0.4 + index * 0.05 }}
+                    className="flex items-center justify-between p-2 rounded bg-white/5"
                   >
-                    {isPositive ? "+" : ""}
-                    {item.net.toLocaleString("en-US")} CZK
-                  </span>
-                </motion.div>
-              );
+                    <span className="text-sm text-white/80">{item.month}</span>
+                    <span
+                      className={`text-sm font-semibold ${
+                        isPositive ? "text-green-500" : "text-red-500"
+                      }`}
+                    >
+                      {isPositive ? "+" : ""}
+                      {item.net.toLocaleString("en-US")} CZK
+                    </span>
+                  </motion.div>
+                );
               })
             ) : (
               <div className="col-span-2 text-white/60 text-center py-4">
@@ -309,9 +332,7 @@ export default function ExpensesVsIncomes() {
             </div>
           </div>
 
-          <div className="text-sm text-white/60 mb-4">
-            {getDateRange()}
-          </div>
+          <div className="text-sm text-white/60 mb-4">{getDateRange()}</div>
 
           <div className="h-64">
             {chartData.length > 0 ? (
@@ -328,29 +349,29 @@ export default function ExpensesVsIncomes() {
                     style={{ fontSize: "12px" }}
                     domain={[0, maxValue * 1.1]}
                   />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "rgba(0, 0, 0, 0.8)",
-                    border: "1px solid rgba(255, 255, 255, 0.2)",
-                    borderRadius: "8px",
-                    color: "#fff",
-                  }}
-                />
-                <Legend wrapperStyle={{ color: "#ffffff80" }} />
-                <Bar
-                  dataKey="expenses"
-                  fill="#ef4444"
-                  radius={[4, 4, 0, 0]}
-                  animationDuration={1000}
-                />
-                <Bar
-                  dataKey="incomes"
-                  fill="#22c55e"
-                  radius={[4, 4, 0, 0]}
-                  animationDuration={1000}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "rgba(0, 0, 0, 0.8)",
+                      border: "1px solid rgba(255, 255, 255, 0.2)",
+                      borderRadius: "8px",
+                      color: "#fff",
+                    }}
+                  />
+                  <Legend wrapperStyle={{ color: "#ffffff80" }} />
+                  <Bar
+                    dataKey="expenses"
+                    fill="#ef4444"
+                    radius={[4, 4, 0, 0]}
+                    animationDuration={1000}
+                  />
+                  <Bar
+                    dataKey="incomes"
+                    fill="#22c55e"
+                    radius={[4, 4, 0, 0]}
+                    animationDuration={1000}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
             ) : (
               <div className="flex items-center justify-center h-full text-white/60">
                 No transaction data

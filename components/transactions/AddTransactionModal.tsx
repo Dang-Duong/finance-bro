@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Calendar from "./Calendar";
 import CloseIcon from "@/components/icons/CloseIcon";
 
 type TransactionType = "Income" | "Expense";
@@ -26,7 +25,6 @@ interface AddTransactionModalProps {
     type: TransactionType;
     amount: number;
     description: string;
-    date: Date;
   }) => Promise<void>;
 }
 
@@ -39,7 +37,6 @@ export default function AddTransactionModal({
   const [selectedType, setSelectedType] = useState<TransactionType>("Income");
   const [amount, setAmount] = useState<string>("");
   const [description, setDescription] = useState<string>("");
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -55,13 +52,11 @@ export default function AddTransactionModal({
         type: selectedType,
         amount: parseFloat(amount),
         description,
-        date: selectedDate,
       });
       setSelectedCategory("");
       setSelectedType("Income");
       setAmount("");
       setDescription("");
-      setSelectedDate(new Date());
     } catch (error) {
       console.error("Error submitting form:", error);
     }
@@ -90,7 +85,7 @@ export default function AddTransactionModal({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.2 }}
-              className="bg-[#1a2b3d] rounded-none lg:rounded-2xl w-full lg:max-w-4xl h-full lg:h-auto lg:max-h-[90vh] flex flex-col lg:flex-row shadow-2xl relative overflow-hidden"
+              className="bg-[#1a2b3d] rounded-none lg:rounded-2xl w-full lg:max-w-2xl h-full lg:h-auto lg:max-h-[90vh] flex flex-col shadow-2xl relative overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               <button
@@ -197,13 +192,6 @@ export default function AddTransactionModal({
                     Add transactions
                   </button>
                 </form>
-              </div>
-
-              <div className="flex-1 p-4 lg:p-8 pt-6 lg:pt-16 border-t lg:border-t-0 lg:border-l border-white/10 bg-[#152431] overflow-y-auto min-h-0 max-h-[50vh] lg:max-h-none">
-                <Calendar
-                  selectedDate={selectedDate}
-                  onDateSelect={setSelectedDate}
-                />
               </div>
             </motion.div>
           </div>

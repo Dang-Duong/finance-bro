@@ -13,7 +13,7 @@ type Transaction = {
   _id: string;
   amount: number;
   incoming: boolean;
-  date: string | Date;
+  createdAt: string | Date;
   category?: string;
   description?: string;
 };

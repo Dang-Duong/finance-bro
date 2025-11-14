@@ -51,7 +51,7 @@ export async function POST(request: Request) {
 
     await dbConnect();
     const body = await request.json();
-    const { amount, description, incoming, date } = body;
+    const { amount, description, incoming } = body;
 
     // Použití userId z autentizovaného uživatele
     const userId = authUser.userId;
@@ -79,7 +79,6 @@ export async function POST(request: Request) {
       amount,
       description,
       incoming,
-      date: date ? new Date(date) : new Date(),
       category: categoryExist._id,
     });
 

@@ -23,7 +23,6 @@ export default function Transactions() {
     type: "Income" | "Expense";
     amount: number;
     description: string;
-    date: Date;
   }) => {
     try {
       const response = await fetch("/api/transactions", {
@@ -35,7 +34,6 @@ export default function Transactions() {
           amount: data.amount,
           description: data.description,
           incoming: data.type === "Income",
-          date: data.date.toISOString(),
           category: data.category,
         }),
       });
@@ -104,7 +102,7 @@ export default function Transactions() {
                       </span>
                     </div>
                     <p className="text-xs text-white/60 mb-1">
-                      {formatDate(transaction.date)}
+                      {formatDate(transaction.createdAt)}
                     </p>
                     {transaction.description && (
                       <p className="text-sm text-white/70">
@@ -171,7 +169,7 @@ export default function Transactions() {
                     className="border-b border-white/5 hover:bg-white/5 transition-colors"
                   >
                     <td className="py-3 px-2 text-sm text-white/80">
-                      {formatDate(transaction.date)}
+                      {formatDate(transaction.createdAt)}
                     </td>
                     <td className="py-3 px-2 text-sm text-white/80">
                       {transaction.category || "N/A"}
