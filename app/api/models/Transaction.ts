@@ -5,7 +5,7 @@ export interface ITransaction {
   amount: number;
   description?: string;
   state?: "pending" | "completed" | "failed";
-  category?: string;
+  category?: mongoose.Types.ObjectId;
   incoming: boolean;
   date: Date;
   userId: mongoose.Types.ObjectId;
@@ -28,14 +28,15 @@ const transactionSchema = new Schema<ITransactionDocument>(
       required: false,
     },
     category: {
-      type: String,
-      required: false,
+      type: Schema.Types.ObjectId,
+      ref: "Category",
+      required: true,
     },
     state: {
       type: String,
-      enum: ["pending", "completed", "failed"],
-      default: "pending",
-      required: false,
+      enum: ["card", "cash", "investment", "saving"],
+      default: "card",
+      required: true,
     },
     incoming: {
       type: Boolean,

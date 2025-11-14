@@ -4,6 +4,7 @@ import Transaction from "../../models/Transaction";
 import User from "../../models/User";
 import { authenticateUser } from "../../auth/middleware";
 import mongoose from "mongoose";
+import Category from "../../models/Category";
 
 export async function GET(
   request: Request,
@@ -32,10 +33,9 @@ export async function GET(
     await dbConnect();
 
     // Find transaction and verify it belongs to the user
-    const transaction = await Transaction.findById(id).populate(
-      "userId",
-      "username"
-    );
+    const transaction = await Transaction.findById(id)
+      .populate("userId", "username")
+      .populate("category", "name");
 
     if (!transaction) {
       return NextResponse.json(
@@ -115,10 +115,20 @@ export async function PUT(
     // Update only provided fields
     if (amount !== undefined) transaction.amount = amount;
     if (description !== undefined) transaction.description = description;
-    if (category !== undefined) transaction.category = category;
+    if (category !== undefined) {
+      // validate category exists and store as ObjectId
+      const categoryExist = await Category.findById(category);
+      if (!categoryExist) {
+        return NextResponse.json(
+          { success: false, error: "Invalid category" },
+          { status: 404 }
+        );
+      }
+      transaction.category = categoryExist._id as mongoose.Types.ObjectId;
+    }
     if (state !== undefined) transaction.state = state;
     if (incoming !== undefined) transaction.incoming = incoming;
-    if (date !== undefined) transaction.date = date;
+    if (date !== undefined) transaction.date = new Date(date);
 
     await transaction.save();
 

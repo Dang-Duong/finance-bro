@@ -4,6 +4,7 @@ import Transaction from "../models/Transaction";
 import User from "../models/User";
 import { authenticateUser } from "../auth/middleware";
 import mongoose from "mongoose";
+import Category from "../models/Category";
 
 export async function GET() {
   try {
@@ -21,6 +22,7 @@ export async function GET() {
     // Získání pouze transakcí přihlášeného uživatele
     const transactions = await Transaction.find({ userId: authUser.userId })
       .populate("userId", "username")
+      .populate("category", "name")
       .sort({ createdAt: -1 });
 
     return NextResponse.json({
@@ -49,7 +51,7 @@ export async function POST(request: Request) {
 
     await dbConnect();
     const body = await request.json();
-    const { amount, description, incoming, date, category } = body;
+    const { amount, description, incoming, date } = body;
 
     // Použití userId z autentizovaného uživatele
     const userId = authUser.userId;
@@ -63,6 +65,14 @@ export async function POST(request: Request) {
       );
     }
 
+    const categoryExist = await Category.findById(body.category);
+    if (!categoryExist) {
+      return NextResponse.json(
+        { success: false, error: "Invalid category" },
+        { status: 404 }
+      );
+    }
+
     // Create transaction
     const transaction = await Transaction.create({
       userId: user._id,
@@ -70,7 +80,7 @@ export async function POST(request: Request) {
       description,
       incoming,
       date: date ? new Date(date) : new Date(),
-      category,
+      category: categoryExist._id,
     });
 
     // Add transaction to user's transactions array
