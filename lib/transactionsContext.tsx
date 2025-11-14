@@ -42,7 +42,25 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
       if (response.ok) {
         const result = await response.json();
         if (result.success) {
-          setTransactions(result.data || []);
+          // Normalize category field - handle both object and string
+          const capitalizeFirst = (str: string) => {
+            if (!str) return str;
+            return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+          };
+
+          const normalizedTransactions = (result.data || []).map(
+            (transaction: any) => ({
+              ...transaction,
+              category:
+                typeof transaction.category === "object" &&
+                transaction.category !== null
+                  ? capitalizeFirst(transaction.category.name)
+                  : transaction.category
+                  ? capitalizeFirst(transaction.category)
+                  : undefined,
+            })
+          );
+          setTransactions(normalizedTransactions);
         }
       }
     } catch (error) {

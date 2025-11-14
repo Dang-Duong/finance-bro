@@ -1,21 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CloseIcon from "@/components/icons/CloseIcon";
+import { useCategories } from "@/lib/categoriesContext";
 
 type TransactionType = "Income" | "Expense";
-
-const CATEGORIES = [
-  "Food",
-  "Transport",
-  "Shopping",
-  "Bills",
-  "Entertainment",
-  "Health",
-  "Work",
-  "Other",
-];
 
 interface AddTransactionModalProps {
   isOpen: boolean;
@@ -33,27 +23,38 @@ export default function AddTransactionModal({
   onClose,
   onSubmit,
 }: AddTransactionModalProps) {
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const { categories, loading: categoriesLoading } = useCategories();
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [selectedType, setSelectedType] = useState<TransactionType>("Income");
   const [amount, setAmount] = useState<string>("");
   const [description, setDescription] = useState<string>("");
+
+  // Reset form when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedCategoryId("");
+      setSelectedType("Income");
+      setAmount("");
+      setDescription("");
+    }
+  }, [isOpen]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (!selectedCategory || !amount) {
+    if (!selectedCategoryId || !amount) {
       return false;
     }
 
     try {
       await onSubmit({
-        category: selectedCategory,
+        category: selectedCategoryId, // Send ID to the API
         type: selectedType,
         amount: parseFloat(amount),
         description,
       });
-      setSelectedCategory("");
+      setSelectedCategoryId("");
       setSelectedType("Income");
       setAmount("");
       setDescription("");
@@ -110,22 +111,43 @@ export default function AddTransactionModal({
                     <label className="block text-sm font-medium text-white/80 mb-2 lg:mb-3">
                       Category
                     </label>
-                    <div className="flex flex-wrap gap-1.5 lg:gap-2">
-                      {CATEGORIES.map((category) => (
-                        <button
-                          key={category}
-                          type="button"
-                          onClick={() => setSelectedCategory(category)}
-                          className={`px-2.5 lg:px-4 py-1.5 lg:py-2 rounded-full text-xs lg:text-sm font-medium transition-all touch-manipulation active:scale-95 ${
-                            selectedCategory === category
-                              ? "bg-white text-[#1a2b3d] border-2 border-white"
-                              : "bg-transparent text-white/70 border-2 border-white/30 hover:border-white/50 active:border-white/70"
-                          }`}
-                        >
-                          {category}
-                        </button>
-                      ))}
-                    </div>
+                    {categoriesLoading ? (
+                      <div className="text-white/50 text-sm">
+                        Loading categories...
+                      </div>
+                    ) : categories.length === 0 ? (
+                      <div className="text-white/50 text-sm">
+                        No categories available
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap gap-1.5 lg:gap-2">
+                        {categories.map((category) => {
+                          const capitalizeFirst = (str: string) => {
+                            if (!str) return str;
+                            return (
+                              str.charAt(0).toUpperCase() +
+                              str.slice(1).toLowerCase()
+                            );
+                          };
+                          return (
+                            <button
+                              key={category._id}
+                              type="button"
+                              onClick={() =>
+                                setSelectedCategoryId(category._id)
+                              }
+                              className={`px-2.5 lg:px-4 py-1.5 lg:py-2 rounded-full text-xs lg:text-sm font-medium transition-all touch-manipulation active:scale-95 ${
+                                selectedCategoryId === category._id
+                                  ? "bg-white text-[#1a2b3d] border-2 border-white"
+                                  : "bg-transparent text-white/70 border-2 border-white/30 hover:border-white/50 active:border-white/70"
+                              }`}
+                            >
+                              {capitalizeFirst(category.name)}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
 
                   <div>
