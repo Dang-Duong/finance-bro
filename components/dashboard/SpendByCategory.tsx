@@ -60,7 +60,13 @@ export default function SpendByCategory() {
     // Group by category
     const categoryMap: { [key: string]: number } = {};
     expenses.forEach((transaction) => {
-      const category = transaction.category || "Other";
+      const category =
+        typeof transaction.category === "string"
+          ? transaction.category
+          : typeof transaction.category === "object" &&
+            transaction.category !== null
+          ? transaction.category.name
+          : "Other";
       categoryMap[category] = (categoryMap[category] || 0) + transaction.amount;
     });
 

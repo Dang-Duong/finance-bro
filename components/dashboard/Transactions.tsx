@@ -18,6 +18,14 @@ export default function Transactions() {
     });
   };
 
+  const getCategoryName = (
+    category: string | { _id: string; name: string } | null | undefined
+  ): string => {
+    if (typeof category === "string") return category;
+    if (typeof category === "object" && category !== null) return category.name;
+    return "N/A";
+  };
+
   const handleSubmit = async (data: {
     category: string;
     type: "Income" | "Expense";
@@ -95,7 +103,7 @@ export default function Transactions() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-sm font-medium text-white/80">
-                        {transaction.category || "N/A"}
+                        {getCategoryName(transaction.category)}
                       </span>
                       <span className="text-xs px-2 py-0.5 rounded bg-white/10 text-white/60">
                         {transaction.incoming ? "Income" : "Expense"}
@@ -172,7 +180,7 @@ export default function Transactions() {
                       {formatDate(transaction.createdAt)}
                     </td>
                     <td className="py-3 px-2 text-sm text-white/80">
-                      {transaction.category || "N/A"}
+                      {getCategoryName(transaction.category)}
                     </td>
                     <td className="py-3 px-2 text-sm text-white/80">
                       {transaction.incoming ? "Income" : "Expense"}

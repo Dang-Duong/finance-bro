@@ -14,7 +14,7 @@ type Transaction = {
   amount: number;
   incoming: boolean;
   createdAt: string | Date;
-  category?: string;
+  category?: string | { _id: string; name: string } | null;
   description?: string;
 };
 
@@ -48,9 +48,15 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
             return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
           };
 
-          const normalizedTransactions = (result.data || []).map(
-            (transaction: any) => ({
-              ...transaction,
+          const normalizedTransactions = (
+            (result.data as Transaction[]) || []
+          ).map(
+            (transaction): Transaction => ({
+              _id: transaction._id,
+              amount: transaction.amount,
+              incoming: transaction.incoming,
+              createdAt: transaction.createdAt,
+              description: transaction.description,
               category:
                 typeof transaction.category === "object" &&
                 transaction.category !== null
