@@ -13,7 +13,8 @@ type Transaction = {
   _id: string;
   amount: number;
   incoming: boolean;
-  createdAt: string | Date;
+  date: string | Date;
+  createdAt?: string | Date;
   category?: string | { _id: string; name: string } | null;
   description?: string;
 };
@@ -55,6 +56,7 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
               _id: transaction._id,
               amount: transaction.amount,
               incoming: transaction.incoming,
+              date: transaction.date,
               createdAt: transaction.createdAt,
               description: transaction.description,
               category:

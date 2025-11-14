@@ -7,6 +7,7 @@ export interface ITransaction {
   state?: "pending" | "completed" | "failed";
   category?: mongoose.Types.ObjectId;
   incoming: boolean;
+  date: Date;
   userId: mongoose.Types.ObjectId;
 }
 
@@ -45,6 +46,11 @@ const transactionSchema = new Schema<ITransactionDocument>(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
+    },
+    date: {
+      type: Date,
+      required: false,
+      default: Date.now,
     },
   },
   { timestamps: true }

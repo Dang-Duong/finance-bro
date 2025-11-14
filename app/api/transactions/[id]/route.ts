@@ -110,7 +110,7 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { amount, description, category, state, incoming } = body;
+    const { amount, description, category, state, incoming, date } = body;
 
     // Update only provided fields
     if (amount !== undefined) transaction.amount = amount;
@@ -128,6 +128,7 @@ export async function PUT(
     }
     if (state !== undefined) transaction.state = state;
     if (incoming !== undefined) transaction.incoming = incoming;
+    if (date !== undefined) transaction.date = new Date(date);
 
     await transaction.save();
 

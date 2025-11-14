@@ -68,7 +68,7 @@ export default function ExpensesVsIncomes() {
 
       // Process transactions
       transactions.forEach((transaction) => {
-        const transactionDate = new Date(transaction.createdAt);
+        const transactionDate = new Date(transaction.date);
         const key = `${transactionDate.getFullYear()}-${String(
           transactionDate.getMonth() + 1
         ).padStart(2, "0")}-${String(transactionDate.getDate()).padStart(
@@ -112,7 +112,7 @@ export default function ExpensesVsIncomes() {
 
       // Process transactions
       transactions.forEach((transaction) => {
-        const transactionDate = new Date(transaction.createdAt);
+        const transactionDate = new Date(transaction.date);
         const key = `${transactionDate.getFullYear()}-${String(
           transactionDate.getMonth() + 1
         ).padStart(2, "0")}`;
@@ -147,7 +147,7 @@ export default function ExpensesVsIncomes() {
 
       // Process transactions
       transactions.forEach((transaction) => {
-        const transactionDate = new Date(transaction.createdAt);
+        const transactionDate = new Date(transaction.date);
         const key = `${transactionDate.getFullYear()}`;
 
         if (data[key]) {
