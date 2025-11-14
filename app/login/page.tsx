@@ -1,11 +1,16 @@
+"use client";
+
 import AuthLayout from "../../components/auth/AuthLayout";
 import LoginForm from "../../components/auth/LoginForm";
+import GuestRoute from "../../components/auth/GuestRoute";
 
 export default function LoginPage() {
   return (
-    <AuthLayout>
-      <LoginForm />
-    </AuthLayout>
+    <GuestRoute>
+      <AuthLayout>
+        <LoginForm />
+      </AuthLayout>
+    </GuestRoute>
   );
 }
 
