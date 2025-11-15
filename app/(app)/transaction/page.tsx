@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
-import { checkAuth } from "@/lib/auth";
+import { checkAuth } from "@/lib/auth"; 
+import TransactionScreen from "@/components/transactions/TransactionPage"; 
 
-export default function TransactionPage() {
+export default function TransactionRoutePage() {
   useEffect(() => {
     const verifyAuth = async () => {
       const user = await checkAuth();
@@ -14,9 +15,5 @@ export default function TransactionPage() {
     verifyAuth();
   }, []);
 
-  return (
-    <main className="min-h-screen bg-navbar-bg text-white p-6">
-      <h1 className="text-2xl font-semibold">Dočasná stránka Transaction</h1>
-    </main>
-  );
+  return <TransactionScreen />;
 }
