@@ -1,10 +1,11 @@
 "use client";
 
 import { ChangeEvent } from "react";
-import DatePicker from "./DatePicker";
+import DateRangePicker from "./DateRangePicker";
 
 export type TransactionFiltersState = {
-  date: string | null;
+  startDate: string | null;
+  endDate: string | null;
   category: string;
   type: "all" | "income" | "expense";
   amount: number | null;
@@ -32,10 +33,6 @@ const TransactionFilters: React.FC<Props> = ({
     (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       let v: string | number | null = e.target.value;
 
-      if (field === "date") {
-        v = v || null;
-      }
-
       if (field === "amount") {
         v = e.target.value === "" ? null : Number(e.target.value);
       }
@@ -46,20 +43,25 @@ const TransactionFilters: React.FC<Props> = ({
       });
     };
 
-  const handleDateChange = (date: string | null) => {
+  const handleDateRangeChange = (
+    startDate: string | null,
+    endDate: string | null
+  ) => {
     onChange({
       ...value,
-      date,
+      startDate,
+      endDate,
     });
   };
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
       <div className="flex flex-wrap gap-3">
-        <DatePicker
-          value={value.date}
-          onChange={handleDateChange}
-          placeholder="Select date"
+        <DateRangePicker
+          startDate={value.startDate}
+          endDate={value.endDate}
+          onChange={handleDateRangeChange}
+          placeholder="Select date range"
         />
 
         <select

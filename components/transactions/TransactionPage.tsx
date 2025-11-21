@@ -19,7 +19,8 @@ const TransactionPage = () => {
   const { categories } = useCategories();
 
   const [filters, setFilters] = useState<TransactionFiltersState>({
-    date: null,
+    startDate: null,
+    endDate: null,
     category: "all",
     type: "all",
     amount: null,
@@ -166,27 +167,32 @@ const TransactionPage = () => {
         if (filters.type === "expense" && isIncome) return false;
       }
 
-      if (filters.date) {
+      if (filters.startDate || filters.endDate) {
         if (!t.date) {
           return false;
         }
 
         const txDate = new Date(t.date);
-        const selected = new Date(filters.date);
+        txDate.setHours(0, 0, 0, 0);
 
-        if (
-          Number.isNaN(txDate.getTime()) ||
-          Number.isNaN(selected.getTime())
-        ) {
+        if (Number.isNaN(txDate.getTime())) {
           return false;
         }
 
-        if (
-          txDate.getFullYear() !== selected.getFullYear() ||
-          txDate.getMonth() !== selected.getMonth() ||
-          txDate.getDate() !== selected.getDate()
-        ) {
-          return false;
+        if (filters.startDate) {
+          const startDate = new Date(filters.startDate);
+          startDate.setHours(0, 0, 0, 0);
+          if (txDate < startDate) {
+            return false;
+          }
+        }
+
+        if (filters.endDate) {
+          const endDate = new Date(filters.endDate);
+          endDate.setHours(23, 59, 59, 999);
+          if (txDate > endDate) {
+            return false;
+          }
         }
       }
 
