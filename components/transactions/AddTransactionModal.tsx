@@ -18,12 +18,14 @@ interface AddTransactionModalProps {
     description: string;
     date: Date;
   }) => Promise<void>;
+  editingTransaction?: any;
 }
 
 export default function AddTransactionModal({
   isOpen,
   onClose,
   onSubmit,
+  editingTransaction,
 }: AddTransactionModalProps) {
   const { categories, loading: categoriesLoading } = useCategories();
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
@@ -31,6 +33,33 @@ export default function AddTransactionModal({
   const [amount, setAmount] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+
+  // Pre-fill form when editing
+  useEffect(() => {
+    if (editingTransaction && isOpen && categories.length > 0) {
+      // Find category ID - handle both object and string formats
+      let categoryId = "";
+      if (typeof editingTransaction.category === "string") {
+        // If it's a string (category name), find the matching category
+        const category = categories.find(
+          (c) =>
+            c.name.toLowerCase() === editingTransaction.category.toLowerCase()
+        );
+        categoryId = category?._id || "";
+      } else if (editingTransaction.category?._id) {
+        // If it's an object with _id
+        categoryId = editingTransaction.category._id;
+      }
+
+      setSelectedCategoryId(categoryId);
+      setSelectedType(editingTransaction.incoming ? "Income" : "Expense");
+      setAmount(String(editingTransaction.amount || ""));
+      setDescription(editingTransaction.description || "");
+      setSelectedDate(
+        editingTransaction.date ? new Date(editingTransaction.date) : new Date()
+      );
+    }
+  }, [editingTransaction, isOpen, categories]);
 
   // Reset form when modal closes
   useEffect(() => {
@@ -105,7 +134,7 @@ export default function AddTransactionModal({
 
               <div className="flex-1 p-4 lg:p-8 overflow-y-auto min-h-0 max-h-[50vh] lg:max-h-none">
                 <h2 className="text-xl lg:text-2xl font-semibold text-white mb-4 lg:mb-6 pr-10">
-                  Add transactions
+                  {editingTransaction ? "Edit transaction" : "Add transaction"}
                 </h2>
 
                 <form
@@ -217,7 +246,9 @@ export default function AddTransactionModal({
                     type="submit"
                     className="w-full py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary-hover active:bg-primary-hover transition-colors mt-4 lg:mt-8 touch-manipulation text-base lg:text-sm"
                   >
-                    Add transactions
+                    {editingTransaction
+                      ? "Update transaction"
+                      : "Add transaction"}
                   </button>
                 </form>
               </div>

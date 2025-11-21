@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ChevronLeftIcon from "@/components/icons/ChevronLeftIcon";
 import ChevronRightIcon from "@/components/icons/ChevronRightIcon";
 
@@ -16,6 +16,13 @@ export default function Calendar({
   const [currentMonth, setCurrentMonth] = useState(
     new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1)
   );
+
+  // Sync currentMonth when selectedDate changes externally
+  useEffect(() => {
+    setCurrentMonth(
+      new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1)
+    );
+  }, [selectedDate]);
 
   const monthNames = [
     "January",

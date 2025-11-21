@@ -1,20 +1,27 @@
 "use client";
 
 import React from "react";
+import PencilIcon from "@/components/icons/PencilIcon";
+import TrashIcon from "@/components/icons/TrashIcon";
 
 type TransactionLike = {
   _id?: string;
   id?: string;
   date?: string | Date | null;
   category?: string | { _id: string; name: string } | null;
-  incoming?: boolean | null;          // true = Income, false = Expense
-  type?: "Income" | "Expense";        // fallback, kdyby nepřišlo `incoming`
+  incoming?: boolean | null; // true = Income, false = Expense
+  type?: "Income" | "Expense"; // fallback, kdyby nepřišlo `incoming`
   amount?: number | null;
   description?: string | null;
 };
 
 interface TransactionTableProps {
   transactions: TransactionLike[];
+  onEdit?: (transaction: TransactionLike) => void;
+  onDelete?: (transaction: TransactionLike) => void;
+  onAdd?: () => void;
+  isEditing?: boolean;
+  onToggleEdit?: () => void;
 }
 
 /**
@@ -24,7 +31,14 @@ interface TransactionTableProps {
  * - vertikální čára před sloupcem Amount
  * - částky: zelená pro Income, červená pro Expense, „CZK“ malým textem
  */
-const TransactionTable: React.FC<TransactionTableProps> = ({ transactions }) => {
+const TransactionTable: React.FC<TransactionTableProps> = ({
+  transactions,
+  onEdit,
+  onDelete,
+  onAdd,
+  isEditing = false,
+  onToggleEdit,
+}) => {
   const formatDate = (value?: string | Date | null) => {
     if (!value) return "";
     const d = value instanceof Date ? value : new Date(value);
@@ -54,7 +68,28 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions }) => 
       {/* Hlavička tabulky */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-semibold text-white">Transactions</h2>
-        {/* Add / Edit tlačítka máš v TransactionPage – tady schválně nic */}
+        <div className="flex items-center gap-3">
+          {onAdd && (
+            <button
+              className="rounded-full bg-primary px-6 py-2 text-sm font-medium text-white hover:bg-primary-hover transition-colors"
+              onClick={onAdd}
+            >
+              Add
+            </button>
+          )}
+          {onToggleEdit && (
+            <button
+              className={`rounded-full px-6 py-2 text-sm font-medium transition-colors ${
+                isEditing
+                  ? "bg-slate-500 text-slate-100 hover:bg-slate-600"
+                  : "bg-slate-700 text-slate-100 hover:bg-slate-600"
+              }`}
+              onClick={onToggleEdit}
+            >
+              {isEditing ? "Editing..." : "Edit"}
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="overflow-x-auto">
@@ -78,33 +113,43 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions }) => 
               const amount = t.amount ?? 0;
 
               return (
-                <tr
-                  key={key}
-                  className="align-middle rounded-2xl bg-[#07192c] shadow-sm"
-                >
+                <tr key={key} className="align-middle">
                   {/* Date */}
-                  <td className="py-4 pr-6 rounded-l-2xl">
-                    <span className="text-sm text-slate-100">
-                      {formatDate(t.date)}
-                    </span>
+                  <td className="py-4 pr-6 rounded-l-2xl bg-[#07192c] shadow-sm">
+                    <div className="flex items-center gap-2 pl-2">
+                      {isEditing && onDelete ? (
+                        <button
+                          onClick={() => onDelete(t)}
+                          className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/20 rounded-lg transition-colors flex-shrink-0"
+                          aria-label="Delete transaction"
+                        >
+                          <TrashIcon className="w-4 h-4" />
+                        </button>
+                      ) : (
+                        <div className="w-8 h-8 flex-shrink-0"></div>
+                      )}
+                      <span className="text-sm text-slate-100">
+                        {formatDate(t.date)}
+                      </span>
+                    </div>
                   </td>
 
                   {/* Category */}
-                  <td className="py-4 pr-6">
+                  <td className="py-4 pr-6 bg-[#07192c] shadow-sm">
                     <span className="text-sm text-slate-100">
                       {getCategoryLabel(t.category)}
                     </span>
                   </td>
 
                   {/* Type */}
-                  <td className="py-4 pr-6">
+                  <td className="py-4 pr-6 bg-[#07192c] shadow-sm">
                     <span className="text-sm text-slate-100">
                       {income ? "Income" : "Expense"}
                     </span>
                   </td>
 
                   {/* Amount – s vertikální čárou vlevo + barva částky */}
-                  <td className="py-4 px-6 border-l border-slate-700">
+                  <td className="py-4 px-6 border-l border-slate-700 bg-[#07192c] shadow-sm">
                     <span
                       className={`font-semibold ${
                         income ? "text-[#32D26E]" : "text-[#FF4D4D]"
@@ -115,10 +160,23 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ transactions }) => 
                   </td>
 
                   {/* Description */}
-                  <td className="py-4 pl-6 rounded-r-2xl">
-                    <span className="text-sm text-slate-100">
-                      {t.description ?? ""}
-                    </span>
+                  <td className="py-4 pl-6 rounded-r-2xl bg-[#07192c] shadow-sm">
+                    <div className="flex items-center justify-between gap-2 pr-2">
+                      <span className="text-sm text-slate-100">
+                        {t.description ?? ""}
+                      </span>
+                      {isEditing && onEdit ? (
+                        <button
+                          onClick={() => onEdit(t)}
+                          className="p-2 text-primary hover:text-primary-hover hover:bg-primary/20 rounded-lg transition-colors flex-shrink-0"
+                          aria-label="Edit transaction"
+                        >
+                          <PencilIcon className="w-4 h-4" />
+                        </button>
+                      ) : (
+                        <div className="w-8 h-8 flex-shrink-0"></div>
+                      )}
+                    </div>
                   </td>
                 </tr>
               );

@@ -5,11 +5,11 @@ import Link from "next/link";
 
 import { useTransactions } from "@/lib/transactionsContext";
 import { useCategories } from "@/lib/categoriesContext";
-import { cn } from "@/lib/utils";
 
 import TransactionFilters from "./TransactionFilters";
 import TransactionTable from "./TransactionTable";
 import AddTransactionModal from "./AddTransactionModal";
+import DeleteTransactionModal from "./DeleteTransactionModal";
 
 const TransactionPage = () => {
   const { transactions, loading, refreshTransactions, addTransaction } =
@@ -18,17 +18,20 @@ const TransactionPage = () => {
 
   // držím to jako `any`, ať se to nehádá s typem z TransactionFilters
   const [filters, setFilters] = useState<any>({
-    date: null,        // jeden datumový filtr
+    date: null, // jeden datumový filtr
     category: "all",
     type: "all",
-    amount: "",        // text/číslo do amount filtru
+    amount: "", // text/číslo do amount filtru
     search: "",
   });
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false); // jen kvůli stavu tlačítka Edit
+  const [editingTransaction, setEditingTransaction] = useState<any>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deletingTransaction, setDeletingTransaction] = useState<any>(null);
 
-  // vytvoření nové transakce (Add modal)
+  // vytvoření nové transakce nebo update (Add/Edit modal)
   const handleAddTransaction = async (data: {
     category: string;
     type: "Income" | "Expense";
@@ -44,28 +47,90 @@ const TransactionPage = () => {
       category: data.category,
     };
 
-    const res = await fetch("/api/transactions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+    if (editingTransaction) {
+      // Update existing transaction
+      const res = await fetch(
+        `/api/transactions/${editingTransaction._id || editingTransaction.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
 
-    if (!res.ok) {
-      console.error("Failed to create transaction");
-      return;
-    }
+      if (!res.ok) {
+        console.error("Failed to update transaction");
+        return;
+      }
 
-    const result = await res.json();
-
-    if (result?.success && result.data) {
-      // context si transakci přidá
-      addTransaction(result.data);
+      const result = await res.json();
+      if (result?.success) {
+        refreshTransactions();
+      }
+      setEditingTransaction(null);
+      setIsAddModalOpen(false);
     } else {
-      // fallback – natáhnout znovu
-      refreshTransactions();
-    }
+      // Create new transaction
+      const res = await fetch("/api/transactions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    setIsAddModalOpen(false);
+      if (!res.ok) {
+        console.error("Failed to create transaction");
+        return;
+      }
+
+      const result = await res.json();
+
+      if (result?.success && result.data) {
+        // context si transakci přidá
+        addTransaction(result.data);
+      } else {
+        // fallback – natáhnout znovu
+        refreshTransactions();
+      }
+
+      setIsAddModalOpen(false);
+    }
+  };
+
+  // Handle edit transaction
+  const handleEditTransaction = (transaction: any) => {
+    setEditingTransaction(transaction);
+    setIsAddModalOpen(true);
+  };
+
+  // Handle delete transaction - open modal
+  const handleDeleteTransaction = (transaction: any) => {
+    setDeletingTransaction(transaction);
+    setIsDeleteModalOpen(true);
+  };
+
+  // Confirm delete transaction
+  const handleConfirmDelete = async () => {
+    if (!deletingTransaction) return;
+
+    const transactionId =
+      deletingTransaction._id || deletingTransaction.id || "";
+
+    try {
+      const res = await fetch(`/api/transactions/${transactionId}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        refreshTransactions();
+      } else {
+        console.error("Failed to delete transaction");
+      }
+    } catch (error) {
+      console.error("Error deleting transaction:", error);
+    } finally {
+      setIsDeleteModalOpen(false);
+      setDeletingTransaction(null);
+    }
   };
 
   // filtrování dat pro tabulku
@@ -73,7 +138,14 @@ const TransactionPage = () => {
     return transactions.filter((t) => {
       // CATEGORY
       if (filters.category && filters.category !== "all") {
-        if (t.category !== filters.category) return false;
+        const categoryName =
+          typeof t.category === "string" ? t.category : t.category?.name || "";
+        if (
+          categoryName.trim().toLowerCase() !==
+          filters.category.trim().toLowerCase()
+        ) {
+          return false;
+        }
       }
 
       // TYPE (Income / Expense)
@@ -107,9 +179,10 @@ const TransactionPage = () => {
         const q = String(filters.search).toLowerCase();
         const desc = (t.description || "").toLowerCase();
         const cat =
-          (typeof t.category === "string" ? t.category : "").toLowerCase();
+          typeof t.category === "string" ? t.category : t.category?.name || "";
+        const catLower = cat.toLowerCase();
 
-        if (!desc.includes(q) && !cat.includes(q)) return false;
+        if (!desc.includes(q) && !catLower.includes(q)) return false;
       }
 
       return true;
@@ -119,44 +192,12 @@ const TransactionPage = () => {
   return (
     <>
       <div className="flex flex-col gap-6 px-8 py-6">
-        {/* Title + tlačítka */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-semibold text-white">Transactions</h1>
-            {loading && (
-              <p className="mt-1 text-sm text-slate-400">
-                Loading transactions…
-              </p>
-            )}
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              className="rounded-full bg-sky-500 px-6 py-2 text-sm font-medium text-white"
-              onClick={() => setIsAddModalOpen(true)}
-            >
-              Add
-            </button>
-
-            <button
-              className={cn(
-                "rounded-full px-6 py-2 text-sm font-medium",
-                isEditing
-                  ? "bg-slate-500 text-slate-100"
-                  : "bg-slate-700 text-slate-100"
-              )}
-              onClick={() => setIsEditing((v) => !v)}
-            >
-              {isEditing ? "Editing..." : "Edit"}
-            </button>
-
-            <Link
-              href="/category"
-              className="rounded-full border border-slate-500 px-6 py-2 text-sm font-medium text-slate-100 hover:bg-slate-700"
-            >
-              Spend by Category
-            </Link>
-          </div>
+        {/* Title */}
+        <div>
+          <h1 className="text-xl font-semibold text-white">Transactions</h1>
+          {loading && (
+            <p className="mt-1 text-sm text-slate-400">Loading transactions…</p>
+          )}
         </div>
 
         {/* Filtry (datum, category, type, amount, search) */}
@@ -167,14 +208,39 @@ const TransactionPage = () => {
         />
 
         {/* Tabulka přesně jako ve Figmě */}
-        <TransactionTable transactions={filteredTransactions} />
+        <TransactionTable
+          transactions={filteredTransactions}
+          onEdit={handleEditTransaction}
+          onDelete={handleDeleteTransaction}
+          onAdd={() => {
+            setEditingTransaction(null);
+            setIsAddModalOpen(true);
+          }}
+          isEditing={isEditing}
+          onToggleEdit={() => setIsEditing((v) => !v)}
+        />
       </div>
 
-      {/* Add modal */}
+      {/* Add/Edit modal */}
       <AddTransactionModal
         isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
+        onClose={() => {
+          setIsAddModalOpen(false);
+          setEditingTransaction(null);
+        }}
         onSubmit={handleAddTransaction}
+        editingTransaction={editingTransaction}
+      />
+
+      {/* Delete confirmation modal */}
+      <DeleteTransactionModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setDeletingTransaction(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        transactionDescription={deletingTransaction?.description}
       />
     </>
   );

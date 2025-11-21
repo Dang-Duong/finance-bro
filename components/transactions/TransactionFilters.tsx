@@ -1,12 +1,13 @@
 "use client";
 
 import { ChangeEvent } from "react";
+import DatePicker from "./DatePicker";
 
 export type TransactionFiltersState = {
-  date: string | null;                       
-  category: string;                         
+  date: string | null;
+  category: string;
   type: "all" | "income" | "expense";
-  amount: number | null;                    
+  amount: number | null;
   search: string;
 };
 
@@ -45,37 +46,51 @@ const TransactionFilters: React.FC<Props> = ({
       });
     };
 
+  const handleDateChange = (date: string | null) => {
+    onChange({
+      ...value,
+      date,
+    });
+  };
+
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
       {/* levá část – date, category, type, amount */}
       <div className="flex flex-wrap gap-3">
         {/* DATE */}
-        <input
-          type="date"
-          value={value.date ?? ""}
-          onChange={handleField("date")}
-          className="h-9 rounded-md bg-[#07152c] px-3 text-sm text-slate-100 outline-none ring-1 ring-slate-600 placeholder:text-slate-400"
+        <DatePicker
+          value={value.date}
+          onChange={handleDateChange}
+          placeholder="Select date"
         />
 
         {/* CATEGORY */}
         <select
           value={value.category}
           onChange={handleField("category")}
-          className="h-9 min-w-[160px] rounded-md bg-[#07152c] px-3 text-sm text-slate-100 outline-none ring-1 ring-slate-600"
+          className="h-9 min-w-[160px] rounded-md bg-[#07152c] px-3 text-sm text-slate-100 outline-none ring-1 ring-slate-600 hover:ring-slate-500 focus:ring-2 focus:ring-primary transition-all"
         >
           <option value="all">All categories</option>
-          {categories.map((c) => (
-            <option key={c._id} value={c.name}>
-              {c.name}
-            </option>
-          ))}
+          {categories.map((c) => {
+            // Capitalize category name to match transaction normalization
+            const capitalizeFirst = (str: string) => {
+              if (!str) return str;
+              return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+            };
+            const categoryName = capitalizeFirst(c.name);
+            return (
+              <option key={c._id} value={categoryName}>
+                {categoryName}
+              </option>
+            );
+          })}
         </select>
 
         {/* TYPE */}
         <select
           value={value.type}
           onChange={handleField("type")}
-          className="h-9 min-w-[130px] rounded-md bg-[#07152c] px-3 text-sm text-slate-100 outline-none ring-1 ring-slate-600"
+          className="h-9 min-w-[130px] rounded-md bg-[#07152c] px-3 text-sm text-slate-100 outline-none ring-1 ring-slate-600 hover:ring-slate-500 focus:ring-2 focus:ring-primary transition-all"
         >
           <option value="all">All types</option>
           <option value="income">Income</option>
@@ -88,7 +103,7 @@ const TransactionFilters: React.FC<Props> = ({
           placeholder="amount..."
           value={value.amount ?? ""}
           onChange={handleField("amount")}
-          className="h-9 w-[120px] rounded-md bg-[#07152c] px-3 text-sm text-slate-100 outline-none ring-1 ring-slate-600 placeholder:text-slate-400"
+          className="h-9 w-[120px] rounded-md bg-[#07152c] px-3 text-sm text-slate-100 outline-none ring-1 ring-slate-600 hover:ring-slate-500 focus:ring-2 focus:ring-primary placeholder:text-slate-400 transition-all"
         />
       </div>
 
@@ -99,7 +114,7 @@ const TransactionFilters: React.FC<Props> = ({
           placeholder="Search here..."
           value={value.search}
           onChange={handleField("search")}
-          className="h-10 w-full rounded-full bg-transparent px-4 text-sm text-slate-100 outline-none ring-1 ring-slate-500 placeholder:text-slate-400"
+          className="h-10 w-full rounded-full bg-transparent px-4 text-sm text-slate-100 outline-none ring-1 ring-slate-500 hover:ring-slate-400 focus:ring-2 focus:ring-primary placeholder:text-slate-400 transition-all"
         />
       </div>
     </div>
