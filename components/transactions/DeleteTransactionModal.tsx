@@ -58,7 +58,7 @@ export default function DeleteTransactionModal({
                   Are you sure you want to delete this transaction?
                   {transactionDescription && (
                     <span className="block mt-2 text-sm text-white/60">
-                      "{transactionDescription}"
+                      &quot;{transactionDescription}&quot;
                     </span>
                   )}
                 </p>

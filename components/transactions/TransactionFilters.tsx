@@ -30,7 +30,7 @@ const TransactionFilters: React.FC<Props> = ({
   const handleField =
     (field: keyof TransactionFiltersState) =>
     (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-      let v: any = e.target.value;
+      let v: string | number | null = e.target.value;
 
       if (field === "date") {
         v = v || null;

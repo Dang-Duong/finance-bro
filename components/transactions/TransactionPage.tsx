@@ -1,12 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 
 import { useTransactions } from "@/lib/transactionsContext";
 import { useCategories } from "@/lib/categoriesContext";
 
-import TransactionFilters from "./TransactionFilters";
+import TransactionFilters, {
+  TransactionFiltersState,
+} from "./TransactionFilters";
+import type { TransactionLike } from "./TransactionTable";
 import TransactionTable from "./TransactionTable";
 import AddTransactionModal from "./AddTransactionModal";
 import DeleteTransactionModal from "./DeleteTransactionModal";
@@ -16,20 +18,21 @@ const TransactionPage = () => {
     useTransactions();
   const { categories } = useCategories();
 
-  // držím to jako `any`, ať se to nehádá s typem z TransactionFilters
-  const [filters, setFilters] = useState<any>({
+  const [filters, setFilters] = useState<TransactionFiltersState>({
     date: null, // jeden datumový filtr
     category: "all",
     type: "all",
-    amount: "", // text/číslo do amount filtru
+    amount: null, // text/číslo do amount filtru
     search: "",
   });
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false); // jen kvůli stavu tlačítka Edit
-  const [editingTransaction, setEditingTransaction] = useState<any>(null);
+  const [editingTransaction, setEditingTransaction] =
+    useState<TransactionLike | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [deletingTransaction, setDeletingTransaction] = useState<any>(null);
+  const [deletingTransaction, setDeletingTransaction] =
+    useState<TransactionLike | null>(null);
 
   // vytvoření nové transakce nebo update (Add/Edit modal)
   const handleAddTransaction = async (data: {
@@ -97,13 +100,13 @@ const TransactionPage = () => {
   };
 
   // Handle edit transaction
-  const handleEditTransaction = (transaction: any) => {
+  const handleEditTransaction = (transaction: TransactionLike) => {
     setEditingTransaction(transaction);
     setIsAddModalOpen(true);
   };
 
   // Handle delete transaction - open modal
-  const handleDeleteTransaction = (transaction: any) => {
+  const handleDeleteTransaction = (transaction: TransactionLike) => {
     setDeletingTransaction(transaction);
     setIsDeleteModalOpen(true);
   };
@@ -191,7 +194,7 @@ const TransactionPage = () => {
 
   return (
     <>
-      <div className="flex flex-col gap-6 px-8 py-6">
+      <div className="flex flex-col gap-6 px-4 lg:px-8 py-6 pt-32 lg:pt-6">
         {/* Title */}
         <div>
           <h1 className="text-xl font-semibold text-white">Transactions</h1>
@@ -229,7 +232,7 @@ const TransactionPage = () => {
           setEditingTransaction(null);
         }}
         onSubmit={handleAddTransaction}
-        editingTransaction={editingTransaction}
+        editingTransaction={editingTransaction || undefined}
       />
 
       {/* Delete confirmation modal */}
@@ -240,7 +243,7 @@ const TransactionPage = () => {
           setDeletingTransaction(null);
         }}
         onConfirm={handleConfirmDelete}
-        transactionDescription={deletingTransaction?.description}
+        transactionDescription={deletingTransaction?.description || undefined}
       />
     </>
   );

@@ -18,7 +18,16 @@ interface AddTransactionModalProps {
     description: string;
     date: Date;
   }) => Promise<void>;
-  editingTransaction?: any;
+  editingTransaction?: {
+    _id?: string;
+    id?: string;
+    date?: string | Date | null;
+    category?: string | { _id: string; name: string } | null;
+    incoming?: boolean | null;
+    type?: "Income" | "Expense";
+    amount?: number | null;
+    description?: string | null;
+  };
 }
 
 export default function AddTransactionModal({
@@ -39,16 +48,18 @@ export default function AddTransactionModal({
     if (editingTransaction && isOpen && categories.length > 0) {
       // Find category ID - handle both object and string formats
       let categoryId = "";
-      if (typeof editingTransaction.category === "string") {
-        // If it's a string (category name), find the matching category
-        const category = categories.find(
-          (c) =>
-            c.name.toLowerCase() === editingTransaction.category.toLowerCase()
-        );
-        categoryId = category?._id || "";
-      } else if (editingTransaction.category?._id) {
-        // If it's an object with _id
-        categoryId = editingTransaction.category._id;
+      const transactionCategory = editingTransaction.category;
+      if (transactionCategory) {
+        if (typeof transactionCategory === "string") {
+          // If it's a string (category name), find the matching category
+          const category = categories.find(
+            (c) => c.name.toLowerCase() === transactionCategory.toLowerCase()
+          );
+          categoryId = category?._id || "";
+        } else if (transactionCategory._id) {
+          // If it's an object with _id
+          categoryId = transactionCategory._id;
+        }
       }
 
       setSelectedCategoryId(categoryId);
