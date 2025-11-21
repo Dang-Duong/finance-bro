@@ -132,9 +132,13 @@ export async function PUT(
 
     await transaction.save();
 
+    const populatedTransaction = await Transaction.findById(transaction._id)
+      .populate("category", "name")
+      .populate("userId", "username");
+
     return NextResponse.json({
       success: true,
-      data: transaction,
+      data: populatedTransaction,
       message: "Transaction updated successfully",
     });
   } catch (error) {

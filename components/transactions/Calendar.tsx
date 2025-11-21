@@ -1,21 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ChevronLeftIcon from "@/components/icons/ChevronLeftIcon";
 import ChevronRightIcon from "@/components/icons/ChevronRightIcon";
 
 interface CalendarProps {
   selectedDate: Date;
   onDateSelect: (date: Date) => void;
+  startDate?: Date | null;
+  endDate?: Date | null;
 }
 
 export default function Calendar({
   selectedDate,
   onDateSelect,
+  startDate,
+  endDate,
 }: CalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(
     new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1)
   );
+
+  useEffect(() => {
+    setCurrentMonth(
+      new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1)
+    );
+  }, [selectedDate]);
 
   const monthNames = [
     "January",
@@ -40,9 +50,7 @@ export default function Calendar({
 
   const getFirstDayOfMonth = (date: Date) => {
     const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
-    // Get day of week (0 = Sunday, 1 = Monday, etc.)
     const day = firstDay.getDay();
-    // Convert to Monday = 0 format
     return day === 0 ? 6 : day - 1;
   };
 
@@ -84,21 +92,83 @@ export default function Calendar({
     );
   };
 
+  const isInRange = (day: number, monthOffset: number = 0) => {
+    if (!startDate || !endDate) return false;
+
+    const checkDate = new Date(
+      currentMonth.getFullYear(),
+      currentMonth.getMonth() + monthOffset,
+      day
+    );
+    checkDate.setHours(0, 0, 0, 0);
+
+    const start = new Date(startDate);
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(endDate);
+    end.setHours(0, 0, 0, 0);
+
+    return checkDate > start && checkDate < end;
+  };
+
+  const isStartDateInMonth = (day: number, monthOffset: number = 0) => {
+    if (!startDate) return false;
+    const checkMonth = new Date(
+      currentMonth.getFullYear(),
+      currentMonth.getMonth() + monthOffset,
+      1
+    );
+    return (
+      startDate.getDate() === day &&
+      startDate.getMonth() === checkMonth.getMonth() &&
+      startDate.getFullYear() === checkMonth.getFullYear()
+    );
+  };
+
+  const isEndDateInMonth = (day: number, monthOffset: number = 0) => {
+    if (!endDate) return false;
+    const checkMonth = new Date(
+      currentMonth.getFullYear(),
+      currentMonth.getMonth() + monthOffset,
+      1
+    );
+    return (
+      endDate.getDate() === day &&
+      endDate.getMonth() === checkMonth.getMonth() &&
+      endDate.getFullYear() === checkMonth.getFullYear()
+    );
+  };
+
+  const isStartDate = (day: number) => {
+    if (!startDate) return false;
+    return (
+      startDate.getDate() === day &&
+      startDate.getMonth() === currentMonth.getMonth() &&
+      startDate.getFullYear() === currentMonth.getFullYear()
+    );
+  };
+
+  const isEndDate = (day: number) => {
+    if (!endDate) return false;
+    return (
+      endDate.getDate() === day &&
+      endDate.getMonth() === currentMonth.getMonth() &&
+      endDate.getFullYear() === currentMonth.getFullYear()
+    );
+  };
+
   const daysInMonth = getDaysInMonth(currentMonth);
   const firstDay = getFirstDayOfMonth(currentMonth);
   const days: (number | null)[] = [];
 
-  // Add empty cells for days before the first day of the month
   for (let i = 0; i < firstDay; i++) {
     days.push(null);
   }
 
-  // Add days of the month
   for (let i = 1; i <= daysInMonth; i++) {
     days.push(i);
   }
 
-  // Get previous month's last days for display
   const prevMonth = new Date(
     currentMonth.getFullYear(),
     currentMonth.getMonth() - 1,
@@ -110,8 +180,7 @@ export default function Calendar({
     prevMonthDaysToShow.push(prevMonthDays - i);
   }
 
-  // Get next month's first days for display
-  const totalCells = 42; // 6 weeks * 7 days
+  const totalCells = 42;
   const nextMonthDaysToShow = totalCells - days.length;
   const nextMonthDays: number[] = [];
   for (let i = 1; i <= nextMonthDaysToShow; i++) {
@@ -120,7 +189,6 @@ export default function Calendar({
 
   return (
     <div className="w-full">
-      {/* Header */}
       <div className="flex items-center justify-between mb-4 lg:mb-6">
         <button
           onClick={handlePreviousMonth}
@@ -141,7 +209,6 @@ export default function Calendar({
         </button>
       </div>
 
-      {/* Day names */}
       <div className="grid grid-cols-7 gap-1 lg:gap-2 mb-2">
         {dayNames.map((day) => (
           <div
@@ -153,30 +220,46 @@ export default function Calendar({
         ))}
       </div>
 
-      {/* Calendar grid */}
       <div className="grid grid-cols-7 gap-1 lg:gap-2">
-        {/* Previous month days */}
-        {prevMonthDaysToShow.map((day) => (
-          <div
-            key={`prev-${day}`}
-            className="aspect-square flex items-center justify-center text-white/30 text-xs lg:text-sm"
-          >
-            {day}
-          </div>
-        ))}
+        {prevMonthDaysToShow.map((day) => {
+          const inRange = isInRange(day, -1);
+          const isStart = isStartDateInMonth(day, -1);
+          const isEnd = isEndDateInMonth(day, -1);
 
-        {/* Current month days */}
+          return (
+            <div
+              key={`prev-${day}`}
+              className={`aspect-square flex items-center justify-center text-xs lg:text-sm ${
+                isStart || isEnd
+                  ? "text-primary"
+                  : inRange
+                  ? "text-white/50 line-through"
+                  : "text-white/30"
+              }`}
+            >
+              {day}
+            </div>
+          );
+        })}
+
         {days.map((day, index) => {
           if (day === null) return null;
           const selected = isSelectedDate(day);
           const today = isToday(day);
+          const inRange = isInRange(day);
+          const isStart = isStartDate(day);
+          const isEnd = isEndDate(day);
 
           return (
             <button
               key={index}
               onClick={() => handleDateClick(day)}
-              className={`aspect-square flex items-center justify-center text-xs lg:text-sm font-medium rounded-md lg:rounded-lg transition-all touch-manipulation active:scale-95 ${
-                selected
+              className={`aspect-square flex items-center justify-center text-xs lg:text-sm font-medium rounded-md lg:rounded-lg transition-all touch-manipulation active:scale-95 relative ${
+                isStart || isEnd
+                  ? "bg-primary text-white"
+                  : inRange
+                  ? "bg-primary/30 text-white/80 line-through"
+                  : selected
                   ? "bg-primary text-white"
                   : today
                   ? "bg-white/10 text-white border-2 border-white/30"
@@ -188,15 +271,26 @@ export default function Calendar({
           );
         })}
 
-        {/* Next month days */}
-        {nextMonthDays.map((day) => (
-          <div
-            key={`next-${day}`}
-            className="aspect-square flex items-center justify-center text-white/30 text-xs lg:text-sm"
-          >
-            {day}
-          </div>
-        ))}
+        {nextMonthDays.map((day) => {
+          const inRange = isInRange(day, 1);
+          const isStart = isStartDateInMonth(day, 1);
+          const isEnd = isEndDateInMonth(day, 1);
+
+          return (
+            <div
+              key={`next-${day}`}
+              className={`aspect-square flex items-center justify-center text-xs lg:text-sm ${
+                isStart || isEnd
+                  ? "text-primary"
+                  : inRange
+                  ? "text-white/50 line-through"
+                  : "text-white/30"
+              }`}
+            >
+              {day}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
