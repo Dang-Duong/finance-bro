@@ -62,14 +62,20 @@ const TransactionPage = () => {
       );
 
       if (!res.ok) {
-        console.error("Failed to update transaction");
-        return;
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(
+          errorData.error || errorData.message || "Failed to update transaction"
+        );
       }
 
       const result = await res.json();
-      if (result?.success) {
-        refreshTransactions();
+      if (!result?.success) {
+        throw new Error(
+          result.error || result.message || "Failed to update transaction"
+        );
       }
+
+      refreshTransactions();
       setEditingTransaction(null);
       setIsAddModalOpen(false);
     } else {
@@ -81,13 +87,21 @@ const TransactionPage = () => {
       });
 
       if (!res.ok) {
-        console.error("Failed to create transaction");
-        return;
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(
+          errorData.error || errorData.message || "Failed to create transaction"
+        );
       }
 
       const result = await res.json();
 
-      if (result?.success && result.data) {
+      if (!result?.success) {
+        throw new Error(
+          result.error || result.message || "Failed to create transaction"
+        );
+      }
+
+      if (result.data) {
         // context si transakci přidá
         addTransaction(result.data);
       } else {
@@ -152,13 +166,36 @@ const TransactionPage = () => {
       }
 
       // TYPE (Income / Expense)
-      if (filters.type === "income" && !t.incoming) return false;
-      if (filters.type === "expense" && t.incoming) return false;
+      if (filters.type !== "all") {
+        // Determine if transaction is income - handle null incoming values
+        // Check incoming first if it's a boolean, otherwise check type field
+        const transaction = t as TransactionLike;
+        const isIncome =
+          typeof transaction.incoming === "boolean"
+            ? transaction.incoming
+            : transaction.type === "Income";
+
+        if (filters.type === "income" && !isIncome) return false;
+        if (filters.type === "expense" && isIncome) return false;
+      }
 
       // DATE – pokud je vybraný, bereme přesný den
       if (filters.date) {
+        // Skip transactions with null/undefined dates
+        if (!t.date) {
+          return false;
+        }
+
         const txDate = new Date(t.date);
         const selected = new Date(filters.date);
+
+        // Check if dates are valid
+        if (
+          Number.isNaN(txDate.getTime()) ||
+          Number.isNaN(selected.getTime())
+        ) {
+          return false;
+        }
 
         if (
           txDate.getFullYear() !== selected.getFullYear() ||

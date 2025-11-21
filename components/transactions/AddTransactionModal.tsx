@@ -42,6 +42,7 @@ export default function AddTransactionModal({
   const [amount, setAmount] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [error, setError] = useState<string>("");
 
   // Pre-fill form when editing
   useEffect(() => {
@@ -63,7 +64,19 @@ export default function AddTransactionModal({
       }
 
       setSelectedCategoryId(categoryId);
-      setSelectedType(editingTransaction.incoming ? "Income" : "Expense");
+
+      // Determine transaction type - handle null incoming values
+      // Check incoming first if it's a boolean, otherwise check type field
+      let transactionType: TransactionType = "Expense";
+      if (typeof editingTransaction.incoming === "boolean") {
+        transactionType = editingTransaction.incoming ? "Income" : "Expense";
+      } else {
+        // incoming is null/undefined, check type field as fallback
+        transactionType =
+          editingTransaction.type === "Income" ? "Income" : "Expense";
+      }
+      setSelectedType(transactionType);
+
       setAmount(String(editingTransaction.amount || ""));
       setDescription(editingTransaction.description || "");
       setSelectedDate(
@@ -80,6 +93,7 @@ export default function AddTransactionModal({
       setAmount("");
       setDescription("");
       setSelectedDate(new Date());
+      setError("");
     }
   }, [isOpen]);
 
@@ -91,6 +105,7 @@ export default function AddTransactionModal({
       return false;
     }
 
+    setError("");
     try {
       await onSubmit({
         category: selectedCategoryId, // Send ID to the API
@@ -99,12 +114,17 @@ export default function AddTransactionModal({
         description,
         date: selectedDate,
       });
+      // Only reset form on successful submission
       setSelectedCategoryId("");
       setSelectedType("Income");
       setAmount("");
       setDescription("");
       setSelectedDate(new Date());
     } catch (error) {
+      // Keep form data on error
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to submit transaction";
+      setError(errorMessage);
       console.error("Error submitting form:", error);
     }
 
@@ -179,9 +199,10 @@ export default function AddTransactionModal({
                             <button
                               key={category._id}
                               type="button"
-                              onClick={() =>
-                                setSelectedCategoryId(category._id)
-                              }
+                              onClick={() => {
+                                setSelectedCategoryId(category._id);
+                                setError(""); // Clear error when user starts editing
+                              }}
                               className={`px-2.5 lg:px-4 py-1.5 lg:py-2 rounded-full text-xs lg:text-sm font-medium transition-all touch-manipulation active:scale-95 ${
                                 selectedCategoryId === category._id
                                   ? "bg-white text-[#1a2b3d] border-2 border-white"
@@ -203,7 +224,10 @@ export default function AddTransactionModal({
                     <div className="flex gap-2">
                       <button
                         type="button"
-                        onClick={() => setSelectedType("Income")}
+                        onClick={() => {
+                          setSelectedType("Income");
+                          setError(""); // Clear error when user starts editing
+                        }}
                         className={`flex-1 px-4 lg:px-6 py-2 rounded-full text-sm font-medium transition-all touch-manipulation active:scale-95 ${
                           selectedType === "Income"
                             ? "bg-green-500 text-white border-2 border-green-500"
@@ -214,7 +238,10 @@ export default function AddTransactionModal({
                       </button>
                       <button
                         type="button"
-                        onClick={() => setSelectedType("Expense")}
+                        onClick={() => {
+                          setSelectedType("Expense");
+                          setError(""); // Clear error when user starts editing
+                        }}
                         className={`flex-1 px-4 lg:px-6 py-2 rounded-full text-sm font-medium transition-all touch-manipulation active:scale-95 ${
                           selectedType === "Expense"
                             ? "bg-red-500 text-white border-2 border-red-500"
@@ -233,7 +260,10 @@ export default function AddTransactionModal({
                     <input
                       type="number"
                       value={amount}
-                      onChange={(e) => setAmount(e.target.value)}
+                      onChange={(e) => {
+                        setAmount(e.target.value);
+                        setError(""); // Clear error when user starts editing
+                      }}
                       placeholder="Enter amount"
                       className="w-full px-4 py-2.5 lg:py-3 bg-white/10 border-2 border-white/30 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-white/60 transition-colors text-base lg:text-sm"
                       required
@@ -247,11 +277,20 @@ export default function AddTransactionModal({
                     <input
                       type="text"
                       value={description}
-                      onChange={(e) => setDescription(e.target.value)}
+                      onChange={(e) => {
+                        setDescription(e.target.value);
+                        setError(""); // Clear error when user starts editing
+                      }}
                       placeholder="Enter description"
                       className="w-full px-4 py-2.5 lg:py-3 bg-white/10 border-2 border-white/30 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-white/60 transition-colors text-base lg:text-sm"
                     />
                   </div>
+
+                  {error && (
+                    <div className="mt-4 p-3 rounded-lg text-sm bg-red-500/20 text-red-300 border border-red-500/30">
+                      {error}
+                    </div>
+                  )}
 
                   <button
                     type="submit"
@@ -267,7 +306,10 @@ export default function AddTransactionModal({
               <div className="flex-1 p-4 lg:p-8 pt-6 lg:pt-16 border-t lg:border-t-0 lg:border-l border-white/10 bg-[#152431] overflow-y-auto min-h-0 max-h-[50vh] lg:max-h-none">
                 <Calendar
                   selectedDate={selectedDate}
-                  onDateSelect={setSelectedDate}
+                  onDateSelect={(date) => {
+                    setSelectedDate(date);
+                    setError(""); // Clear error when user starts editing
+                  }}
                 />
               </div>
             </motion.div>
