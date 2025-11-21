@@ -77,7 +77,7 @@ export default function AddTransactionModal({
       }
       setSelectedType(transactionType);
 
-      setAmount(String(editingTransaction.amount || ""));
+      setAmount(String(editingTransaction.amount ?? ""));
       setDescription(editingTransaction.description || "");
       setSelectedDate(
         editingTransaction.date ? new Date(editingTransaction.date) : new Date()

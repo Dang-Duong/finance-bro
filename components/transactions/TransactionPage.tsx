@@ -207,7 +207,7 @@ const TransactionPage = () => {
       }
 
       // AMOUNT – jednoduchý filtr na přesnou částku
-      if (filters.amount) {
+      if (filters.amount !== null) {
         const target = Number(filters.amount);
         if (!Number.isNaN(target)) {
           if ((t.amount ?? 0) !== target) return false;
