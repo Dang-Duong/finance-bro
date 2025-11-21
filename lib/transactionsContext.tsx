@@ -82,8 +82,28 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
     setRefreshTrigger((prev) => prev + 1);
   }, []);
 
+  const capitalizeFirst = (str: string) => {
+    if (!str) return str;
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
+
   const addTransaction = useCallback((transaction: Transaction) => {
-    setTransactions((prev) => [transaction, ...prev]);
+    const normalizedTransaction: Transaction = {
+      _id: transaction._id,
+      amount: transaction.amount,
+      incoming: transaction.incoming,
+      date: transaction.date,
+      createdAt: transaction.createdAt,
+      description: transaction.description,
+      category:
+        typeof transaction.category === "object" &&
+        transaction.category !== null
+          ? capitalizeFirst(transaction.category.name)
+          : transaction.category
+          ? capitalizeFirst(transaction.category)
+          : undefined,
+    };
+    setTransactions((prev) => [normalizedTransaction, ...prev]);
   }, []);
 
   useEffect(() => {
