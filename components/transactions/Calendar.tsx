@@ -17,7 +17,6 @@ export default function Calendar({
     new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1)
   );
 
-  // Sync currentMonth when selectedDate changes externally
   useEffect(() => {
     setCurrentMonth(
       new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1)
@@ -47,9 +46,7 @@ export default function Calendar({
 
   const getFirstDayOfMonth = (date: Date) => {
     const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
-    // Get day of week (0 = Sunday, 1 = Monday, etc.)
     const day = firstDay.getDay();
-    // Convert to Monday = 0 format
     return day === 0 ? 6 : day - 1;
   };
 
@@ -95,17 +92,14 @@ export default function Calendar({
   const firstDay = getFirstDayOfMonth(currentMonth);
   const days: (number | null)[] = [];
 
-  // Add empty cells for days before the first day of the month
   for (let i = 0; i < firstDay; i++) {
     days.push(null);
   }
 
-  // Add days of the month
   for (let i = 1; i <= daysInMonth; i++) {
     days.push(i);
   }
 
-  // Get previous month's last days for display
   const prevMonth = new Date(
     currentMonth.getFullYear(),
     currentMonth.getMonth() - 1,
@@ -117,8 +111,7 @@ export default function Calendar({
     prevMonthDaysToShow.push(prevMonthDays - i);
   }
 
-  // Get next month's first days for display
-  const totalCells = 42; // 6 weeks * 7 days
+  const totalCells = 42;
   const nextMonthDaysToShow = totalCells - days.length;
   const nextMonthDays: number[] = [];
   for (let i = 1; i <= nextMonthDaysToShow; i++) {
@@ -127,7 +120,6 @@ export default function Calendar({
 
   return (
     <div className="w-full">
-      {/* Header */}
       <div className="flex items-center justify-between mb-4 lg:mb-6">
         <button
           onClick={handlePreviousMonth}
@@ -148,7 +140,6 @@ export default function Calendar({
         </button>
       </div>
 
-      {/* Day names */}
       <div className="grid grid-cols-7 gap-1 lg:gap-2 mb-2">
         {dayNames.map((day) => (
           <div
@@ -160,9 +151,7 @@ export default function Calendar({
         ))}
       </div>
 
-      {/* Calendar grid */}
       <div className="grid grid-cols-7 gap-1 lg:gap-2">
-        {/* Previous month days */}
         {prevMonthDaysToShow.map((day) => (
           <div
             key={`prev-${day}`}
@@ -172,7 +161,6 @@ export default function Calendar({
           </div>
         ))}
 
-        {/* Current month days */}
         {days.map((day, index) => {
           if (day === null) return null;
           const selected = isSelectedDate(day);
@@ -195,7 +183,6 @@ export default function Calendar({
           );
         })}
 
-        {/* Next month days */}
         {nextMonthDays.map((day) => (
           <div
             key={`next-${day}`}

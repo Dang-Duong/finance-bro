@@ -44,34 +44,27 @@ export default function AddTransactionModal({
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [error, setError] = useState<string>("");
 
-  // Pre-fill form when editing
   useEffect(() => {
     if (editingTransaction && isOpen && categories.length > 0) {
-      // Find category ID - handle both object and string formats
       let categoryId = "";
       const transactionCategory = editingTransaction.category;
       if (transactionCategory) {
         if (typeof transactionCategory === "string") {
-          // If it's a string (category name), find the matching category
           const category = categories.find(
             (c) => c.name.toLowerCase() === transactionCategory.toLowerCase()
           );
           categoryId = category?._id || "";
         } else if (transactionCategory._id) {
-          // If it's an object with _id
           categoryId = transactionCategory._id;
         }
       }
 
       setSelectedCategoryId(categoryId);
 
-      // Determine transaction type - handle null incoming values
-      // Check incoming first if it's a boolean, otherwise check type field
       let transactionType: TransactionType = "Expense";
       if (typeof editingTransaction.incoming === "boolean") {
         transactionType = editingTransaction.incoming ? "Income" : "Expense";
       } else {
-        // incoming is null/undefined, check type field as fallback
         transactionType =
           editingTransaction.type === "Income" ? "Income" : "Expense";
       }
@@ -85,9 +78,8 @@ export default function AddTransactionModal({
     }
   }, [editingTransaction, isOpen, categories]);
 
-  // Reset form when modal closes
   useEffect(() => {
-    if (!isOpen) {
+    if (!isOpen || (isOpen && !editingTransaction)) {
       setSelectedCategoryId("");
       setSelectedType("Income");
       setAmount("");
@@ -95,7 +87,7 @@ export default function AddTransactionModal({
       setSelectedDate(new Date());
       setError("");
     }
-  }, [isOpen]);
+  }, [isOpen, editingTransaction]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -108,20 +100,18 @@ export default function AddTransactionModal({
     setError("");
     try {
       await onSubmit({
-        category: selectedCategoryId, // Send ID to the API
+        category: selectedCategoryId,
         type: selectedType,
         amount: parseFloat(amount),
         description,
         date: selectedDate,
       });
-      // Only reset form on successful submission
       setSelectedCategoryId("");
       setSelectedType("Income");
       setAmount("");
       setDescription("");
       setSelectedDate(new Date());
     } catch (error) {
-      // Keep form data on error
       const errorMessage =
         error instanceof Error ? error.message : "Failed to submit transaction";
       setError(errorMessage);
@@ -201,7 +191,7 @@ export default function AddTransactionModal({
                               type="button"
                               onClick={() => {
                                 setSelectedCategoryId(category._id);
-                                setError(""); // Clear error when user starts editing
+                                setError("");
                               }}
                               className={`px-2.5 lg:px-4 py-1.5 lg:py-2 rounded-full text-xs lg:text-sm font-medium transition-all touch-manipulation active:scale-95 ${
                                 selectedCategoryId === category._id
@@ -226,7 +216,7 @@ export default function AddTransactionModal({
                         type="button"
                         onClick={() => {
                           setSelectedType("Income");
-                          setError(""); // Clear error when user starts editing
+                          setError("");
                         }}
                         className={`flex-1 px-4 lg:px-6 py-2 rounded-full text-sm font-medium transition-all touch-manipulation active:scale-95 ${
                           selectedType === "Income"
@@ -240,7 +230,7 @@ export default function AddTransactionModal({
                         type="button"
                         onClick={() => {
                           setSelectedType("Expense");
-                          setError(""); // Clear error when user starts editing
+                          setError("");
                         }}
                         className={`flex-1 px-4 lg:px-6 py-2 rounded-full text-sm font-medium transition-all touch-manipulation active:scale-95 ${
                           selectedType === "Expense"
@@ -262,7 +252,7 @@ export default function AddTransactionModal({
                       value={amount}
                       onChange={(e) => {
                         setAmount(e.target.value);
-                        setError(""); // Clear error when user starts editing
+                        setError("");
                       }}
                       placeholder="Enter amount"
                       className="w-full px-4 py-2.5 lg:py-3 bg-white/10 border-2 border-white/30 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-white/60 transition-colors text-base lg:text-sm"
@@ -279,7 +269,7 @@ export default function AddTransactionModal({
                       value={description}
                       onChange={(e) => {
                         setDescription(e.target.value);
-                        setError(""); // Clear error when user starts editing
+                        setError("");
                       }}
                       placeholder="Enter description"
                       className="w-full px-4 py-2.5 lg:py-3 bg-white/10 border-2 border-white/30 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-white/60 transition-colors text-base lg:text-sm"
@@ -308,7 +298,7 @@ export default function AddTransactionModal({
                   selectedDate={selectedDate}
                   onDateSelect={(date) => {
                     setSelectedDate(date);
-                    setError(""); // Clear error when user starts editing
+                    setError("");
                   }}
                 />
               </div>

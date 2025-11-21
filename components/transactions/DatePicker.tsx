@@ -18,10 +18,8 @@ export default function DatePicker({
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Parse the value to a Date object, or use today if null
   const selectedDate = value ? new Date(value) : new Date();
 
-  // Format date for display
   const formatDate = (date: Date) => {
     return date.toLocaleDateString("en-US", {
       year: "numeric",
@@ -31,7 +29,6 @@ export default function DatePicker({
   };
 
   const handleDateSelect = (date: Date) => {
-    // Format as YYYY-MM-DD for the input value
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
@@ -45,7 +42,6 @@ export default function DatePicker({
     onChange(null);
   };
 
-  // Close popover when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -66,7 +62,6 @@ export default function DatePicker({
 
   return (
     <div ref={containerRef} className="relative">
-      {/* Input trigger */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -87,11 +82,9 @@ export default function DatePicker({
         )}
       </button>
 
-      {/* Popover */}
       <AnimatePresence>
         {isOpen && (
           <>
-            {/* Mobile: Fixed centered modal */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -113,7 +106,6 @@ export default function DatePicker({
                 />
               </motion.div>
             </motion.div>
-            {/* Desktop: Absolute positioned popover */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: -10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}

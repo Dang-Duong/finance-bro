@@ -9,8 +9,8 @@ export type TransactionLike = {
   id?: string;
   date?: string | Date | null;
   category?: string | { _id: string; name: string } | null;
-  incoming?: boolean | null; // true = Income, false = Expense
-  type?: "Income" | "Expense"; // fallback, kdyby nepřišlo `incoming`
+  incoming?: boolean | null;
+  type?: "Income" | "Expense";
   amount?: number | null;
   description?: string | null;
 };
@@ -24,13 +24,6 @@ interface TransactionTableProps {
   onToggleEdit?: () => void;
 }
 
-/**
- * Tabulka transakcí – vzhled co nejblíž Figmě:
- * - 1 řádek = 1 transakce
- * - sloupce Date / Category / Type / Amount / Description
- * - vertikální čára před sloupcem Amount
- * - částky: zelená pro Income, červená pro Expense, „CZK“ malým textem
- */
 const TransactionTable: React.FC<TransactionTableProps> = ({
   transactions,
   onEdit,
@@ -65,7 +58,6 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
 
   return (
     <div className="w-full rounded-3xl bg-[#071426] px-4 lg:px-10 py-4 lg:py-8 shadow-lg border border-slate-800">
-      {/* Hlavička tabulky */}
       <div className="flex items-center justify-between mb-4 lg:mb-6">
         <h2 className="text-base lg:text-lg font-semibold text-white">
           Transactions
@@ -94,7 +86,6 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
         </div>
       </div>
 
-      {/* Mobile: Card Layout */}
       <div className="lg:hidden space-y-3">
         {transactions.map((t) => {
           const key = t._id ?? t.id ?? `${formatDate(t.date)}-${t.amount}`;
@@ -180,7 +171,6 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
         )}
       </div>
 
-      {/* Desktop: Table Layout */}
       <div className="hidden lg:block overflow-x-auto">
         <table className="w-full text-sm text-left text-slate-100 border-separate border-spacing-y-3">
           <thead>
@@ -203,7 +193,6 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
 
               return (
                 <tr key={key} className="align-middle">
-                  {/* Date */}
                   <td className="py-4 pr-6 rounded-l-2xl bg-[#07192c] shadow-sm">
                     <div className="flex items-center gap-2 pl-2">
                       {isEditing && onDelete ? (
@@ -223,21 +212,18 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                     </div>
                   </td>
 
-                  {/* Category */}
                   <td className="py-4 pr-6 bg-[#07192c] shadow-sm">
                     <span className="text-sm text-slate-100">
                       {getCategoryLabel(t.category)}
                     </span>
                   </td>
 
-                  {/* Type */}
                   <td className="py-4 pr-6 bg-[#07192c] shadow-sm">
                     <span className="text-sm text-slate-100">
                       {income ? "Income" : "Expense"}
                     </span>
                   </td>
 
-                  {/* Amount – s vertikální čárou vlevo + barva částky */}
                   <td className="py-4 px-6 border-l border-slate-700 bg-[#07192c] shadow-sm">
                     <span
                       className={`font-semibold ${
@@ -248,7 +234,6 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                     </span>
                   </td>
 
-                  {/* Description */}
                   <td className="py-4 pl-6 rounded-r-2xl bg-[#07192c] shadow-sm">
                     <div className="flex items-center justify-between gap-2 pr-2">
                       <span className="text-sm text-slate-100">

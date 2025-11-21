@@ -55,16 +55,13 @@ const TransactionFilters: React.FC<Props> = ({
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
-      {/* levá část – date, category, type, amount */}
       <div className="flex flex-wrap gap-3">
-        {/* DATE */}
         <DatePicker
           value={value.date}
           onChange={handleDateChange}
           placeholder="Select date"
         />
 
-        {/* CATEGORY */}
         <select
           value={value.category}
           onChange={handleField("category")}
@@ -72,7 +69,6 @@ const TransactionFilters: React.FC<Props> = ({
         >
           <option value="all">All categories</option>
           {categories.map((c) => {
-            // Capitalize category name to match transaction normalization
             const capitalizeFirst = (str: string) => {
               if (!str) return str;
               return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
@@ -86,7 +82,6 @@ const TransactionFilters: React.FC<Props> = ({
           })}
         </select>
 
-        {/* TYPE */}
         <select
           value={value.type}
           onChange={handleField("type")}
@@ -97,7 +92,6 @@ const TransactionFilters: React.FC<Props> = ({
           <option value="expense">Expense</option>
         </select>
 
-        {/* AMOUNT */}
         <input
           type="number"
           placeholder="amount..."
@@ -107,7 +101,6 @@ const TransactionFilters: React.FC<Props> = ({
         />
       </div>
 
-      {/* pravá část – search */}
       <div className="flex-1 min-w-[220px] max-w-lg">
         <input
           type="text"

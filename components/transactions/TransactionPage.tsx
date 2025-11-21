@@ -19,22 +19,21 @@ const TransactionPage = () => {
   const { categories } = useCategories();
 
   const [filters, setFilters] = useState<TransactionFiltersState>({
-    date: null, // jeden datumový filtr
+    date: null,
     category: "all",
     type: "all",
-    amount: null, // text/číslo do amount filtru
+    amount: null,
     search: "",
   });
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false); // jen kvůli stavu tlačítka Edit
+  const [isEditing, setIsEditing] = useState(false);
   const [editingTransaction, setEditingTransaction] =
     useState<TransactionLike | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deletingTransaction, setDeletingTransaction] =
     useState<TransactionLike | null>(null);
 
-  // vytvoření nové transakce nebo update (Add/Edit modal)
   const handleAddTransaction = async (data: {
     category: string;
     type: "Income" | "Expense";
@@ -51,7 +50,6 @@ const TransactionPage = () => {
     };
 
     if (editingTransaction) {
-      // Update existing transaction
       const res = await fetch(
         `/api/transactions/${editingTransaction._id || editingTransaction.id}`,
         {
@@ -79,7 +77,6 @@ const TransactionPage = () => {
       setEditingTransaction(null);
       setIsAddModalOpen(false);
     } else {
-      // Create new transaction
       const res = await fetch("/api/transactions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -102,10 +99,8 @@ const TransactionPage = () => {
       }
 
       if (result.data) {
-        // context si transakci přidá
         addTransaction(result.data);
       } else {
-        // fallback – natáhnout znovu
         refreshTransactions();
       }
 
@@ -113,19 +108,16 @@ const TransactionPage = () => {
     }
   };
 
-  // Handle edit transaction
   const handleEditTransaction = (transaction: TransactionLike) => {
     setEditingTransaction(transaction);
     setIsAddModalOpen(true);
   };
 
-  // Handle delete transaction - open modal
   const handleDeleteTransaction = (transaction: TransactionLike) => {
     setDeletingTransaction(transaction);
     setIsDeleteModalOpen(true);
   };
 
-  // Confirm delete transaction
   const handleConfirmDelete = async () => {
     if (!deletingTransaction) return;
 
@@ -150,10 +142,8 @@ const TransactionPage = () => {
     }
   };
 
-  // filtrování dat pro tabulku
   const filteredTransactions = useMemo(() => {
     return transactions.filter((t) => {
-      // CATEGORY
       if (filters.category && filters.category !== "all") {
         const categoryName =
           typeof t.category === "string" ? t.category : t.category?.name || "";
@@ -165,10 +155,7 @@ const TransactionPage = () => {
         }
       }
 
-      // TYPE (Income / Expense)
       if (filters.type !== "all") {
-        // Determine if transaction is income - handle null incoming values
-        // Check incoming first if it's a boolean, otherwise check type field
         const transaction = t as TransactionLike;
         const isIncome =
           typeof transaction.incoming === "boolean"
@@ -179,9 +166,7 @@ const TransactionPage = () => {
         if (filters.type === "expense" && isIncome) return false;
       }
 
-      // DATE – pokud je vybraný, bereme přesný den
       if (filters.date) {
-        // Skip transactions with null/undefined dates
         if (!t.date) {
           return false;
         }
@@ -189,7 +174,6 @@ const TransactionPage = () => {
         const txDate = new Date(t.date);
         const selected = new Date(filters.date);
 
-        // Check if dates are valid
         if (
           Number.isNaN(txDate.getTime()) ||
           Number.isNaN(selected.getTime())
@@ -206,7 +190,6 @@ const TransactionPage = () => {
         }
       }
 
-      // AMOUNT – jednoduchý filtr na přesnou částku
       if (filters.amount !== null) {
         const target = Number(filters.amount);
         if (!Number.isNaN(target)) {
@@ -214,7 +197,6 @@ const TransactionPage = () => {
         }
       }
 
-      // SEARCH – description + category text
       if (filters.search) {
         const q = String(filters.search).toLowerCase();
         const desc = (t.description || "").toLowerCase();
@@ -232,7 +214,6 @@ const TransactionPage = () => {
   return (
     <>
       <div className="flex flex-col gap-6 px-4 lg:px-8 py-6 pt-32 lg:pt-6">
-        {/* Title */}
         <div>
           <h1 className="text-xl font-semibold text-white">Transactions</h1>
           {loading && (
@@ -240,14 +221,12 @@ const TransactionPage = () => {
           )}
         </div>
 
-        {/* Filtry (datum, category, type, amount, search) */}
         <TransactionFilters
           value={filters}
           onChange={setFilters}
           categories={categories}
         />
 
-        {/* Tabulka přesně jako ve Figmě */}
         <TransactionTable
           transactions={filteredTransactions}
           onEdit={handleEditTransaction}
@@ -261,7 +240,6 @@ const TransactionPage = () => {
         />
       </div>
 
-      {/* Add/Edit modal */}
       <AddTransactionModal
         isOpen={isAddModalOpen}
         onClose={() => {
@@ -272,7 +250,6 @@ const TransactionPage = () => {
         editingTransaction={editingTransaction || undefined}
       />
 
-      {/* Delete confirmation modal */}
       <DeleteTransactionModal
         isOpen={isDeleteModalOpen}
         onClose={() => {
