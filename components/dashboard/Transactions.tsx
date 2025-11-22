@@ -32,6 +32,8 @@ export default function Transactions() {
     amount: number;
     description: string;
     date: Date;
+    isRepeating?: boolean;
+    frequency?: "weekly" | "monthly" | "yearly";
   }) => {
     try {
       const response = await fetch("/api/transactions", {
@@ -45,6 +47,8 @@ export default function Transactions() {
           incoming: data.type === "Income",
           date: data.date.toISOString(),
           category: data.category,
+          isRepeating: data.isRepeating,
+          frequency: data.frequency,
         }),
       });
 
@@ -195,7 +199,7 @@ export default function Transactions() {
                       {transaction.amount.toLocaleString("cs-CZ")} CZK
                     </td>
                     <td className="py-3 px-2 text-sm text-white/80">
-                      {transaction.description || "N/A"}
+                      {transaction.description || ""}
                     </td>
                   </motion.tr>
                 ))

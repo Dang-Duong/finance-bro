@@ -13,6 +13,8 @@ export type TransactionLike = {
   type?: "Income" | "Expense";
   amount?: number | null;
   description?: string | null;
+  isRepeating?: boolean;
+  frequency?: "weekly" | "monthly" | "yearly";
 };
 
 interface TransactionTableProps {

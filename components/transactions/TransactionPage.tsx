@@ -41,6 +41,8 @@ const TransactionPage = () => {
     amount: number;
     description: string;
     date: Date;
+    isRepeating?: boolean;
+    frequency?: "weekly" | "monthly" | "yearly";
   }) => {
     const payload = {
       amount: data.amount,
@@ -48,6 +50,8 @@ const TransactionPage = () => {
       description: data.description,
       date: data.date,
       category: data.category,
+      isRepeating: data.isRepeating,
+      frequency: data.frequency,
     };
 
     if (editingTransaction) {
