@@ -9,6 +9,8 @@ export interface ITransaction {
   incoming: boolean;
   date: Date;
   userId: mongoose.Types.ObjectId;
+  isRepeating?: boolean;
+  frequency?: "weekly" | "monthly" | "yearly";
 }
 
 export interface ITransactionDocument extends ITransaction, Document {
@@ -51,6 +53,16 @@ const transactionSchema = new Schema<ITransactionDocument>(
       type: Date,
       required: false,
       default: Date.now,
+    },
+    isRepeating: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    frequency: {
+      type: String,
+      enum: ["weekly", "monthly", "yearly"],
+      required: false,
     },
   },
   { timestamps: true }

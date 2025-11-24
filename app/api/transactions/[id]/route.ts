@@ -110,7 +110,16 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { amount, description, category, state, incoming, date } = body;
+    const {
+      amount,
+      description,
+      category,
+      state,
+      incoming,
+      date,
+      isRepeating,
+      frequency,
+    } = body;
 
     // Update only provided fields
     if (amount !== undefined) transaction.amount = amount;
@@ -129,6 +138,8 @@ export async function PUT(
     if (state !== undefined) transaction.state = state;
     if (incoming !== undefined) transaction.incoming = incoming;
     if (date !== undefined) transaction.date = new Date(date);
+    if (isRepeating !== undefined) transaction.isRepeating = isRepeating;
+    if (frequency !== undefined) transaction.frequency = frequency;
 
     await transaction.save();
 

@@ -51,7 +51,8 @@ export async function POST(request: Request) {
 
     await dbConnect();
     const body = await request.json();
-    const { amount, description, incoming, date } = body;
+    const { amount, description, incoming, date, isRepeating, frequency } =
+      body;
 
     // Použití userId z autentizovaného uživatele
     const userId = authUser.userId;
@@ -81,6 +82,8 @@ export async function POST(request: Request) {
       incoming,
       date: date ? new Date(date) : new Date(),
       category: categoryExist._id,
+      isRepeating: isRepeating || false,
+      frequency: isRepeating ? frequency : undefined,
     });
 
     // Add transaction to user's transactions array

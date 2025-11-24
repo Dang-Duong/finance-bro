@@ -7,6 +7,7 @@ import Calendar from "./Calendar";
 import { useCategories } from "@/lib/categoriesContext";
 
 type TransactionType = "Income" | "Expense";
+type Frequency = "weekly" | "monthly" | "yearly";
 
 interface AddTransactionModalProps {
   isOpen: boolean;
@@ -17,6 +18,8 @@ interface AddTransactionModalProps {
     amount: number;
     description: string;
     date: Date;
+    isRepeating?: boolean;
+    frequency?: Frequency;
   }) => Promise<void>;
   editingTransaction?: {
     _id?: string;
@@ -27,6 +30,8 @@ interface AddTransactionModalProps {
     type?: "Income" | "Expense";
     amount?: number | null;
     description?: string | null;
+    isRepeating?: boolean;
+    frequency?: Frequency;
   };
 }
 
@@ -43,6 +48,8 @@ export default function AddTransactionModal({
   const [description, setDescription] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [error, setError] = useState<string>("");
+  const [isRepeating, setIsRepeating] = useState<boolean>(false);
+  const [frequency, setFrequency] = useState<Frequency>("monthly");
 
   useEffect(() => {
     if (editingTransaction && isOpen && categories.length > 0) {
@@ -75,6 +82,8 @@ export default function AddTransactionModal({
       setSelectedDate(
         editingTransaction.date ? new Date(editingTransaction.date) : new Date()
       );
+      setIsRepeating(editingTransaction.isRepeating || false);
+      setFrequency(editingTransaction.frequency || "monthly");
     }
   }, [editingTransaction, isOpen, categories]);
 
@@ -86,6 +95,8 @@ export default function AddTransactionModal({
       setDescription("");
       setSelectedDate(new Date());
       setError("");
+      setIsRepeating(false);
+      setFrequency("monthly");
     }
   }, [isOpen, editingTransaction]);
 
@@ -105,12 +116,16 @@ export default function AddTransactionModal({
         amount: parseFloat(amount),
         description,
         date: selectedDate,
+        isRepeating: isRepeating,
+        frequency: isRepeating ? frequency : undefined,
       });
       setSelectedCategoryId("");
       setSelectedType("Income");
       setAmount("");
       setDescription("");
       setSelectedDate(new Date());
+      setIsRepeating(false);
+      setFrequency("monthly");
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Failed to submit transaction";
@@ -274,6 +289,60 @@ export default function AddTransactionModal({
                       placeholder="Enter description"
                       className="w-full px-4 py-2.5 lg:py-3 bg-white/10 border-2 border-white/30 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-white/60 transition-colors text-base lg:text-sm"
                     />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-white/80 mb-2 lg:mb-3">
+                      Recurring Transaction
+                    </label>
+                    <div className="flex items-center gap-3 mb-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsRepeating(!isRepeating);
+                          setError("");
+                        }}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-[#1a2b3d] ${
+                          isRepeating ? "bg-primary" : "bg-white/30"
+                        }`}
+                        role="switch"
+                        aria-checked={isRepeating}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            isRepeating ? "translate-x-6" : "translate-x-1"
+                          }`}
+                        />
+                      </button>
+                      <span className="text-sm text-white/80">
+                        Allow repeated transaction
+                      </span>
+                    </div>
+                    {isRepeating && (
+                      <div>
+                        <label className="block text-xs font-medium text-white/70 mb-2">
+                          Frequency
+                        </label>
+                        <select
+                          value={frequency}
+                          onChange={(e) => {
+                            setFrequency(e.target.value as Frequency);
+                            setError("");
+                          }}
+                          className="w-full px-4 py-2.5 lg:py-3 bg-white/10 border-2 border-white/30 rounded-lg text-white focus:outline-none focus:border-white/60 transition-colors text-base lg:text-sm"
+                        >
+                          <option value="weekly" className="bg-[#1a2b3d]">
+                            Weekly
+                          </option>
+                          <option value="monthly" className="bg-[#1a2b3d]">
+                            Monthly
+                          </option>
+                          <option value="yearly" className="bg-[#1a2b3d]">
+                            Yearly
+                          </option>
+                        </select>
+                      </div>
+                    )}
                   </div>
 
                   {error && (
