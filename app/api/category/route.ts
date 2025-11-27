@@ -23,3 +23,41 @@ export async function GET() {
     );
   }
 }
+
+export async function POST(request: Request) {
+  try {
+    const authUser = await authenticateUser();
+    if (!authUser) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+    await dbConnect();
+    const body = await request.json();
+    const { name } = body;
+
+    // kontrola, zda kategorie již neexistuje
+    const existingCategory = await Category.findOne({ name });
+    if (existingCategory) {
+      return NextResponse.json(
+        { success: false, error: "Category already exists" },
+        { status: 400 }
+      );
+    }
+
+    const newCategory = new Category({ name });
+    await newCategory.save();
+
+    return NextResponse.json({
+      success: true,
+      data: newCategory,
+    });
+  } catch (error) {
+    console.error("POST /api/category error:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to create category" },
+      { status: 500 }
+    );
+  }
+}
