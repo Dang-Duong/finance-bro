@@ -3,20 +3,29 @@
 import { useEffect } from "react";
 import { checkAuth } from "@/lib/auth";
 
+import BudgetTable from "@/components/budget/BudgetTable";
+import BudgetChart from "@/components/budget/BudgetChart";
+import BudgetFilters from "@/components/budget/BudgetFilters";
+
 export default function BudgetPage() {
   useEffect(() => {
-    const verifyAuth = async () => {
+    const verify = async () => {
       const user = await checkAuth();
-      if (!user) {
-        window.location.href = "/login";
-      }
+      if (!user) window.location.href = "/login";
     };
-    verifyAuth();
+    verify();
   }, []);
 
   return (
     <main className="min-h-screen bg-navbar-bg text-white p-6">
-      <h1 className="text-2xl font-semibold">Dočasná stránka Budget</h1>
+      {/* Horní řádek: datum + category + search */}
+      <BudgetFilters />
+
+      {/* Hlavní obsah: tabulka + graf */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <BudgetTable />
+        <BudgetChart />
+      </div>
     </main>
   );
 }
