@@ -1,14 +1,20 @@
 "use client";
 
+import { useState } from "react";
+import MonthPicker from "./MonthPicker";
+
 export default function BudgetFilters() {
+  const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
+
   return (
     <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
       {/* Levá část – datum + category */}
       <div className="flex flex-col sm:flex-row gap-3">
-        {/* Date */}
-        <input
-          type="date"
-          className="bg-[#0F1C2E] border border-gray-700 rounded-lg px-4 py-2 text-sm text-white placeholder-gray-400 focus:outline-none"
+        {/* Month Picker */}
+        <MonthPicker
+          value={selectedMonth}
+          onChange={setSelectedMonth}
+          placeholder="Select month"
         />
 
         {/* Category */}

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import { Landmark, Plane, CarFront } from "lucide-react";
+import TrashIcon from "@/components/icons/TrashIcon";
 
 // ---------- TYPES ----------
 
@@ -17,7 +18,7 @@ export interface SavingGoal {
 
 export interface SavingDeposit {
   id: string;
-  date: string; 
+  date: string;
   amount: number;
   goalId: SavingGoalId;
 }
@@ -71,10 +72,7 @@ export function SavingsContent({
   const [isEditMode, setIsEditMode] = useState(false);
 
   const totalGoal = goals.reduce((sum, g) => sum + g.goalAmount, 0);
-  const currentSituation = goals.reduce(
-    (sum, g) => sum + g.currentAmount,
-    0
-  );
+  const currentSituation = goals.reduce((sum, g) => sum + g.currentAmount, 0);
 
   const sortedDeposits = [...deposits].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -166,7 +164,7 @@ export function SavingsContent({
                           onClick={() => onDeleteDeposit(d.id)}
                           className="rounded-md px-2 py-1 text-red-400 hover:bg-red-500/10"
                         >
-                          🗑
+                          <TrashIcon className="w-4 h-4" />
                         </button>
                       </td>
                     )}
@@ -243,24 +241,20 @@ function GoalRow({ goal }: { goal: SavingGoal }) {
             <Icon className="h-5 w-5" style={{ color: iconColor }} />
           </div>
           <div>
-            <div className="text-lg font-semibold text-white">
-              {goal.name}
-            </div>
+            <div className="text-lg font-semibold text-white">{goal.name}</div>
             <div className="text-sm text-[#0b5cf5]">
               Goal: {goal.goalAmount.toLocaleString("cs-CZ")} CZK
             </div>
           </div>
         </div>
 
-        
         <div className="w-full md:max-w-xl">
           <div className="flex justify-between text-[11px] font-normal">
             <span className="text-[#0b5cf5]">
               Goal: {goal.goalAmount.toLocaleString("cs-CZ")} CZK
             </span>
             <span className="text-[#29e37a]">
-              {pctRounded}% ~{" "}
-              {goal.currentAmount.toLocaleString("cs-CZ")} CZK
+              {pctRounded}% ~ {goal.currentAmount.toLocaleString("cs-CZ")} CZK
             </span>
           </div>
 
