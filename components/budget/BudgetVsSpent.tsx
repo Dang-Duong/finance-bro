@@ -12,7 +12,6 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { useTransactions } from "@/lib/transactionsContext";
 
 type CategoryData = {
   category: string;
@@ -21,81 +20,32 @@ type CategoryData = {
   net: number;
 };
 
-const CATEGORY_BUDGETS: { [key: string]: number } = {
-  Food: 5000,
-  Housing: 10000,
-  Transport: 5000,
-  Subscription: 1500,
-};
+const CATEGORY_DATA = [
+  { category: "Food", budget: 5000, spent: 4000 },
+  { category: "Housing", budget: 10000, spent: 6000 },
+  { category: "Transport", budget: 5000, spent: 3500 },
+  { category: "Subscription", budget: 1500, spent: 1500 },
+];
 
 export default function BudgetVsSpent() {
-  const { transactions, loading } = useTransactions();
   const [chartData, setChartData] = useState<CategoryData[]>([]);
 
   useEffect(() => {
-    if (transactions.length > 0 || !loading) {
-      calculateChartData();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transactions]);
-
-  const calculateChartData = () => {
-    const categorySpent: { [key: string]: number } = {};
-
-    Object.keys(CATEGORY_BUDGETS).forEach((category) => {
-      categorySpent[category] = 0;
+    const chartDataArray: CategoryData[] = CATEGORY_DATA.map((item) => {
+      return {
+        category: item.category,
+        budget: item.budget,
+        spent: item.spent,
+        net: item.budget - item.spent,
+      };
     });
-
-    transactions.forEach((transaction) => {
-      if (!transaction.incoming) {
-        const category =
-          typeof transaction.category === "string"
-            ? transaction.category
-            : typeof transaction.category === "object" &&
-              transaction.category !== null
-            ? transaction.category.name
-            : "Other";
-
-        if (CATEGORY_BUDGETS[category]) {
-          categorySpent[category] =
-            (categorySpent[category] || 0) + transaction.amount;
-        }
-      }
-    });
-
-    const chartDataArray: CategoryData[] = Object.keys(CATEGORY_BUDGETS).map(
-      (category) => {
-        const budget = CATEGORY_BUDGETS[category];
-        const spent = categorySpent[category] || 0;
-        return {
-          category: category,
-          budget: budget,
-          spent: spent,
-          net: budget - spent,
-        };
-      }
-    );
-
     setChartData(chartDataArray);
-  };
+  }, []);
 
   const maxValue = Math.max(
     ...chartData.map((d) => Math.max(d.budget, d.spent)),
-    10000
+    11000
   );
-
-  if (loading) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-        className="bg-white/5 rounded-lg p-6 border border-white/10"
-      >
-        <div className="text-white/60">Loading...</div>
-      </motion.div>
-    );
-  }
 
   return (
     <motion.div
@@ -117,7 +67,7 @@ export default function BudgetVsSpent() {
         </div>
 
         <div className="h-64">
-          {chartData.length > 0 ? (
+          {chartData.length > 0 && (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
@@ -154,10 +104,6 @@ export default function BudgetVsSpent() {
                 />
               </BarChart>
             </ResponsiveContainer>
-          ) : (
-            <div className="flex items-center justify-center h-full text-white/60">
-              No budget data
-            </div>
           )}
         </div>
       </div>
