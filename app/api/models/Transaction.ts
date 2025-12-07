@@ -11,6 +11,8 @@ export interface ITransaction {
   userId: mongoose.Types.ObjectId;
   isRepeating?: boolean;
   frequency?: "weekly" | "monthly" | "yearly";
+  parentTransactionId?: mongoose.Types.ObjectId;
+  lastGeneratedDate?: Date;
 }
 
 export interface ITransactionDocument extends ITransaction, Document {
@@ -62,6 +64,15 @@ const transactionSchema = new Schema<ITransactionDocument>(
     frequency: {
       type: String,
       enum: ["weekly", "monthly", "yearly"],
+      required: false,
+    },
+    parentTransactionId: {
+      type: Schema.Types.ObjectId,
+      ref: "Transaction",
+      required: false,
+    },
+    lastGeneratedDate: {
+      type: Date,
       required: false,
     },
   },
