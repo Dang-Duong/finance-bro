@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { checkAuth } from "@/lib/auth";
 
 import BudgetTable from "@/components/budget/BudgetTable";
-import BudgetChart from "@/components/budget/BudgetChart";
+import BudgetVsSpent from "@/components/budget/BudgetVsSpent";
 import BudgetFilters from "@/components/budget/BudgetFilters";
 
 export default function BudgetPage() {
@@ -24,7 +24,7 @@ export default function BudgetPage() {
       {/* Hlavní obsah: tabulka + graf */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <BudgetTable />
-        <BudgetChart />
+        <BudgetVsSpent />
       </div>
     </main>
   );
