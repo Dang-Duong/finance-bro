@@ -17,6 +17,8 @@ type Transaction = {
   createdAt?: string | Date;
   category?: string | { _id: string; name: string } | null;
   description?: string;
+  isRepeating?: boolean;
+  frequency?: "weekly" | "monthly" | "yearly";
 };
 
 interface TransactionsContextType {
@@ -59,6 +61,8 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
               date: transaction.date,
               createdAt: transaction.createdAt,
               description: transaction.description,
+              isRepeating: transaction.isRepeating,
+              frequency: transaction.frequency,
               category:
                 typeof transaction.category === "object" &&
                 transaction.category !== null
@@ -95,6 +99,8 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
       date: transaction.date,
       createdAt: transaction.createdAt,
       description: transaction.description,
+      isRepeating: transaction.isRepeating,
+      frequency: transaction.frequency,
       category:
         typeof transaction.category === "object" &&
         transaction.category !== null

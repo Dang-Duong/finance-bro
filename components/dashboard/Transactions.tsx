@@ -26,6 +26,16 @@ export default function Transactions() {
     return "N/A";
   };
 
+  const getFrequencyLabel = (frequency?: "weekly" | "monthly" | "yearly") => {
+    if (!frequency) return "";
+    const labels = {
+      weekly: "Weekly",
+      monthly: "Monthly",
+      yearly: "Yearly",
+    };
+    return labels[frequency];
+  };
+
   const handleSubmit = async (data: {
     category: string;
     type: "Income" | "Expense";
@@ -123,6 +133,11 @@ export default function Transactions() {
                         {transaction.description}
                       </p>
                     )}
+                    {transaction.isRepeating && transaction.frequency && (
+                      <span className="inline-flex items-center mt-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                        🔄 {getFrequencyLabel(transaction.frequency)}
+                      </span>
+                    )}
                   </div>
                   <div
                     className={`text-lg font-semibold ml-4 ${
@@ -199,7 +214,14 @@ export default function Transactions() {
                       {transaction.amount.toLocaleString("cs-CZ")} CZK
                     </td>
                     <td className="py-3 px-2 text-sm text-white/80">
-                      {transaction.description || ""}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span>{transaction.description || ""}</span>
+                        {transaction.isRepeating && transaction.frequency && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                            🔄 {getFrequencyLabel(transaction.frequency)}
+                          </span>
+                        )}
+                      </div>
                     </td>
                   </motion.tr>
                 ))

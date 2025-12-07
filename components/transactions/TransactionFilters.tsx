@@ -10,6 +10,7 @@ export type TransactionFiltersState = {
   type: "all" | "income" | "expense";
   amount: number | null;
   search: string;
+  recurring: "all" | "recurring" | "non-recurring";
 };
 
 export type Category = {
@@ -82,6 +83,16 @@ const TransactionFilters: React.FC<Props> = ({
               </option>
             );
           })}
+        </select>
+
+        <select
+          value={value.recurring}
+          onChange={handleField("recurring")}
+          className="h-9 min-w-[150px] rounded-md bg-[#07152c] px-3 text-sm text-slate-100 outline-none ring-1 ring-slate-600 hover:ring-slate-500 focus:ring-2 focus:ring-primary transition-all"
+        >
+          <option value="all">All transactions</option>
+          <option value="recurring">Recurring only</option>
+          <option value="non-recurring">Non-recurring</option>
         </select>
 
         <select

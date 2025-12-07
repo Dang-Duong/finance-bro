@@ -58,6 +58,16 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
     return t.type === "Income";
   };
 
+  const getFrequencyLabel = (frequency?: "weekly" | "monthly" | "yearly") => {
+    if (!frequency) return "";
+    const labels = {
+      weekly: "Weekly",
+      monthly: "Monthly",
+      yearly: "Yearly",
+    };
+    return labels[frequency];
+  };
+
   return (
     <div className="w-full rounded-3xl bg-[#071426] px-4 lg:px-10 py-4 lg:py-8 shadow-lg border border-slate-800">
       <div className="flex items-center justify-between mb-4 lg:mb-6">
@@ -102,8 +112,15 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1">
                   <div className="text-xs text-slate-400 mb-1">Date</div>
-                  <div className="text-sm text-slate-100">
-                    {formatDate(t.date)}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-sm text-slate-100">
+                      {formatDate(t.date)}
+                    </span>
+                    {t.isRepeating && t.frequency && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                        🔄 {getFrequencyLabel(t.frequency)}
+                      </span>
+                    )}
                   </div>
                 </div>
                 {isEditing && (
@@ -208,9 +225,16 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                       ) : (
                         <div className="w-8 h-8 flex-shrink-0"></div>
                       )}
-                      <span className="text-sm text-slate-100">
-                        {formatDate(t.date)}
-                      </span>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm text-slate-100">
+                          {formatDate(t.date)}
+                        </span>
+                        {t.isRepeating && t.frequency && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                            🔄 {getFrequencyLabel(t.frequency)}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </td>
 

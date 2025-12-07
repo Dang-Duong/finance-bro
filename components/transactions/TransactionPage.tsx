@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 import { useTransactions } from "@/lib/transactionsContext";
 import { useCategories } from "@/lib/categoriesContext";
@@ -25,6 +25,7 @@ const TransactionPage = () => {
     type: "all",
     amount: null,
     search: "",
+    recurring: "all",
   });
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -147,6 +148,29 @@ const TransactionPage = () => {
     }
   };
 
+  // Auto-generate recurring transactions on page load
+  useEffect(() => {
+    const generateRecurring = async () => {
+      try {
+        const res = await fetch("/api/transactions/recurring/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (res.ok) {
+          const result = await res.json();
+          if (result.success && result.count > 0) {
+            refreshTransactions();
+          }
+        }
+      } catch (error) {
+        console.error("Error generating recurring transactions:", error);
+      }
+    };
+
+    generateRecurring();
+  }, [refreshTransactions]);
+
   const filteredTransactions = useMemo(() => {
     return transactions.filter((t) => {
       if (filters.category && filters.category !== "all") {
@@ -169,6 +193,14 @@ const TransactionPage = () => {
 
         if (filters.type === "income" && !isIncome) return false;
         if (filters.type === "expense" && isIncome) return false;
+      }
+
+      if (filters.recurring !== "all") {
+        const transaction = t as TransactionLike;
+        const isRecurring = transaction.isRepeating === true;
+
+        if (filters.recurring === "recurring" && !isRecurring) return false;
+        if (filters.recurring === "non-recurring" && isRecurring) return false;
       }
 
       if (filters.startDate || filters.endDate) {
