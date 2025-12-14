@@ -58,18 +58,9 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
     return t.type === "Income";
   };
 
-  const getFrequencyLabel = (frequency?: "weekly" | "monthly" | "yearly") => {
-    if (!frequency) return "";
-    const labels = {
-      weekly: "Weekly",
-      monthly: "Monthly",
-      yearly: "Yearly",
-    };
-    return labels[frequency];
-  };
-
   return (
-    <div className="w-full rounded-3xl px-4 lg:px-10 py-4 lg:py-8 shadow-lg border
+    <div
+      className="w-full rounded-3xl px-4 lg:px-10 py-4 lg:py-8 shadow-lg border
       bg-white dark:bg-[#071426]
       border-gray-200 dark:border-slate-800"
     >
@@ -115,14 +106,25 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
               className="rounded-2xl p-4 space-y-2
                 bg-gray-100 dark:bg-[#07192c]"
             >
-              <div className="flex items-start justify-between gap-2">
+              <div className="flex items-start gap-2">
                 <div className="flex-1">
                   <div className="text-xs text-gray-500 dark:text-slate-400 mb-1">
                     Date
                   </div>
-                  <span className="text-sm text-gray-900 dark:text-slate-100">
-                    {formatDate(t.date)}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {isEditing && onDelete && (
+                      <button
+                        onClick={() => onDelete(t)}
+                        className="p-2 text-red-500 hover:text-red-400 hover:bg-red-500/20 rounded-lg transition-colors flex-shrink-0"
+                        aria-label="Delete transaction"
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                      </button>
+                    )}
+                    <span className="text-sm text-gray-900 dark:text-slate-100">
+                      {formatDate(t.date)}
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -163,8 +165,19 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                   <div className="text-xs text-gray-500 dark:text-slate-400 mb-1">
                     Description
                   </div>
-                  <div className="text-sm text-gray-900 dark:text-slate-100">
-                    {t.description}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm text-gray-900 dark:text-slate-100">
+                      {t.description}
+                    </span>
+                    {isEditing && onEdit && (
+                      <button
+                        onClick={() => onEdit(t)}
+                        className="p-2 text-blue-500 hover:text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors flex-shrink-0"
+                        aria-label="Edit transaction"
+                      >
+                        <PencilIcon className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
@@ -202,22 +215,70 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
 
               return (
                 <tr key={key}>
-                  {[
-                    formatDate(t.date),
-                    getCategoryLabel(t.category),
-                    income ? "Income" : "Expense",
-                    amount.toLocaleString("cs-CZ") + " CZK",
-                    t.description ?? "",
-                  ].map((cell, i) => (
-                    <td
-                      key={i}
-                      className="py-4 px-6 rounded-2xl
-                        bg-gray-100 dark:bg-[#07192c]
-                        text-gray-900 dark:text-slate-100"
+                  {/* Date with delete button on the left */}
+                  <td className="py-4 pr-6 rounded-l-2xl bg-gray-100 dark:bg-[#07192c]">
+                    <div className="flex items-center gap-2 pl-2">
+                      {isEditing && onDelete ? (
+                        <button
+                          onClick={() => onDelete(t)}
+                          className="p-2 text-red-500 hover:text-red-400 hover:bg-red-500/20 rounded-lg transition-colors flex-shrink-0"
+                          aria-label="Delete transaction"
+                        >
+                          <TrashIcon className="w-4 h-4" />
+                        </button>
+                      ) : (
+                        <div className="w-8 h-8 flex-shrink-0"></div>
+                      )}
+                      <span className="text-sm text-gray-900 dark:text-slate-100">
+                        {formatDate(t.date)}
+                      </span>
+                    </div>
+                  </td>
+
+                  {/* Category */}
+                  <td className="py-4 pr-6 bg-gray-100 dark:bg-[#07192c]">
+                    <span className="text-sm text-gray-900 dark:text-slate-100">
+                      {getCategoryLabel(t.category)}
+                    </span>
+                  </td>
+
+                  {/* Type */}
+                  <td className="py-4 pr-6 bg-gray-100 dark:bg-[#07192c]">
+                    <span className="text-sm text-gray-900 dark:text-slate-100">
+                      {income ? "Income" : "Expense"}
+                    </span>
+                  </td>
+
+                  {/* Amount */}
+                  <td className="py-4 px-6 border-l border-gray-200 dark:border-slate-700 bg-gray-100 dark:bg-[#07192c]">
+                    <span
+                      className={`font-semibold ${
+                        income ? "text-green-600" : "text-red-500"
+                      }`}
                     >
-                      {cell}
-                    </td>
-                  ))}
+                      {amount.toLocaleString("cs-CZ")} CZK
+                    </span>
+                  </td>
+
+                  {/* Description with edit button on the right */}
+                  <td className="py-4 pl-6 rounded-r-2xl bg-gray-100 dark:bg-[#07192c]">
+                    <div className="flex items-center justify-between gap-2 pr-2">
+                      <span className="text-sm text-gray-900 dark:text-slate-100">
+                        {t.description ?? ""}
+                      </span>
+                      {isEditing && onEdit ? (
+                        <button
+                          onClick={() => onEdit(t)}
+                          className="p-2 text-blue-500 hover:text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors flex-shrink-0"
+                          aria-label="Edit transaction"
+                        >
+                          <PencilIcon className="w-4 h-4" />
+                        </button>
+                      ) : (
+                        <div className="w-8 h-8 flex-shrink-0"></div>
+                      )}
+                    </div>
+                  </td>
                 </tr>
               );
             })}

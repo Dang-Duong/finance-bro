@@ -2,11 +2,10 @@ import { NextResponse } from "next/server";
 import dbConnect from "../../db/dbConnect";
 import Budget from "../../models/Budget";
 import { authenticateUser } from "../../auth/middleware";
-import Category from "../../models/Category";
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authUser = await authenticateUser();
@@ -18,7 +17,7 @@ export async function PUT(
     }
 
     await dbConnect();
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const { amount } = body;
 
@@ -69,7 +68,7 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authUser = await authenticateUser();
@@ -81,7 +80,7 @@ export async function DELETE(
     }
 
     await dbConnect();
-    const { id } = params;
+    const { id } = await params;
 
     // Find budget and verify ownership
     const budget = await Budget.findById(id);

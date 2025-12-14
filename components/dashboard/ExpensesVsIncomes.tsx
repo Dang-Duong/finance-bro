@@ -22,8 +22,18 @@ type MonthData = {
 };
 
 const monthNames = [
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
 ];
 
 export default function ExpensesVsIncomes() {
@@ -32,7 +42,6 @@ export default function ExpensesVsIncomes() {
   const [chartData, setChartData] = useState<MonthData[]>([]);
   const [isDark, setIsDark] = useState(true);
 
-  
   useEffect(() => {
     const updateTheme = () => {
       setIsDark(document.documentElement.classList.contains("dark"));
@@ -75,9 +84,11 @@ export default function ExpensesVsIncomes() {
       transactions.forEach((t) => {
         const key = new Date(t.date).toISOString().slice(0, 10);
         if (data[key]) {
-          t.incoming
-            ? (data[key].incomes += t.amount)
-            : (data[key].expenses += t.amount);
+          if (t.incoming) {
+            data[key].incomes += t.amount;
+          } else {
+            data[key].expenses += t.amount;
+          }
         }
       });
     }
@@ -97,9 +108,11 @@ export default function ExpensesVsIncomes() {
         const d = new Date(t.date);
         const key = `${d.getFullYear()}-${d.getMonth()}`;
         if (data[key]) {
-          t.incoming
-            ? (data[key].incomes += t.amount)
-            : (data[key].expenses += t.amount);
+          if (t.incoming) {
+            data[key].incomes += t.amount;
+          } else {
+            data[key].expenses += t.amount;
+          }
         }
       });
     }
@@ -117,9 +130,11 @@ export default function ExpensesVsIncomes() {
       transactions.forEach((t) => {
         const y = new Date(t.date).getFullYear();
         if (data[y]) {
-          t.incoming
-            ? (data[y].incomes += t.amount)
-            : (data[y].expenses += t.amount);
+          if (t.incoming) {
+            data[y].incomes += t.amount;
+          } else {
+            data[y].expenses += t.amount;
+          }
         }
       });
     }
@@ -136,7 +151,6 @@ export default function ExpensesVsIncomes() {
 
   const periodTotal = chartData.reduce((s, i) => s + i.net, 0);
 
-  
   const gridColor = isDark ? "#ffffff20" : "#00000020";
   const axisColor = isDark ? "#ffffff60" : "#374151";
   const legendColor = isDark ? "#ffffff80" : "#374151";
