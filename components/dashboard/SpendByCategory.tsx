@@ -54,10 +54,8 @@ export default function SpendByCategory() {
   }, [transactions]);
 
   const calculateCategoryData = () => {
-    // Filter only expenses
     const expenses = transactions.filter((t) => !t.incoming);
 
-    // Group by category
     const categoryMap: { [key: string]: number } = {};
     expenses.forEach((transaction) => {
       const category =
@@ -67,16 +65,15 @@ export default function SpendByCategory() {
             transaction.category !== null
           ? transaction.category.name
           : "Other";
-      categoryMap[category] = (categoryMap[category] || 0) + transaction.amount;
+      categoryMap[category] =
+        (categoryMap[category] || 0) + transaction.amount;
     });
 
-    // Calculate total
     const total = Object.values(categoryMap).reduce(
       (sum, amount) => sum + amount,
       0
     );
 
-    // Convert to percentage and format
     const data: CategoryData[] = Object.keys(categoryMap)
       .map((category, index) => {
         const amount = categoryMap[category];
@@ -87,10 +84,10 @@ export default function SpendByCategory() {
           color:
             CATEGORY_COLORS[category] ||
             DEFAULT_COLORS[index % DEFAULT_COLORS.length],
-          amount: amount,
+          amount,
         };
       })
-      .sort((a, b) => b.amount - a.amount); // Sort by amount descending
+      .sort((a, b) => b.amount - a.amount);
 
     setCategoryData(data);
   };
@@ -102,28 +99,18 @@ export default function SpendByCategory() {
 
   if (loading) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
-        className="bg-white/5 rounded-lg p-6 border border-white/10"
-      >
-        <h2 className="text-xl font-semibold mb-4 text-white">
+      <motion.div className="rounded-lg p-6 border bg-white dark:bg-white/5 border-gray-200 dark:border-white/10">
+        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
           Spend by Category
         </h2>
-        <div className="text-white/60">Loading...</div>
+        <div className="text-gray-600 dark:text-white/60">Loading...</div>
       </motion.div>
     );
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.4 }}
-      className="bg-white/5 rounded-lg p-6 border border-white/10"
-    >
-      <h2 className="text-xl font-semibold mb-4 text-white">
+    <motion.div className="rounded-lg p-6 border bg-white dark:bg-white/5 border-gray-200 dark:border-white/10">
+      <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
         Spend by Category
       </h2>
 
@@ -132,25 +119,27 @@ export default function SpendByCategory() {
         <div className="flex flex-col gap-8">
           {categoryData.length > 0 ? (
             categoryData.map((item, index) => (
-            <motion.div
-              key={item.name}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.3, delay: 0.5 + index * 0.1 }}
-              className="flex items-center gap-2"
-            >
-              <div
-                className="w-3 h-3 rounded-full"
-                style={{ backgroundColor: item.color }}
-              />
-              <span className="text-sm text-white/80">
-                {item.name} {item.value}% (
-                {item.amount.toLocaleString("en-US")} CZK)
-              </span>
-            </motion.div>
+              <motion.div
+                key={item.name}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3, delay: 0.5 + index * 0.1 }}
+                className="flex items-center gap-2"
+              >
+                <div
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: item.color }}
+                />
+                <span className="text-sm text-gray-700 dark:text-white/80">
+                  {item.name} {item.value}% (
+                  {item.amount.toLocaleString("en-US")} CZK)
+                </span>
+              </motion.div>
             ))
           ) : (
-            <div className="text-white/60">No expense data</div>
+            <div className="text-gray-600 dark:text-white/60">
+              No expense data
+            </div>
           )}
         </div>
 
@@ -170,7 +159,7 @@ export default function SpendByCategory() {
                   animationBegin={0}
                   animationDuration={1000}
                   {...(activeIndex !== null && {
-                    activeIndex: activeIndex,
+                    activeIndex,
                     activeShape: (props: unknown) => {
                       const {
                         cx,
@@ -201,55 +190,37 @@ export default function SpendByCategory() {
                           style={{
                             filter: `drop-shadow(0 0 12px ${fill}80)`,
                             cursor: "pointer",
-                            transition: "filter 0.3s ease-in-out",
                           }}
                         />
                       );
                     },
                   })}
-                  onMouseEnter={(_, index) => {
-                    setActiveIndex(index);
-                  }}
-                  onMouseLeave={() => {
-                    setActiveIndex(null);
-                  }}
+                  onMouseEnter={(_, index) => setActiveIndex(index)}
+                  onMouseLeave={() => setActiveIndex(null)}
                 >
                   {categoryData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={entry.color}
-                      style={{
-                        cursor: "pointer",
-                        transition: "filter 0.2s ease-in-out",
-                      }}
-                    />
+                    <Cell key={index} fill={entry.color} />
                   ))}
                 </Pie>
                 <Legend wrapperStyle={{ display: "none" }} />
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex items-center justify-center h-full text-white/60">
+            <div className="flex items-center justify-center h-full text-gray-600 dark:text-white/60">
               No expense data
             </div>
           )}
-          {highlightedCategory && categoryData.length > 0 && (
+
+          {highlightedCategory && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <motion.div
-                key={highlightedCategory.name}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                transition={{ duration: 0.2 }}
-                className="text-center"
-              >
+              <motion.div className="text-center">
                 <div
                   className="text-2xl font-semibold mb-1"
                   style={{ color: highlightedCategory.color }}
                 >
                   {highlightedCategory.value}%
                 </div>
-                <div className="text-white/80 text-sm">
+                <div className="text-gray-700 dark:text-white/80 text-sm">
                   {highlightedCategory.name}
                 </div>
               </motion.div>
