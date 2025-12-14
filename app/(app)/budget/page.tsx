@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { checkAuth } from "@/lib/auth";
+import { BudgetsProvider } from "@/lib/budgetsContext";
 
 import BudgetTable from "@/components/budget/BudgetTable";
 import BudgetVsSpent from "@/components/budget/BudgetVsSpent";
@@ -17,15 +18,17 @@ export default function BudgetPage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-navbar-bg text-white p-6">
-      {/* Horní řádek: datum + category + search */}
-      <BudgetFilters />
+    <BudgetsProvider>
+      <main className="min-h-screen bg-navbar-bg text-white p-6">
+        {/* Horní řádek: datum + category + search */}
+        <BudgetFilters />
 
-      {/* Hlavní obsah: tabulka + graf */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <BudgetTable />
-        <BudgetVsSpent />
-      </div>
-    </main>
+        {/* Hlavní obsah: tabulka + graf */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <BudgetTable />
+          <BudgetVsSpent />
+        </div>
+      </main>
+    </BudgetsProvider>
   );
 }

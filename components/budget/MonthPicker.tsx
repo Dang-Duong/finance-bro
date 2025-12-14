@@ -21,6 +21,16 @@ export default function MonthPicker({
 
   const selectedDate = value ? new Date(value + "-01") : new Date();
 
+  // Check if selected month is current month
+  const isCurrentMonth = () => {
+    if (!value) return false;
+    const now = new Date();
+    const currentMonthString = `${now.getFullYear()}-${String(
+      now.getMonth() + 1
+    ).padStart(2, "0")}`;
+    return value === currentMonthString;
+  };
+
   const formatMonth = (date: Date) => {
     return date.toLocaleDateString("en-US", {
       year: "numeric",
@@ -36,7 +46,12 @@ export default function MonthPicker({
 
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onChange(null);
+    // Set to current month instead of clearing
+    const now = new Date();
+    const currentMonthString = `${now.getFullYear()}-${String(
+      now.getMonth() + 1
+    ).padStart(2, "0")}`;
+    onChange(currentMonthString);
   };
 
   useEffect(() => {
@@ -67,15 +82,22 @@ export default function MonthPicker({
         <span className={value ? "text-white" : "text-gray-400"}>
           {value ? formatMonth(selectedDate) : placeholder}
         </span>
-        {value && (
-          <button
-            type="button"
+        {value && !isCurrentMonth() && (
+          <span
             onClick={handleClear}
-            className="ml-2 text-gray-400 hover:text-gray-200 transition-colors"
-            aria-label="Clear month"
+            className="ml-2 text-gray-400 hover:text-gray-200 transition-colors cursor-pointer"
+            aria-label="Go to current month"
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e: React.KeyboardEvent) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handleClear(e as unknown as React.MouseEvent);
+              }
+            }}
           >
             ×
-          </button>
+          </span>
         )}
       </button>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   BarChart,
@@ -12,6 +12,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { useBudgets } from "@/lib/budgetsContext";
 
 type CategoryData = {
   category: string;
@@ -20,29 +21,27 @@ type CategoryData = {
   net: number;
 };
 
-const CATEGORY_DATA = [
-  { category: "Food", budget: 5000, spent: 4000 },
-  { category: "Housing", budget: 10000, spent: 6000 },
-  { category: "Transport", budget: 5000, spent: 3500 },
-  { category: "Subscription", budget: 1500, spent: 1500 },
-];
-
 export default function BudgetVsSpent() {
-  const [chartData, setChartData] = useState<CategoryData[]>([]);
+  const { filteredBudgets, loading } = useBudgets();
 
-  useEffect(() => {
-    setChartData(
-      CATEGORY_DATA.map((item) => ({
-        ...item,
-        net: item.budget - item.spent,
-      }))
-    );
-  }, []);
+  const chartData = useMemo<CategoryData[]>(() => {
+    const capitalizeFirst = (str: string) => {
+      if (!str) return str;
+      return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    };
 
-  const maxValue = Math.max(
-    ...chartData.map((d) => Math.max(d.budget, d.spent)),
-    11000
-  );
+    return filteredBudgets.map((budget) => ({
+      category: capitalizeFirst(budget.category.name),
+      budget: budget.amount,
+      spent: budget.spent,
+      net: budget.amount - budget.spent,
+    }));
+  }, [filteredBudgets]);
+
+  const maxValue = useMemo(() => {
+    if (chartData.length === 0) return 1000;
+    return Math.max(...chartData.map((d) => Math.max(d.budget, d.spent)), 1000);
+  }, [chartData]);
 
   return (
     <motion.div
@@ -66,7 +65,17 @@ export default function BudgetVsSpent() {
       </div>
 
       <div className="h-64">
-        {chartData.length > 0 && (
+        {loading ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+          </div>
+        ) : chartData.length === 0 ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-gray-600 dark:text-gray-400">
+              No budget data available
+            </div>
+          </div>
+        ) : (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData}>
               <CartesianGrid

@@ -1,6 +1,18 @@
 "use client";
 
-export default function BudgetHeader({ total }: { total: number }) {
+interface BudgetHeaderProps {
+  total: number;
+  onAddBudget?: () => void;
+  isEditMode?: boolean;
+  onToggleEdit?: () => void;
+}
+
+export default function BudgetHeader({
+  total,
+  onAddBudget,
+  isEditMode = false,
+  onToggleEdit,
+}: BudgetHeaderProps) {
   const formatted = total.toLocaleString("cs-CZ");
 
   return (
@@ -10,7 +22,8 @@ export default function BudgetHeader({ total }: { total: number }) {
       </h1>
 
       <div className="flex items-center gap-4">
-        <div className="px-6 py-2 rounded-xl text-lg font-semibold
+        <div
+          className="px-6 py-2 rounded-xl text-lg font-semibold
           bg-gray-100 dark:bg-black/30
           border border-gray-300 dark:border-gray-600
           text-gray-900 dark:text-white"
@@ -18,11 +31,23 @@ export default function BudgetHeader({ total }: { total: number }) {
           {formatted} CZK
         </div>
 
-        <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-3xl text-sm text-white">
-          Edit
-        </button>
+        {onToggleEdit && (
+          <button
+            onClick={onToggleEdit}
+            className={`px-4 py-2 rounded-3xl text-sm text-white transition-colors ${
+              isEditMode
+                ? "bg-blue-600 hover:bg-blue-700"
+                : "bg-blue-600 hover:bg-blue-700"
+            }`}
+          >
+            {isEditMode ? "Done" : "Edit"}
+          </button>
+        )}
 
-        <button className="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-3xl text-sm text-white">
+        <button
+          onClick={onAddBudget}
+          className="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-3xl text-sm text-white transition-colors"
+        >
           Add budget
         </button>
       </div>

@@ -1,69 +1,257 @@
 "use client";
 
+import { useState } from "react";
 import BudgetHeader from "./BudgetHeader";
+import AddBudgetModal from "./AddBudgetModal";
+import PencilIcon from "@/components/icons/PencilIcon";
+import TrashIcon from "@/components/icons/TrashIcon";
+import { useBudgets } from "@/lib/budgetsContext";
+import type { Budget } from "@/lib/budgetsContext";
 
 export default function BudgetTable() {
-  const items = [
-    { category: "Food", budget: 5000, spent: 4000 },
-    { category: "Housing", budget: 10000, spent: 6000 },
-    { category: "Transport", budget: 5000, spent: 3500 },
-    { category: "Subscription", budget: 1500, spent: 1500 },
-  ];
+  const { filteredBudgets, loading, refreshBudgets } = useBudgets();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
 
-  const totalBudget = items.reduce((acc, x) => acc + x.budget, 0);
+  const totalBudget = filteredBudgets.reduce(
+    (acc, budget) => acc + budget.amount,
+    0
+  );
+
+  const handleAddBudget = () => {
+    setEditingBudget(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEditBudget = (budget: Budget) => {
+    setEditingBudget(budget);
+    setIsModalOpen(true);
+  };
+
+  const handleDeleteBudget = async (budgetId: string) => {
+    if (!confirm("Are you sure you want to delete this budget?")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/budgets/${budgetId}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        refreshBudgets();
+      } else {
+        const result = await response.json();
+        alert(result.error || "Failed to delete budget");
+      }
+    } catch (error) {
+      console.error("Error deleting budget:", error);
+      alert("Failed to delete budget");
+    }
+  };
+
+  const handleSubmitBudget = async (data: {
+    category: string;
+    amount: number;
+    month: number;
+    year: number;
+  }) => {
+    try {
+      if (editingBudget) {
+        // Update existing budget
+        const response = await fetch(`/api/budgets/${editingBudget._id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ amount: data.amount }),
+        });
+
+        if (!response.ok) {
+          const result = await response.json();
+          throw new Error(result.error || "Failed to update budget");
+        }
+      } else {
+        // Create new budget
+        const response = await fetch("/api/budgets", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+          const result = await response.json();
+          throw new Error(result.error || "Failed to create budget");
+        }
+      }
+
+      setIsModalOpen(false);
+      setEditingBudget(null);
+      refreshBudgets();
+    } catch (error) {
+      throw error; // Re-throw to let modal handle error display
+    }
+  };
+
+  if (loading) {
+    return (
+      <div
+        className="p-6 rounded-2xl w-full
+          bg-white dark:bg-[#0F1C2E]
+          border border-gray-200 dark:border-transparent"
+      >
+        <BudgetHeader
+          total={0}
+          onAddBudget={handleAddBudget}
+          isEditMode={isEditMode}
+          onToggleEdit={() => setIsEditMode(!isEditMode)}
+        />
+        <div className="flex items-center justify-center py-8">
+          <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (filteredBudgets.length === 0) {
+    return (
+      <>
+        <div
+          className="p-6 rounded-2xl w-full
+          bg-white dark:bg-[#0F1C2E]
+          border border-gray-200 dark:border-transparent"
+        >
+          <BudgetHeader
+            total={0}
+            onAddBudget={handleAddBudget}
+            isEditMode={isEditMode}
+            onToggleEdit={() => setIsEditMode(!isEditMode)}
+          />
+          <div className="flex items-center justify-center py-8">
+            <div className="text-gray-600 dark:text-gray-400">
+              No budgets found for this period
+            </div>
+          </div>
+        </div>
+        <AddBudgetModal
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setEditingBudget(null);
+          }}
+          onSubmit={handleSubmitBudget}
+          editingBudget={editingBudget || undefined}
+        />
+      </>
+    );
+  }
 
   return (
-    <div
-      className="p-6 rounded-2xl w-full
-        bg-white dark:bg-[#0F1C2E]
-        border border-gray-200 dark:border-transparent"
-    >
-      <BudgetHeader total={totalBudget} />
+    <>
+      <div
+        className="p-6 rounded-2xl w-full
+          bg-white dark:bg-[#0F1C2E]
+          border border-gray-200 dark:border-transparent"
+      >
+        <BudgetHeader
+          total={totalBudget}
+          onAddBudget={handleAddBudget}
+          isEditMode={isEditMode}
+          onToggleEdit={() => setIsEditMode(!isEditMode)}
+        />
 
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="text-left text-gray-600 dark:text-gray-400">
-            <th className="pb-3">Category</th>
-            <th className="pb-3">Budget</th>
-            <th className="pb-3">Spent</th>
-            <th className="pb-3 w-40">Progress</th>
-          </tr>
-        </thead>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left text-gray-600 dark:text-gray-400">
+              <th className="pb-3">Category</th>
+              <th className="pb-3">Budget</th>
+              <th className="pb-3">Spent</th>
+              <th className="pb-3 w-40">Progress</th>
+              {isEditMode && <th className="pb-3 w-20">Actions</th>}
+            </tr>
+          </thead>
 
-        <tbody>
-          {items.map((row, index) => {
-            const spentPercent = (row.spent / row.budget) * 100;
+          <tbody>
+            {filteredBudgets.map((budget) => {
+              const spentPercent = budget.progress;
 
-            return (
-              <tr
-                key={index}
-                className="border-t border-gray-200 dark:border-gray-700"
-              >
-                <td className="py-3 text-gray-900 dark:text-white">
-                  {row.category}
-                </td>
+              return (
+                <tr
+                  key={budget._id}
+                  className="border-t border-gray-200 dark:border-gray-700"
+                >
+                  <td className="py-3 text-gray-900 dark:text-white">
+                    <div className="flex items-center gap-2">
+                      {budget.category.name
+                        ? budget.category.name.charAt(0).toUpperCase() +
+                          budget.category.name.slice(1).toLowerCase()
+                        : budget.category.name}
+                      {budget.spent > budget.amount && (
+                        <span className="text-xl" aria-label="Budget exceeded">
+                          😢
+                        </span>
+                      )}
+                    </div>
+                  </td>
 
-                <td className="text-blue-600 dark:text-blue-300">
-                  {row.budget} CZK
-                </td>
+                  <td className="text-blue-600 dark:text-blue-300">
+                    {budget.amount.toLocaleString("cs-CZ")} CZK
+                  </td>
 
-                <td className="text-red-500 dark:text-red-400">
-                  {row.spent} CZK
-                </td>
+                  <td className="text-red-500 dark:text-red-400">
+                    {budget.spent.toLocaleString("cs-CZ")} CZK
+                  </td>
 
-                <td>
-                  <div className="w-full bg-gray-200 dark:bg-white rounded-full h-2">
-                    <div
-                      className="bg-blue-600 h-2 rounded-full"
-                      style={{ width: `${spentPercent}%` }}
-                    />
-                  </div>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+                  <td>
+                    <div className="w-full bg-gray-200 dark:bg-white rounded-full h-2">
+                      <div
+                        className={`h-2 rounded-full ${
+                          budget.spent > budget.amount
+                            ? "bg-red-600"
+                            : "bg-blue-600"
+                        }`}
+                        style={{ width: `${Math.min(spentPercent, 100)}%` }}
+                      />
+                    </div>
+                  </td>
+                  {isEditMode && (
+                    <td>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleEditBudget(budget)}
+                          className="p-1.5 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
+                          aria-label="Edit budget"
+                        >
+                          <PencilIcon className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteBudget(budget._id)}
+                          className="p-1.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+                          aria-label="Delete budget"
+                        >
+                          <TrashIcon className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  )}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <AddBudgetModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingBudget(null);
+        }}
+        onSubmit={handleSubmitBudget}
+        editingBudget={editingBudget || undefined}
+      />
+    </>
   );
 }
