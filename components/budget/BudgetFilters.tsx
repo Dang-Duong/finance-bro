@@ -8,8 +8,7 @@ import { useCategories } from "@/lib/categoriesContext";
 export default function BudgetFilters() {
   const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const { fetchBudgets, setCategoryFilter, setSearchFilter } = useBudgets();
+  const { fetchBudgets, setCategoryFilter } = useBudgets();
   const { categories, loading: categoriesLoading } = useCategories();
 
   // Convert "YYYY-MM" format to month (0-11) and year
@@ -35,13 +34,8 @@ export default function BudgetFilters() {
     setCategoryFilter(selectedCategory || null);
   }, [selectedCategory, setCategoryFilter]);
 
-  // Handle search filter change
-  useEffect(() => {
-    setSearchFilter(searchQuery);
-  }, [searchQuery, setSearchFilter]);
-
   return (
-    <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center">
       {/* Levá část – datum + category */}
       <div className="flex flex-col sm:flex-row gap-3">
         {/* Month Picker */}
@@ -74,21 +68,6 @@ export default function BudgetFilters() {
             })
           )}
         </select>
-      </div>
-
-      {/* Pravá část – Search here... */}
-      <div className="w-full lg:w-auto">
-        <div className="flex items-center justify-end">
-          <div className="flex items-center w-full max-w-sm bg-transparent">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search here..."
-              className="w-full bg-transparent border border-gray-500 rounded-full px-4 py-2 text-sm text-white placeholder-gray-400 focus:outline-none"
-            />
-          </div>
-        </div>
       </div>
     </div>
   );

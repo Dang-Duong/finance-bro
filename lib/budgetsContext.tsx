@@ -30,7 +30,6 @@ interface BudgetsContextType {
   currentMonth?: number;
   currentYear?: number;
   setCategoryFilter: (categoryId: string | null) => void;
-  setSearchFilter: (search: string) => void;
 }
 
 const BudgetsContext = createContext<BudgetsContextType | undefined>(undefined);
@@ -42,7 +41,6 @@ export function BudgetsProvider({ children }: { children: ReactNode }) {
   const [currentMonth, setCurrentMonth] = useState<number | undefined>();
   const [currentYear, setCurrentYear] = useState<number | undefined>();
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
-  const [searchFilter, setSearchFilter] = useState<string>("");
 
   const fetchBudgets = useCallback(async (month?: number, year?: number) => {
     try {
@@ -88,16 +86,11 @@ export function BudgetsProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchBudgets, refreshTrigger]);
 
-  // Filter budgets based on category and search
+  // Filter budgets based on category
   const filteredBudgets = budgets.filter((budget) => {
     // Category filter
     if (categoryFilter && budget.category._id !== categoryFilter) {
       return false;
-    }
-    // Search filter (case-insensitive search in category name)
-    if (searchFilter) {
-      const searchLower = searchFilter.toLowerCase();
-      return budget.category.name.toLowerCase().includes(searchLower);
     }
     return true;
   });
@@ -113,7 +106,6 @@ export function BudgetsProvider({ children }: { children: ReactNode }) {
         currentMonth,
         currentYear,
         setCategoryFilter,
-        setSearchFilter,
       }}
     >
       {children}
