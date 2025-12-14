@@ -71,14 +71,21 @@ export default function DatePicker({
           {value ? formatDate(selectedDate) : placeholder}
         </span>
         {value && (
-          <button
-            type="button"
+          <span
             onClick={handleClear}
-            className="ml-2 text-slate-400 hover:text-slate-200 transition-colors"
+            className="ml-2 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
             aria-label="Clear date"
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onChange(null);
+              }
+            }}
           >
             ×
-          </button>
+          </span>
         )}
       </button>
 
@@ -125,4 +132,3 @@ export default function DatePicker({
     </div>
   );
 }
-

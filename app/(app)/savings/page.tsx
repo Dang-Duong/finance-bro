@@ -2,13 +2,37 @@
 
 import { useEffect, useState } from "react";
 import { checkAuth } from "@/lib/auth";
-import {
-  SavingsContent,
-  type SavingGoal,
-  type SavingDeposit,
-} from "@/components/savings/SavingsContent";
+import { SavingsProvider, useSavings } from "@/lib/savingsContext";
+import { SavingsContent } from "@/components/savings/SavingsContent";
+import AddDepositModal from "@/components/savings/AddDepositModal";
+import AddGoalModal from "@/components/savings/AddGoalModal";
+import DeleteConfirmationModal from "@/components/savings/DeleteConfirmationModal";
 
-export default function SavingsPage() {
+function SavingsPageContent() {
+  const {
+    goals,
+    deposits,
+    loading,
+    createGoal,
+    updateGoal,
+    deleteGoal,
+    createDeposit,
+    deleteDeposit,
+  } = useSavings();
+
+  const [isAddDepositModalOpen, setIsAddDepositModalOpen] = useState(false);
+  const [isAddGoalModalOpen, setIsAddGoalModalOpen] = useState(false);
+  const [editingGoal, setEditingGoal] = useState<
+    (typeof goals)[0] | null | undefined
+  >(null);
+  const [isDeleteGoalModalOpen, setIsDeleteGoalModalOpen] = useState(false);
+  const [isDeleteDepositModalOpen, setIsDeleteDepositModalOpen] =
+    useState(false);
+  const [deletingGoalId, setDeletingGoalId] = useState<string | null>(null);
+  const [deletingDepositId, setDeletingDepositId] = useState<string | null>(
+    null
+  );
+
   useEffect(() => {
     const verifyAuth = async () => {
       const user = await checkAuth();
@@ -19,99 +43,147 @@ export default function SavingsPage() {
     verifyAuth();
   }, []);
 
-  const [goals, setGoals] = useState<SavingGoal[]>([
-    {
-      id: "emergency",
-      name: "Emergency found",
-      goalAmount: 200_000,
-      currentAmount: 120_000,
-    },
-    {
-      id: "vacation",
-      name: "Vacation",
-      goalAmount: 50_000,
-      currentAmount: 15_000,
-    },
-    {
-      id: "car",
-      name: "New car",
-      goalAmount: 400_000,
-      currentAmount: 35_000,
-    },
-  ]);
+  const handleAddDeposit = async (data: {
+    goalId: string;
+    amount: number;
+    date?: string;
+  }) => {
+    try {
+      await createDeposit(data.goalId, data.amount, data.date);
+      setIsAddDepositModalOpen(false);
+    } catch (error) {
+      console.error("Error adding deposit:", error);
+      throw error;
+    }
+  };
 
-  const [deposits, setDeposits] = useState<SavingDeposit[]>([
-    {
-      id: "1",
-      date: "2024-08-23",
-      amount: 50_987,
-      goalId: "emergency",
-    },
-    {
-      id: "2",
-      date: "2024-10-17",
-      amount: 10_987,
-      goalId: "emergency",
-    },
-    {
-      id: "3",
-      date: "2024-10-30",
-      amount: 987,
-      goalId: "car",
-    },
-    {
-      id: "4",
-      date: "2024-11-23",
-      amount: 5_987,
-      goalId: "vacation",
-    },
-  ]);
+  const handleDeleteDepositClick = (id: string) => {
+    setDeletingDepositId(id);
+    setIsDeleteDepositModalOpen(true);
+  };
 
-  // DEMO: Add – přidá 1000 CZK na Emergency, jen aby bylo vidět, že UI reaguje
-  const handleAddDeposit = () => {
-    const newDeposit: SavingDeposit = {
-      id: String(Date.now()) + Math.random().toString(16).slice(2),
-      date: new Date().toISOString().slice(0, 10),
-      amount: 1_000,
-      goalId: "emergency",
-    };
+  const handleConfirmDeleteDeposit = async () => {
+    if (!deletingDepositId) return;
 
-    setDeposits((prev) => [...prev, newDeposit]);
+    try {
+      await deleteDeposit(deletingDepositId);
+      setIsDeleteDepositModalOpen(false);
+      setDeletingDepositId(null);
+    } catch (error) {
+      console.error("Error deleting deposit:", error);
+    }
+  };
 
-    setGoals((prev) =>
-      prev.map((g) =>
-        g.id === newDeposit.goalId
-          ? { ...g, currentAmount: g.currentAmount + newDeposit.amount }
-          : g
-      )
+  const handleAddGoal = async (data: { name: string; goalAmount: number }) => {
+    try {
+      if (editingGoal) {
+        await updateGoal(editingGoal._id, data.name, data.goalAmount);
+      } else {
+        await createGoal(data.name, data.goalAmount);
+      }
+      setIsAddGoalModalOpen(false);
+      setEditingGoal(null);
+    } catch (error) {
+      console.error("Error adding/updating goal:", error);
+      throw error;
+    }
+  };
+
+  const handleEditGoal = (goal: (typeof goals)[0]) => {
+    setEditingGoal(goal);
+    setIsAddGoalModalOpen(true);
+  };
+
+  const handleDeleteGoalClick = (id: string) => {
+    setDeletingGoalId(id);
+    setIsDeleteGoalModalOpen(true);
+  };
+
+  const handleConfirmDeleteGoal = async () => {
+    if (!deletingGoalId) return;
+
+    try {
+      await deleteGoal(deletingGoalId);
+      setIsDeleteGoalModalOpen(false);
+      setDeletingGoalId(null);
+    } catch (error) {
+      console.error("Error deleting goal:", error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-navbar-bg text-white px-4 py-6 md:px-8 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-lg">Loading savings...</div>
+        </div>
+      </main>
     );
-  };
-
-  const handleDeleteDeposit = (id: string) => {
-    setDeposits((prev) => {
-      const toDelete = prev.find((d) => d.id === id);
-      if (!toDelete) return prev;
-
-      setGoals((goalsPrev) =>
-        goalsPrev.map((g) =>
-          g.id === toDelete.goalId
-            ? { ...g, currentAmount: g.currentAmount - toDelete.amount }
-            : g
-        )
-      );
-
-      return prev.filter((d) => d.id !== id);
-    });
-  };
+  }
 
   return (
     <main className="min-h-screen bg-navbar-bg text-white px-4 py-6 md:px-8">
       <SavingsContent
         goals={goals}
         deposits={deposits}
-        onAddDeposit={handleAddDeposit}
-        onDeleteDeposit={handleDeleteDeposit}
+        onAddDeposit={() => setIsAddDepositModalOpen(true)}
+        onDeleteDeposit={handleDeleteDepositClick}
+        onAddGoal={() => {
+          setEditingGoal(null);
+          setIsAddGoalModalOpen(true);
+        }}
+        onEditGoal={handleEditGoal}
+        onDeleteGoal={handleDeleteGoalClick}
+      />
+
+      <AddDepositModal
+        isOpen={isAddDepositModalOpen}
+        onClose={() => setIsAddDepositModalOpen(false)}
+        onSubmit={handleAddDeposit}
+        goals={goals}
+      />
+
+      <AddGoalModal
+        isOpen={isAddGoalModalOpen}
+        onClose={() => {
+          setIsAddGoalModalOpen(false);
+          setEditingGoal(null);
+        }}
+        onSubmit={handleAddGoal}
+        editingGoal={editingGoal || undefined}
+      />
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteGoalModalOpen}
+        onClose={() => {
+          setIsDeleteGoalModalOpen(false);
+          setDeletingGoalId(null);
+        }}
+        onConfirm={handleConfirmDeleteGoal}
+        title="Delete Goal"
+        message="Are you sure you want to delete this goal?"
+        warningMessage="All associated deposits will also be deleted. This action cannot be undone."
+      />
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteDepositModalOpen}
+        onClose={() => {
+          setIsDeleteDepositModalOpen(false);
+          setDeletingDepositId(null);
+        }}
+        onConfirm={handleConfirmDeleteDeposit}
+        title="Delete Deposit"
+        message="Are you sure you want to delete this deposit?"
+        warningMessage="This action cannot be undone."
       />
     </main>
+  );
+}
+
+export default function SavingsPage() {
+  return (
+    <SavingsProvider>
+      <SavingsPageContent />
+    </SavingsProvider>
   );
 }
