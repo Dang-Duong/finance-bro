@@ -113,7 +113,7 @@ function SavingsPageContent() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-navbar-bg text-white px-4 py-6 md:px-8 flex items-center justify-center">
+      <main className="min-h-screen bg-navbar-bg text-white px-4 py-6 md:px-8 pt-28 lg:pt-6 flex items-center justify-center">
         <div className="text-center">
           <div className="text-lg">Loading savings...</div>
         </div>
@@ -122,7 +122,7 @@ function SavingsPageContent() {
   }
 
   return (
-    <main className="min-h-screen bg-navbar-bg text-white px-4 py-6 md:px-8">
+    <main className="min-h-screen bg-navbar-bg text-white px-4 py-6 md:px-8 pt-28 lg:pt-6">
       <SavingsContent
         goals={goals}
         deposits={deposits}

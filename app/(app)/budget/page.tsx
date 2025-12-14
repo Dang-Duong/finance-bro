@@ -19,7 +19,7 @@ export default function BudgetPage() {
 
   return (
     <BudgetsProvider>
-      <main className="min-h-screen bg-navbar-bg text-white p-6">
+      <main className="min-h-screen bg-navbar-bg text-white p-4 lg:p-6 pt-28 lg:pt-6">
         {/* Horní řádek: datum + category + search */}
         <BudgetFilters />
 
