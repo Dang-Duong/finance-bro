@@ -31,15 +31,12 @@ export default function BudgetVsSpent() {
   const [chartData, setChartData] = useState<CategoryData[]>([]);
 
   useEffect(() => {
-    const chartDataArray: CategoryData[] = CATEGORY_DATA.map((item) => {
-      return {
-        category: item.category,
-        budget: item.budget,
-        spent: item.spent,
+    setChartData(
+      CATEGORY_DATA.map((item) => ({
+        ...item,
         net: item.budget - item.spent,
-      };
-    });
-    setChartData(chartDataArray);
+      }))
+    );
   }, []);
 
   const maxValue = Math.max(
@@ -49,63 +46,58 @@ export default function BudgetVsSpent() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.1 }}
-      className="bg-white/5 rounded-lg p-6 border border-white/10"
+      className="rounded-lg p-6
+        bg-white dark:bg-white/5
+        border border-gray-200 dark:border-white/10"
     >
-      <div className="flex flex-col">
-        <div className="flex items-center gap-4 mb-2">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-blue-500" />
-            <span className="text-sm text-white/80">Budget</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-red-500" />
-            <span className="text-sm text-white/80">Spent</span>
-          </div>
+      <div className="flex items-center gap-4 mb-2">
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-full bg-blue-500" />
+          <span className="text-sm text-gray-700 dark:text-white/80">
+            Budget
+          </span>
         </div>
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-full bg-red-500" />
+          <span className="text-sm text-gray-700 dark:text-white/80">
+            Spent
+          </span>
+        </div>
+      </div>
 
-        <div className="h-64">
-          {chartData.length > 0 && (
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
-                <XAxis
-                  dataKey="category"
-                  stroke="#ffffff60"
-                  style={{ fontSize: "12px" }}
-                />
-                <YAxis
-                  stroke="#ffffff60"
-                  style={{ fontSize: "12px" }}
-                  domain={[0, maxValue * 1.1]}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "rgba(0, 0, 0, 0.8)",
-                    border: "1px solid rgba(255, 255, 255, 0.2)",
-                    borderRadius: "8px",
-                    color: "#fff",
-                  }}
-                />
-                <Legend wrapperStyle={{ color: "#ffffff80" }} />
-                <Bar
-                  dataKey="budget"
-                  fill="#3b82f6"
-                  radius={[4, 4, 0, 0]}
-                  animationDuration={1000}
-                />
-                <Bar
-                  dataKey="spent"
-                  fill="#ef4444"
-                  radius={[4, 4, 0, 0]}
-                  animationDuration={1000}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          )}
-        </div>
+      <div className="h-64">
+        {chartData.length > 0 && (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData}>
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="currentColor"
+                className="text-gray-300 dark:text-white/20"
+              />
+              <XAxis
+                dataKey="category"
+                stroke="currentColor"
+                className="text-gray-700 dark:text-white/60"
+                style={{ fontSize: "12px" }}
+              />
+              <YAxis
+                stroke="currentColor"
+                className="text-gray-700 dark:text-white/60"
+                style={{ fontSize: "12px" }}
+                domain={[0, maxValue * 1.1]}
+              />
+              <Tooltip />
+              <Legend
+                wrapperStyle={{
+                  color: "currentColor",
+                }}
+                className="text-gray-700 dark:text-white/80"
+              />
+              <Bar dataKey="budget" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="spent" fill="#ef4444" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        )}
       </div>
     </motion.div>
   );

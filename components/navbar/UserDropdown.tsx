@@ -11,13 +11,52 @@ type User = {
   surname?: string;
 };
 
+type ThemeMode = "dark" | "light";
+
+const THEME_STORAGE_KEY = "theme";
+
 export default function UserDropdown() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Fetch user info from backend
+  const [theme, setTheme] = useState<ThemeMode>("dark");
+  const [mounted, setMounted] = useState(false);
+
+  // =========================
+  // THEME HANDLING
+  // =========================
+  useEffect(() => {
+    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) as ThemeMode | null;
+    const initialTheme: ThemeMode = savedTheme === "light" ? "light" : "dark";
+
+    setTheme(initialTheme);
+
+    if (initialTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+
+    setMounted(true);
+  }, []);
+
+  const toggleTheme = () => {
+    const nextTheme: ThemeMode = theme === "dark" ? "light" : "dark";
+    setTheme(nextTheme);
+    localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+
+    if (nextTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  };
+
+  // =========================
+  // FETCH USER
+  // =========================
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -38,7 +77,9 @@ export default function UserDropdown() {
     fetchUser();
   }, []);
 
-  // Close dropdown when clicking outside
+  // =========================
+  // CLOSE DROPDOWN ON OUTSIDE CLICK
+  // =========================
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -55,20 +96,17 @@ export default function UserDropdown() {
     };
   }, []);
 
+  // =========================
+  // LOGOUT
+  // =========================
   const handleLogout = async () => {
     try {
       const response = await fetch("/api/auth/logout", {
         method: "POST",
         credentials: "include",
       });
-
-      if (response.ok) {
-        router.push("/login");
-      } else {
-        console.error("Logout failed");
-        // Still redirect to login even if logout fails
-        router.push("/login");
-      }
+      router.push("/login");
+      if (!response.ok) console.error("Logout failed");
     } catch (error) {
       console.error("Logout error:", error);
       router.push("/login");
@@ -79,6 +117,9 @@ export default function UserDropdown() {
     if (!user?.username) return "User";
     return user.username.charAt(0).toUpperCase() + user.username.slice(1);
   };
+
+  // zabrání hydration glitchům
+  if (!mounted) return null;
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -91,25 +132,38 @@ export default function UserDropdown() {
       </button>
 
       {isDropdownOpen && (
-        <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+        <div className="absolute right-0 mt-2 w-64 rounded-lg shadow-lg border py-2 z-50 bg-card text-card-foreground">
           {user ? (
             <>
-              <div className="px-4 py-3 border-b border-gray-200">
-                <p className="text-sm font-semibold text-gray-900">
+              <div className="px-4 py-3 border-b border-border">
+                <p className="text-sm font-semibold">
                   {getUserDisplayName()}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">{user.email}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {user.email}
+                </p>
               </div>
+
+              {/* THEME TOGGLE */}
+              <button
+                onClick={toggleTheme}
+                className="w-full text-left px-4 py-2 text-sm hover:bg-muted transition-colors"
+              >
+                Theme: {theme === "dark" ? "Dark" : "Light"}
+              </button>
+
               <button
                 onClick={handleLogout}
-                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                className="w-full text-left px-4 py-2 text-sm hover:bg-muted transition-colors"
               >
                 Log out
               </button>
             </>
           ) : (
             <div className="px-4 py-3">
-              <p className="text-sm text-gray-500">Loading user info...</p>
+              <p className="text-sm text-muted-foreground">
+                Loading user info...
+              </p>
             </div>
           )}
         </div>

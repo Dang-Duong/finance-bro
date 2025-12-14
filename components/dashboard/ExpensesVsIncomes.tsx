@@ -22,24 +22,32 @@ type MonthData = {
 };
 
 const monthNames = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ];
 
 export default function ExpensesVsIncomes() {
   const [selectedPeriod, setSelectedPeriod] = useState("Month");
   const { transactions, loading } = useTransactions();
   const [chartData, setChartData] = useState<MonthData[]>([]);
+  const [isDark, setIsDark] = useState(true);
+
+  
+  useEffect(() => {
+    const updateTheme = () => {
+      setIsDark(document.documentElement.classList.contains("dark"));
+    };
+
+    updateTheme();
+
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (transactions.length > 0 || !loading) {
@@ -50,59 +58,34 @@ export default function ExpensesVsIncomes() {
 
   const calculateChartData = () => {
     const now = new Date();
-    const data: {
-      [key: string]: { expenses: number; incomes: number; label: string };
-    } = {};
+    const data: Record<
+      string,
+      { expenses: number; incomes: number; label: string }
+    > = {};
 
     if (selectedPeriod === "Week") {
-      // Initialize last 7 days
       for (let i = 6; i >= 0; i--) {
         const date = new Date(now);
         date.setDate(date.getDate() - i);
-        const key = `${date.getFullYear()}-${String(
-          date.getMonth() + 1
-        ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-        const dayName = date.toLocaleDateString("en-US", { weekday: "short" });
-        data[key] = { expenses: 0, incomes: 0, label: dayName };
+        const key = date.toISOString().slice(0, 10);
+        const label = date.toLocaleDateString("en-US", { weekday: "short" });
+        data[key] = { expenses: 0, incomes: 0, label };
       }
 
-      // Process transactions
-      transactions.forEach((transaction) => {
-        const transactionDate = new Date(transaction.date);
-        const key = `${transactionDate.getFullYear()}-${String(
-          transactionDate.getMonth() + 1
-        ).padStart(2, "0")}-${String(transactionDate.getDate()).padStart(
-          2,
-          "0"
-        )}`;
-
+      transactions.forEach((t) => {
+        const key = new Date(t.date).toISOString().slice(0, 10);
         if (data[key]) {
-          if (transaction.incoming) {
-            data[key].incomes += transaction.amount;
-          } else {
-            data[key].expenses += transaction.amount;
-          }
+          t.incoming
+            ? (data[key].incomes += t.amount)
+            : (data[key].expenses += t.amount);
         }
       });
+    }
 
-      // Convert to chart data format
-      const chartDataArray: MonthData[] = Object.keys(data).map((key) => {
-        return {
-          month: data[key].label,
-          expenses: data[key].expenses,
-          incomes: data[key].incomes,
-          net: data[key].incomes - data[key].expenses,
-        };
-      });
-
-      setChartData(chartDataArray);
-    } else if (selectedPeriod === "Month") {
-      // Initialize last 12 months
+    if (selectedPeriod === "Month") {
       for (let i = 11; i >= 0; i--) {
         const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        const key = `${date.getFullYear()}-${String(
-          date.getMonth() + 1
-        ).padStart(2, "0")}`;
+        const key = `${date.getFullYear()}-${date.getMonth()}`;
         data[key] = {
           expenses: 0,
           incomes: 0,
@@ -110,274 +93,134 @@ export default function ExpensesVsIncomes() {
         };
       }
 
-      // Process transactions
-      transactions.forEach((transaction) => {
-        const transactionDate = new Date(transaction.date);
-        const key = `${transactionDate.getFullYear()}-${String(
-          transactionDate.getMonth() + 1
-        ).padStart(2, "0")}`;
-
+      transactions.forEach((t) => {
+        const d = new Date(t.date);
+        const key = `${d.getFullYear()}-${d.getMonth()}`;
         if (data[key]) {
-          if (transaction.incoming) {
-            data[key].incomes += transaction.amount;
-          } else {
-            data[key].expenses += transaction.amount;
-          }
+          t.incoming
+            ? (data[key].incomes += t.amount)
+            : (data[key].expenses += t.amount);
         }
       });
+    }
 
-      // Convert to chart data format
-      const chartDataArray: MonthData[] = Object.keys(data).map((key) => {
-        return {
-          month: data[key].label,
-          expenses: data[key].expenses,
-          incomes: data[key].incomes,
-          net: data[key].incomes - data[key].expenses,
-        };
-      });
-
-      setChartData(chartDataArray);
-    } else if (selectedPeriod === "Year") {
-      // Initialize last 5 years
+    if (selectedPeriod === "Year") {
       for (let i = 4; i >= 0; i--) {
         const year = now.getFullYear() - i;
-        const key = `${year}`;
-        data[key] = { expenses: 0, incomes: 0, label: year.toString() };
+        data[year] = {
+          expenses: 0,
+          incomes: 0,
+          label: year.toString(),
+        };
       }
 
-      // Process transactions
-      transactions.forEach((transaction) => {
-        const transactionDate = new Date(transaction.date);
-        const key = `${transactionDate.getFullYear()}`;
-
-        if (data[key]) {
-          if (transaction.incoming) {
-            data[key].incomes += transaction.amount;
-          } else {
-            data[key].expenses += transaction.amount;
-          }
+      transactions.forEach((t) => {
+        const y = new Date(t.date).getFullYear();
+        if (data[y]) {
+          t.incoming
+            ? (data[y].incomes += t.amount)
+            : (data[y].expenses += t.amount);
         }
       });
-
-      // Convert to chart data format
-      const chartDataArray: MonthData[] = Object.keys(data).map((key) => {
-        return {
-          month: data[key].label,
-          expenses: data[key].expenses,
-          incomes: data[key].incomes,
-          net: data[key].incomes - data[key].expenses,
-        };
-      });
-
-      setChartData(chartDataArray);
     }
+
+    setChartData(
+      Object.values(data).map((d) => ({
+        month: d.label,
+        expenses: d.expenses,
+        incomes: d.incomes,
+        net: d.incomes - d.expenses,
+      }))
+    );
   };
 
-  const periodTotal = chartData.reduce((sum, item) => sum + item.net, 0);
-  const maxValue = Math.max(
-    ...chartData.map((d) => Math.max(d.expenses, d.incomes)),
-    10000
-  );
+  const periodTotal = chartData.reduce((s, i) => s + i.net, 0);
 
-  const getPeriodLabel = () => {
-    if (selectedPeriod === "Week") return "this week";
-    if (selectedPeriod === "Month") return "this year";
-    return "overall";
-  };
-
-  const getDateRange = () => {
-    if (chartData.length === 0) return "No data";
-    if (selectedPeriod === "Week") {
-      const firstDate = new Date();
-      firstDate.setDate(firstDate.getDate() - 6);
-      const lastDate = new Date();
-      return `${firstDate.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      })} - ${lastDate.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })}`;
-    } else if (selectedPeriod === "Month") {
-      const firstMonth = chartData[0].month;
-      const lastMonth = chartData[chartData.length - 1].month;
-      const currentYear = new Date().getFullYear();
-      const prevYear = currentYear - 1;
-      return `${firstMonth} ${prevYear} - ${lastMonth} ${currentYear}`;
-    } else {
-      const firstYear = chartData[0].month;
-      const lastYear = chartData[chartData.length - 1].month;
-      return `${firstYear} - ${lastYear}`;
-    }
-  };
+  
+  const gridColor = isDark ? "#ffffff20" : "#00000020";
+  const axisColor = isDark ? "#ffffff60" : "#374151";
+  const legendColor = isDark ? "#ffffff80" : "#374151";
+  const tooltipBg = isDark ? "rgba(0,0,0,0.85)" : "#ffffff";
+  const tooltipBorder = isDark ? "rgba(255,255,255,0.2)" : "#e5e7eb";
+  const tooltipText = isDark ? "#ffffff" : "#111827";
 
   if (loading) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-        className="bg-white/5 rounded-lg p-6 border border-white/10 lg:col-span-2"
-      >
-        <h2 className="text-xl font-semibold mb-4 text-white">
-          Expenses vs Incomes
-        </h2>
-        <div className="text-white/60">Loading...</div>
-      </motion.div>
-    );
+    return null;
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.1 }}
-      className="bg-white/5 rounded-lg p-6 border border-white/10 lg:col-span-2"
-    >
+    <motion.div className="rounded-lg p-6 border bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 lg:col-span-2">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold text-white">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
           Expenses vs Incomes
         </h2>
 
-        {/* Filter Buttons */}
         <div className="flex gap-2">
-          {["Week", "Month", "Year"].map((period) => (
-            <motion.button
-              key={period}
-              onClick={() => setSelectedPeriod(period)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={`px-4 py-1 text-sm rounded transition-colors ${
-                selectedPeriod === period
-                  ? "bg-white/20 text-white"
-                  : "bg-white/10 text-white/80 hover:bg-white/20"
-              }`}
+          {["Week", "Month", "Year"].map((p) => (
+            <button
+              key={p}
+              onClick={() => setSelectedPeriod(p)}
+              className={`px-4 py-1 text-sm rounded transition-colors
+                ${
+                  selectedPeriod === p
+                    ? "bg-gray-200 dark:bg-white/20 text-gray-900 dark:text-white"
+                    : "bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-white/80"
+                }`}
             >
-              {period}
-            </motion.button>
+              {p}
+            </button>
           ))}
         </div>
       </div>
 
-      {/* Period Summary */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-        className="flex items-center gap-2 mb-6"
-      >
-        <span
-          className={`text-xl ${
-            periodTotal >= 0 ? "text-green-500" : "text-red-500"
-          }`}
-        >
+      <div className="flex items-center gap-2 mb-6">
+        <span className={periodTotal >= 0 ? "text-green-500" : "text-red-500"}>
           {periodTotal >= 0 ? "↑" : "↓"}
         </span>
-        <span className="text-white font-semibold">
+        <span className="font-semibold text-gray-900 dark:text-white">
           {periodTotal >= 0 ? "+" : ""}
-          {Math.abs(periodTotal).toLocaleString("en-US")} CZK {getPeriodLabel()}
+          {Math.abs(periodTotal).toLocaleString("en-US")} CZK
         </span>
-      </motion.div>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-        {/* Left: Monthly Summary Table */}
-        <div className="flex flex-col">
-          <h2 className="text-xl font-semibold mb-4 text-white">
-            Expenses vs Incomes
-          </h2>
-
-          <div className="grid grid-cols-2 gap-2">
-            {chartData.length > 0 ? (
-              chartData.map((item, index) => {
-                const isPositive = item.net > 0;
-                return (
-                  <motion.div
-                    key={item.month}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.3, delay: 0.4 + index * 0.05 }}
-                    className="flex items-center justify-between p-2 rounded bg-white/5"
-                  >
-                    <span className="text-sm text-white/80">{item.month}</span>
-                    <span
-                      className={`text-sm font-semibold ${
-                        isPositive ? "text-green-500" : "text-red-500"
-                      }`}
-                    >
-                      {isPositive ? "+" : ""}
-                      {item.net.toLocaleString("en-US")} CZK
-                    </span>
-                  </motion.div>
-                );
-              })
-            ) : (
-              <div className="col-span-2 text-white/60 text-center py-4">
-                No transaction data
-              </div>
-            )}
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-2 gap-2">
+          {chartData.map((item) => (
+            <div
+              key={item.month}
+              className="flex justify-between p-2 rounded bg-gray-100 dark:bg-white/5"
+            >
+              <span className="text-sm text-gray-700 dark:text-white/80">
+                {item.month}
+              </span>
+              <span
+                className={item.net >= 0 ? "text-green-500" : "text-red-500"}
+              >
+                {item.net >= 0 ? "+" : ""}
+                {item.net.toLocaleString("en-US")} CZK
+              </span>
+            </div>
+          ))}
         </div>
 
-        {/* Right: Chart */}
-        <div className="flex flex-col">
-          <div className="flex items-center gap-4 mb-2">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-red-500" />
-              <span className="text-sm text-white/80">Expenses</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-green-500" />
-              <span className="text-sm text-white/80">Incomes</span>
-            </div>
-          </div>
-
-          <div className="text-sm text-white/60 mb-4">{getDateRange()}</div>
-
-          <div className="h-64">
-            {chartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
-                  <XAxis
-                    dataKey="month"
-                    stroke="#ffffff60"
-                    style={{ fontSize: "12px" }}
-                  />
-                  <YAxis
-                    stroke="#ffffff60"
-                    style={{ fontSize: "12px" }}
-                    domain={[0, maxValue * 1.1]}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "rgba(0, 0, 0, 0.8)",
-                      border: "1px solid rgba(255, 255, 255, 0.2)",
-                      borderRadius: "8px",
-                      color: "#fff",
-                    }}
-                  />
-                  <Legend wrapperStyle={{ color: "#ffffff80" }} />
-                  <Bar
-                    dataKey="expenses"
-                    fill="#ef4444"
-                    radius={[4, 4, 0, 0]}
-                    animationDuration={1000}
-                  />
-                  <Bar
-                    dataKey="incomes"
-                    fill="#22c55e"
-                    radius={[4, 4, 0, 0]}
-                    animationDuration={1000}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="flex items-center justify-center h-full text-white/60">
-                No transaction data
-              </div>
-            )}
-          </div>
+        <div className="h-64">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+              <XAxis dataKey="month" stroke={axisColor} />
+              <YAxis stroke={axisColor} />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: tooltipBg,
+                  border: `1px solid ${tooltipBorder}`,
+                  color: tooltipText,
+                }}
+              />
+              <Legend wrapperStyle={{ color: legendColor }} />
+              <Bar dataKey="expenses" fill="#ef4444" />
+              <Bar dataKey="incomes" fill="#22c55e" />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </div>
     </motion.div>
