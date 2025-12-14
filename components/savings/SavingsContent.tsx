@@ -91,8 +91,8 @@ export function SavingsContent({
   return (
     <div
       className="mx-auto max-w-6xl rounded-3xl px-6 py-8 md:px-10 md:py-10
-      bg-white dark:bg-[#041633]
-      border border-gray-200 dark:border-transparent"
+      bg-white dark:bg-white/5
+      border border-gray-200 dark:border-white/10"
     >
       {/* Header */}
       <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">

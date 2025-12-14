@@ -255,32 +255,36 @@ const TransactionPage = () => {
 
   return (
     <>
-      <div className="flex flex-col gap-6 px-4 lg:px-8 py-6 pt-32 lg:pt-6">
-        <div>
-          <h1 className="text-xl font-semibold text-white">Transactions</h1>
-          {loading && (
-            <p className="mt-1 text-sm text-slate-400">Loading transactions…</p>
-          )}
+      <main className="min-h-screen bg-navbar-bg text-white">
+        <div className="flex flex-col gap-6 px-4 lg:px-8 py-6 pt-32 lg:pt-6">
+          <div>
+            <h1 className="text-xl font-semibold text-white">Transactions</h1>
+            {loading && (
+              <p className="mt-1 text-sm text-slate-400">
+                Loading transactions…
+              </p>
+            )}
+          </div>
+
+          <TransactionFilters
+            value={filters}
+            onChange={setFilters}
+            categories={categories}
+          />
+
+          <TransactionTable
+            transactions={filteredTransactions}
+            onEdit={handleEditTransaction}
+            onDelete={handleDeleteTransaction}
+            onAdd={() => {
+              setEditingTransaction(null);
+              setIsAddModalOpen(true);
+            }}
+            isEditing={isEditing}
+            onToggleEdit={() => setIsEditing((v) => !v)}
+          />
         </div>
-
-        <TransactionFilters
-          value={filters}
-          onChange={setFilters}
-          categories={categories}
-        />
-
-        <TransactionTable
-          transactions={filteredTransactions}
-          onEdit={handleEditTransaction}
-          onDelete={handleDeleteTransaction}
-          onAdd={() => {
-            setEditingTransaction(null);
-            setIsAddModalOpen(true);
-          }}
-          isEditing={isEditing}
-          onToggleEdit={() => setIsEditing((v) => !v)}
-        />
-      </div>
+      </main>
 
       <AddTransactionModal
         isOpen={isAddModalOpen}

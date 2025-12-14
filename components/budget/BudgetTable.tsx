@@ -100,8 +100,8 @@ export default function BudgetTable() {
     return (
       <div
         className="p-6 rounded-2xl w-full
-          bg-white dark:bg-[#0F1C2E]
-          border border-gray-200 dark:border-transparent"
+          bg-white dark:bg-white/5
+          border border-gray-200 dark:border-white/10"
       >
         <BudgetHeader
           total={0}
@@ -153,8 +153,8 @@ export default function BudgetTable() {
     <>
       <div
         className="p-6 rounded-2xl w-full
-          bg-white dark:bg-[#0F1C2E]
-          border border-gray-200 dark:border-transparent"
+          bg-white dark:bg-white/5
+          border border-gray-200 dark:border-white/10"
       >
         <BudgetHeader
           total={totalBudget}
