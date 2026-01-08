@@ -8,7 +8,6 @@ import Category from "../models/Category";
 
 export async function GET() {
   try {
-    // Ověření autentizace
     const authUser = await authenticateUser();
     if (!authUser) {
       return NextResponse.json(
@@ -19,7 +18,6 @@ export async function GET() {
 
     await dbConnect();
 
-    // Získání pouze transakcí přihlášeného uživatele
     const transactions = await Transaction.find({ userId: authUser.userId })
       .populate("userId", "username")
       .populate("category", "name")
@@ -40,7 +38,6 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    // Ověření autentizace
     const authUser = await authenticateUser();
     if (!authUser) {
       return NextResponse.json(
@@ -54,10 +51,8 @@ export async function POST(request: Request) {
     const { amount, description, incoming, date, isRepeating, frequency } =
       body;
 
-    // Použití userId z autentizovaného uživatele
     const userId = authUser.userId;
 
-    // Check if user exists
     const user = await User.findById(userId);
     if (!user) {
       return NextResponse.json(
@@ -74,7 +69,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create transaction
     const transaction = await Transaction.create({
       userId: user._id,
       amount,
@@ -86,7 +80,6 @@ export async function POST(request: Request) {
       frequency: isRepeating ? frequency : undefined,
     });
 
-    // Add transaction to user's transactions array
     (user.transactions as mongoose.Types.ObjectId[]).push(
       transaction._id as mongoose.Types.ObjectId
     );
@@ -114,7 +107,6 @@ export async function POST(request: Request) {
 
 export async function DELETE() {
   try {
-    // Ověření autentizace
     const authUser = await authenticateUser();
     if (!authUser) {
       return NextResponse.json(
@@ -125,10 +117,8 @@ export async function DELETE() {
 
     await dbConnect();
 
-    // Delete all transactions for the authenticated user
     const result = await Transaction.deleteMany({ userId: authUser.userId });
 
-    // Clear transactions array from user
     const user = await User.findById(authUser.userId);
     if (user) {
       user.transactions = [];

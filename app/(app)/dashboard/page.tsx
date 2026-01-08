@@ -21,7 +21,6 @@ export default function Dashboard() {
   return (
     <main className="min-h-screen bg-navbar-bg p-4 lg:p-6 pt-28 lg:pt-6">
       <div className="mx-auto max-w-7xl">
-        {/* Top Row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           <div className="lg:col-span-1">
             <AccountBalance />
@@ -31,7 +30,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Bottom Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div>
             <Transactions />

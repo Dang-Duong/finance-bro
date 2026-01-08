@@ -4,7 +4,6 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-
   /* Brand Colors */
   --color-primary: #0a66e8;
   --color-primary-hover: #0958d1;

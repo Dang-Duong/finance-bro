@@ -45,7 +45,6 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
       if (response.ok) {
         const result = await response.json();
         if (result.success) {
-          // Normalize category field - handle both object and string
           const capitalizeFirst = (str: string) => {
             if (!str) return str;
             return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();

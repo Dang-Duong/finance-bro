@@ -50,7 +50,6 @@ export default function SpendByCategory() {
     if (transactions.length > 0 || !loading) {
       calculateCategoryData();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transactions]);
 
   const calculateCategoryData = () => {
@@ -65,8 +64,7 @@ export default function SpendByCategory() {
             transaction.category !== null
           ? transaction.category.name
           : "Other";
-      categoryMap[category] =
-        (categoryMap[category] || 0) + transaction.amount;
+      categoryMap[category] = (categoryMap[category] || 0) + transaction.amount;
     });
 
     const total = Object.values(categoryMap).reduce(

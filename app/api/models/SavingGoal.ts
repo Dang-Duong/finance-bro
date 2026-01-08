@@ -39,7 +39,6 @@ const savingGoalSchema = new Schema<ISavingGoalDocument>(
   { timestamps: true }
 );
 
-// Index for fast user queries
 savingGoalSchema.index({ userId: 1 });
 
 const SavingGoal: Model<ISavingGoalDocument> =

@@ -6,7 +6,7 @@ import ChevronLeftIcon from "@/components/icons/ChevronLeftIcon";
 import ChevronRightIcon from "@/components/icons/ChevronRightIcon";
 
 interface MonthPickerProps {
-  value: string | null; // Format: "YYYY-MM" or null
+  value: string | null;
   onChange: (month: string | null) => void;
   placeholder?: string;
 }
@@ -21,7 +21,6 @@ export default function MonthPicker({
 
   const selectedDate = value ? new Date(value + "-01") : new Date();
 
-  // Check if selected month is current month
   const isCurrentMonth = () => {
     if (!value) return false;
     const now = new Date();
@@ -46,7 +45,6 @@ export default function MonthPicker({
 
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // Set to current month instead of clearing
     const now = new Date();
     const currentMonthString = `${now.getFullYear()}-${String(
       now.getMonth() + 1

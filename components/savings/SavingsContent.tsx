@@ -16,9 +16,6 @@ import {
 import TrashIcon from "@/components/icons/TrashIcon";
 import type { SavingGoal, SavingDeposit } from "@/lib/savingsContext";
 
-/* ---------- ICON CONFIGURATION ---------- */
-
-// Default icon set with colors
 const defaultIcons: Array<{
   Icon: LucideIcon;
   barColor: string;
@@ -35,14 +32,10 @@ const defaultIcons: Array<{
   { Icon: PiggyBank, barColor: "#60a5fa", iconColor: "#42a5f5" },
 ];
 
-// Get icon config for a goal based on its name
 function getGoalIconConfig(goalName: string, index: number) {
-  // Use index to determine icon
   const iconIndex = index % defaultIcons.length;
   return defaultIcons[iconIndex];
 }
-
-/* ---------- PROPS ---------- */
 
 interface SavingsContentProps {
   goals: SavingGoal[];
@@ -54,8 +47,6 @@ interface SavingsContentProps {
   onDeleteGoal?: (id: string) => void;
   isEditMode?: boolean;
 }
-
-/* ---------- MAIN ---------- */
 
 export function SavingsContent({
   goals,
@@ -77,11 +68,9 @@ export function SavingsContent({
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
-  // Create a map of goalId to goal name for deposits
   const goalNameMap = useMemo(() => {
     const map = new Map<string, string>();
     goals.forEach((goal) => {
-      // Ensure _id is a string and add it to the map
       const goalId = String(goal._id);
       map.set(goalId, goal.name);
     });
@@ -94,7 +83,6 @@ export function SavingsContent({
       bg-white dark:bg-white/5
       border border-gray-200 dark:border-white/10"
     >
-      {/* Header */}
       <div className="mb-6 sm:mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-900 dark:text-white">
           Savings
@@ -133,7 +121,6 @@ export function SavingsContent({
       </div>
 
       <div className="grid gap-6 sm:gap-10 lg:grid-cols-[1.4fr_1.2fr]">
-        {/* LEFT */}
         <div className="space-y-6 sm:space-y-10">
           <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
             <SummaryCard label="TOTAL GOAL" value={totalGoal} />
@@ -158,7 +145,6 @@ export function SavingsContent({
           </div>
         </div>
 
-        {/* RIGHT */}
         <div>
           <h2 className="mb-3 sm:mb-4 text-base sm:text-lg md:text-xl font-semibold text-gray-900 dark:text-white">
             History of deposit
@@ -225,8 +211,6 @@ export function SavingsContent({
   );
 }
 
-/* ---------- SUMMARY CARD ---------- */
-
 function SummaryCard({
   label,
   value,
@@ -266,8 +250,6 @@ function SummaryCard({
     </div>
   );
 }
-
-/* ---------- GOAL ROW ---------- */
 
 function GoalRow({
   goal,

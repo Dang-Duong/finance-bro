@@ -37,7 +37,6 @@ export default function AddDepositModal({
       setSelectedDate(new Date().toISOString().split("T")[0]);
       setError("");
     } else if (goals.length > 0 && !selectedGoalId) {
-      // Auto-select first goal if available
       setSelectedGoalId(goals[0]._id);
     }
   }, [isOpen, goals, selectedGoalId]);

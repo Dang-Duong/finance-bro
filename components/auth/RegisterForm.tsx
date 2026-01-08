@@ -25,7 +25,6 @@ export default function RegisterForm() {
     setLoading(true);
     setMessage("");
 
-    // Basic validation
     if (password !== confirmPassword) {
       setMessage("Passwords do not match");
       setLoading(false);
@@ -38,7 +37,6 @@ export default function RegisterForm() {
       return;
     }
 
-    // Check for capital letter
     if (!/[A-Z]/.test(password)) {
       setMessage("Password must contain at least 1 capital letter");
       setLoading(false);
@@ -63,13 +61,11 @@ export default function RegisterForm() {
 
       if (response.ok) {
         setMessage("Registration successful! Redirecting to login...");
-        // Clear form
         setName("");
         setSurname("");
         setEmail("");
         setPassword("");
         setConfirmPassword("");
-        // Redirect to login after a delay
         setTimeout(() => {
           router.push("/login");
         }, 2000);

@@ -11,7 +11,6 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Ověření autentizace
     const authUser = await authenticateUser();
     if (!authUser) {
       return NextResponse.json(
@@ -22,7 +21,6 @@ export async function GET(
 
     const { id } = await params;
 
-    // Validate MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         { success: false, error: "Invalid transaction ID" },
@@ -32,7 +30,6 @@ export async function GET(
 
     await dbConnect();
 
-    // Find transaction and verify it belongs to the user
     const transaction = await Transaction.findById(id)
       .populate("userId", "username")
       .populate("category", "name");
@@ -44,7 +41,6 @@ export async function GET(
       );
     }
 
-    // Check if transaction belongs to the authenticated user
     if (transaction.userId._id.toString() !== authUser.userId) {
       return NextResponse.json(
         { success: false, error: "Unauthorized to access this transaction" },
@@ -70,7 +66,6 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Ověření autentizace
     const authUser = await authenticateUser();
     if (!authUser) {
       return NextResponse.json(
@@ -81,7 +76,6 @@ export async function PUT(
 
     const { id } = await params;
 
-    // Validate MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         { success: false, error: "Invalid transaction ID" },
@@ -91,7 +85,6 @@ export async function PUT(
 
     await dbConnect();
 
-    // Find transaction and verify it belongs to the user
     const transaction = await Transaction.findById(id);
 
     if (!transaction) {
@@ -101,7 +94,6 @@ export async function PUT(
       );
     }
 
-    // Check if transaction belongs to the authenticated user
     if (transaction.userId.toString() !== authUser.userId) {
       return NextResponse.json(
         { success: false, error: "Unauthorized to update this transaction" },
@@ -121,11 +113,9 @@ export async function PUT(
       frequency,
     } = body;
 
-    // Update only provided fields
     if (amount !== undefined) transaction.amount = amount;
     if (description !== undefined) transaction.description = description;
     if (category !== undefined) {
-      // validate category exists and store as ObjectId
       const categoryExist = await Category.findById(category);
       if (!categoryExist) {
         return NextResponse.json(
@@ -166,7 +156,6 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Ověření autentizace
     const authUser = await authenticateUser();
     if (!authUser) {
       return NextResponse.json(
@@ -177,7 +166,6 @@ export async function DELETE(
 
     const { id } = await params;
 
-    // Validate MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         { success: false, error: "Invalid transaction ID" },
@@ -187,7 +175,6 @@ export async function DELETE(
 
     await dbConnect();
 
-    // Find transaction and verify it belongs to the user
     const transaction = await Transaction.findById(id);
 
     if (!transaction) {
@@ -197,7 +184,6 @@ export async function DELETE(
       );
     }
 
-    // Check if transaction belongs to the authenticated user
     if (transaction.userId.toString() !== authUser.userId) {
       return NextResponse.json(
         { success: false, error: "Unauthorized to delete this transaction" },
@@ -205,7 +191,6 @@ export async function DELETE(
       );
     }
 
-    // Remove transaction from user's transactions array
     const user = await User.findById(authUser.userId);
     if (user) {
       (user.transactions as mongoose.Types.ObjectId[]) = (
@@ -214,7 +199,6 @@ export async function DELETE(
       await user.save();
     }
 
-    // Delete the transaction
     await Transaction.findByIdAndDelete(id);
 
     return NextResponse.json({

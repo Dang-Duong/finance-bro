@@ -62,7 +62,6 @@ export default function ExpensesVsIncomes() {
     if (transactions.length > 0 || !loading) {
       calculateChartData();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transactions, selectedPeriod]);
 
   const calculateChartData = () => {

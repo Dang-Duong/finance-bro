@@ -13,15 +13,14 @@ import {
 import { useTransactions } from "@/lib/transactionsContext";
 
 const COLORS = {
-  income: "#22c55e", // green
-  expense: "#ef4444", // red
+  income: "#22c55e",
+  expense: "#ef4444",
 };
 
 export default function AccountBalance() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const { transactions, loading } = useTransactions();
 
-  // Calculate totals
   const totalIncome = transactions
     .filter((t) => t.incoming)
     .reduce((sum, t) => sum + t.amount, 0);
@@ -30,7 +29,6 @@ export default function AccountBalance() {
     .reduce((sum, t) => sum + t.amount, 0);
   const totalBalance = totalIncome - totalExpenses;
 
-  // Calculate this month's net
   const now = new Date();
   const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const thisMonthTransactions = transactions.filter((t) => {

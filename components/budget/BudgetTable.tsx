@@ -59,7 +59,6 @@ export default function BudgetTable() {
   }) => {
     try {
       if (editingBudget) {
-        // Update existing budget
         const response = await fetch(`/api/budgets/${editingBudget._id}`, {
           method: "PUT",
           headers: {
@@ -73,7 +72,6 @@ export default function BudgetTable() {
           throw new Error(result.error || "Failed to update budget");
         }
       } else {
-        // Create new budget
         const response = await fetch("/api/budgets", {
           method: "POST",
           headers: {
@@ -92,7 +90,7 @@ export default function BudgetTable() {
       setEditingBudget(null);
       refreshBudgets();
     } catch (error) {
-      throw error; // Re-throw to let modal handle error display
+      throw error;
     }
   };
 

@@ -4,7 +4,7 @@ export interface IBudget {
   userId: mongoose.Types.ObjectId;
   category: mongoose.Types.ObjectId;
   amount: number;
-  month: number; // 0-11
+  month: number;
   year: number;
 }
 
@@ -44,9 +44,7 @@ const budgetSchema = new Schema<IBudgetDocument>(
   { timestamps: true }
 );
 
-// Index pro rychlé vyhledávání budgetů uživatele za konkrétní měsíc a rok
 budgetSchema.index({ userId: 1, month: 1, year: 1 });
-// Index pro vyhledávání konkrétního budgetu (user + kategorie + měsíc + rok)
 budgetSchema.index(
   { userId: 1, category: 1, month: 1, year: 1 },
   { unique: true }

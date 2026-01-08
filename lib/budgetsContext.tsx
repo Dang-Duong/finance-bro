@@ -13,10 +13,10 @@ export type Budget = {
   _id: string;
   category: { _id: string; name: string };
   amount: number;
-  month: number; // 0-11
+  month: number;
   year: number;
   spent: number;
-  progress: number; // percentage
+  progress: number;
   createdAt?: string | Date;
   updatedAt?: string | Date;
 };
@@ -61,7 +61,6 @@ export function BudgetsProvider({ children }: { children: ReactNode }) {
         const result = await response.json();
         if (result.success) {
           setBudgets(result.data || []);
-          // Only update currentMonth/currentYear if they were provided
           if (month !== undefined) setCurrentMonth(month);
           if (year !== undefined) setCurrentYear(year);
         }
@@ -78,17 +77,13 @@ export function BudgetsProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    // Default to current month/year if no filters set
     const now = new Date();
     const month = currentMonth ?? now.getMonth();
     const year = currentYear ?? now.getFullYear();
     fetchBudgets(month, year);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchBudgets, refreshTrigger]);
 
-  // Filter budgets based on category
   const filteredBudgets = budgets.filter((budget) => {
-    // Category filter
     if (categoryFilter && budget.category._id !== categoryFilter) {
       return false;
     }

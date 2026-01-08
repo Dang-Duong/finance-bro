@@ -9,20 +9,10 @@ export interface AuthUser {
   email: string;
 }
 
-/**
- * Middleware pro ověření autentizace uživatele
- * Použití v API routes:
- *
- * const user = await authenticateUser();
- * if (!user) {
- *   return new Response(JSON.stringify({ message: "Unauthorized" }), { status: 401 });
- * }
- */
 export async function authenticateUser(): Promise<AuthUser | null> {
   try {
     await dbConnect();
 
-    // Získání tokenu z cookies
     const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
 
@@ -30,13 +20,11 @@ export async function authenticateUser(): Promise<AuthUser | null> {
       return null;
     }
 
-    // Ověření JWT tokenu
     const decoded = jwt.verify(
       token,
       process.env.JWT_SECRET as string
     ) as AuthUser;
 
-    // Ověření, že token existuje v databázi
     const user = await User.findById(decoded.userId);
     if (!user || !user.tokens.includes(token)) {
       return null;
@@ -49,9 +37,6 @@ export async function authenticateUser(): Promise<AuthUser | null> {
   }
 }
 
-/**
- * Získání tokenu z cookies
- */
 export async function getTokenFromCookies(): Promise<string | null> {
   const cookieStore = await cookies();
   return cookieStore.get("token")?.value || null;

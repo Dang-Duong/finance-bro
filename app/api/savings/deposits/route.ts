@@ -17,7 +17,6 @@ export async function GET(request: Request) {
 
     await dbConnect();
 
-    // Get query parameters
     const url = new URL(request.url);
     const goalIdParam = url.searchParams.get("goalId");
 
@@ -26,7 +25,6 @@ export async function GET(request: Request) {
       query.goalId = goalIdParam;
     }
 
-    // Fetch deposits, sorted by date descending
     const deposits = await SavingDeposit.find(query).sort({ date: -1 });
 
     const depositsData = deposits.map((deposit) => ({
@@ -80,7 +78,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Verify goal exists and belongs to user
     const goal = await SavingGoal.findById(goalId);
     if (!goal) {
       return NextResponse.json(
@@ -96,7 +93,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create deposit - ensure goalId is converted to ObjectId
     const deposit = await SavingDeposit.create({
       userId: new mongoose.Types.ObjectId(authUser.userId),
       goalId: new mongoose.Types.ObjectId(goalId),
@@ -104,7 +100,6 @@ export async function POST(request: Request) {
       date: date ? new Date(date) : new Date(),
     });
 
-    // Update goal's currentAmount
     goal.currentAmount = (goal.currentAmount || 0) + amount;
     await goal.save();
 

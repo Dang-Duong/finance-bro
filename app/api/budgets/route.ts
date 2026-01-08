@@ -17,7 +17,6 @@ export async function GET(request: Request) {
 
     await dbConnect();
 
-    // Get query parameters for month and year (optional)
     const url = new URL(request.url);
     const monthParam = url.searchParams.get("month");
     const yearParam = url.searchParams.get("year");
@@ -33,15 +32,12 @@ export async function GET(request: Request) {
       query.year = parsedYear;
     }
 
-    // Fetch budgets (either filtered by month/year or all for the user)
     const budgets = await Budget.find(query)
       .populate("category", "name")
       .populate("userId", "username");
 
-    // For each budget, calculate the spent amount
     const budgetsWithSpent = await Promise.all(
       budgets.map(async (budget) => {
-        // Find transactions for this budget's month/year
         const startDate = new Date(budget.year, budget.month, 1);
         const endDate = new Date(budget.year, budget.month + 1, 0);
 
@@ -52,7 +48,7 @@ export async function GET(request: Request) {
             $gte: startDate,
             $lte: endDate,
           },
-          incoming: false, // Only count outgoing transactions (expenses)
+          incoming: false,
         });
 
         const spent = transactions.reduce((sum, t) => sum + t.amount, 0);
@@ -106,7 +102,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validate category exists
     const categoryExists = await Category.findById(category);
     if (!categoryExists) {
       return NextResponse.json(
@@ -115,7 +110,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if budget already exists for this month/year/category
     const existingBudget = await Budget.findOne({
       userId: authUser.userId,
       category,
@@ -134,7 +128,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create new budget
     const budget = await Budget.create({
       userId: authUser.userId,
       category,

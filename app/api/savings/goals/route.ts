@@ -16,10 +16,8 @@ export async function GET() {
 
     await dbConnect();
 
-    // Fetch all savings goals for the user
     const goals = await SavingGoal.find({ userId: authUser.userId });
 
-    // Calculate currentAmount from deposits for each goal
     const goalsWithCalculatedAmount = await Promise.all(
       goals.map(async (goal) => {
         const deposits = await SavingDeposit.find({
@@ -32,7 +30,6 @@ export async function GET() {
           0
         );
 
-        // Update the goal's currentAmount if it differs
         if (goal.currentAmount !== calculatedAmount) {
           goal.currentAmount = calculatedAmount;
           await goal.save();
@@ -91,7 +88,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create new savings goal
     const goal = await SavingGoal.create({
       userId: authUser.userId,
       name: name.trim(),

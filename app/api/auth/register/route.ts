@@ -11,8 +11,9 @@ const registerSchema = z.object({
   password: z
     .string()
     .min(6, { message: "Password must be at least 6 characters" })
-    .regex(/[A-Z]/, { message: "Password must contain at least 1 capital letter" }),
-  // Support legacy username for backwards compatibility
+    .regex(/[A-Z]/, {
+      message: "Password must contain at least 1 capital letter",
+    }),
   username: z.string().optional(),
 });
 
@@ -32,7 +33,6 @@ export async function POST(req: Request) {
 
     await dbConnect();
 
-    // Check if email already exists
     const existingUserByEmail = await User.findOne({ email });
     if (existingUserByEmail) {
       return NextResponse.json(
@@ -43,9 +43,10 @@ export async function POST(req: Request) {
 
     // Generate username from email if not provided
     const generatedUsername = username || email.toLowerCase().split("@")[0];
-    
-    // Check if username already exists
-    const existingUserByUsername = await User.findOne({ username: generatedUsername });
+
+    const existingUserByUsername = await User.findOne({
+      username: generatedUsername,
+    });
     if (existingUserByUsername) {
       return NextResponse.json(
         { message: "Username already exists" },

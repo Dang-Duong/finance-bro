@@ -20,7 +20,6 @@ export async function DELETE(
     await dbConnect();
     const { id } = await params;
 
-    // Find deposit and verify ownership
     const deposit = await SavingDeposit.findById(id);
     if (!deposit) {
       return NextResponse.json(
@@ -36,10 +35,8 @@ export async function DELETE(
       );
     }
 
-    // Get the goal to update its currentAmount
     const goal = await SavingGoal.findById(deposit.goalId);
     if (goal) {
-      // Subtract the deposit amount from goal's currentAmount
       goal.currentAmount = Math.max(
         0,
         (goal.currentAmount || 0) - deposit.amount
@@ -47,7 +44,6 @@ export async function DELETE(
       await goal.save();
     }
 
-    // Delete the deposit
     await SavingDeposit.findByIdAndDelete(id);
 
     return NextResponse.json({

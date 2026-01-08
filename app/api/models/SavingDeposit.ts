@@ -38,7 +38,6 @@ const savingDepositSchema = new Schema<ISavingDepositDocument>(
   { timestamps: true }
 );
 
-// Index for efficient queries
 savingDepositSchema.index({ userId: 1, goalId: 1 });
 
 const SavingDeposit: Model<ISavingDepositDocument> =

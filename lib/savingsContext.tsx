@@ -160,7 +160,7 @@ export function SavingsProvider({ children }: { children: ReactNode }) {
           const result = await response.json();
           if (result.success) {
             await fetchGoals();
-            await fetchDeposits(); // Refresh deposits in case any were deleted
+            await fetchDeposits();
           } else {
             throw new Error(result.error || "Failed to delete goal");
           }
@@ -189,7 +189,7 @@ export function SavingsProvider({ children }: { children: ReactNode }) {
           const result = await response.json();
           if (result.success) {
             await fetchDeposits();
-            await fetchGoals(); // Refresh goals to update currentAmount
+            await fetchGoals();
           } else {
             throw new Error(result.error || "Failed to create deposit");
           }
@@ -216,7 +216,7 @@ export function SavingsProvider({ children }: { children: ReactNode }) {
           const result = await response.json();
           if (result.success) {
             await fetchDeposits();
-            await fetchGoals(); // Refresh goals to update currentAmount
+            await fetchGoals();
           } else {
             throw new Error(result.error || "Failed to delete deposit");
           }
@@ -239,7 +239,6 @@ export function SavingsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     fetchGoals();
     fetchDeposits();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshTrigger]);
 
   return (

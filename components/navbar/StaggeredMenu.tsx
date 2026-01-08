@@ -100,7 +100,6 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
       if (toggleBtnRef.current)
         gsap.set(toggleBtnRef.current, { color: menuButtonColor });
 
-      // Mark as mounted after GSAP positioning is complete
       setMounted(true);
     });
     return () => ctx.revert();
@@ -296,9 +295,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
     });
   }, [position]);
 
-  const animateIcon = useCallback(() => {
-    // Icon removed - no animation needed
-  }, []);
+  const animateIcon = useCallback(() => {}, []);
 
   const animateColor = useCallback(
     (opening: boolean) => {
@@ -370,7 +367,6 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
   }, []);
 
   const toggleMenu = useCallback(() => {
-    // Prevent rapid clicks from causing inconsistent state
     if (busyRef.current) return;
 
     const target = !openRef.current;

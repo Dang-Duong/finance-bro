@@ -24,11 +24,10 @@ export default function UserDropdown() {
   const [theme, setTheme] = useState<ThemeMode>("dark");
   const [mounted, setMounted] = useState(false);
 
-  // =========================
-  // THEME HANDLING
-  // =========================
   useEffect(() => {
-    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) as ThemeMode | null;
+    const savedTheme = localStorage.getItem(
+      THEME_STORAGE_KEY
+    ) as ThemeMode | null;
     const initialTheme: ThemeMode = savedTheme === "light" ? "light" : "dark";
 
     setTheme(initialTheme);
@@ -54,9 +53,6 @@ export default function UserDropdown() {
     }
   };
 
-  // =========================
-  // FETCH USER
-  // =========================
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -77,9 +73,6 @@ export default function UserDropdown() {
     fetchUser();
   }, []);
 
-  // =========================
-  // CLOSE DROPDOWN ON OUTSIDE CLICK
-  // =========================
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -96,9 +89,6 @@ export default function UserDropdown() {
     };
   }, []);
 
-  // =========================
-  // LOGOUT
-  // =========================
   const handleLogout = async () => {
     try {
       const response = await fetch("/api/auth/logout", {
@@ -118,7 +108,6 @@ export default function UserDropdown() {
     return user.username.charAt(0).toUpperCase() + user.username.slice(1);
   };
 
-  // zabrání hydration glitchům
   if (!mounted) return null;
 
   return (
@@ -136,15 +125,12 @@ export default function UserDropdown() {
           {user ? (
             <>
               <div className="px-4 py-3 border-b border-border">
-                <p className="text-sm font-semibold">
-                  {getUserDisplayName()}
-                </p>
+                <p className="text-sm font-semibold">{getUserDisplayName()}</p>
                 <p className="text-xs text-muted-foreground mt-1">
                   {user.email}
                 </p>
               </div>
 
-              {/* THEME TOGGLE */}
               <button
                 onClick={toggleTheme}
                 className="w-full text-left px-4 py-2 text-sm hover:bg-muted transition-colors"

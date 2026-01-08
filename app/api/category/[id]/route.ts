@@ -9,7 +9,6 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Ověření autentizace
     const authUser = await authenticateUser();
     if (!authUser) {
       return NextResponse.json(

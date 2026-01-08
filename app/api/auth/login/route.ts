@@ -28,11 +28,9 @@ export async function POST(req: Request) {
       { expiresIn: "7d" }
     );
 
-    // Uložení tokenu do databáze
     user.tokens.push(token);
     await user.save();
 
-    // Vytvoření response s cookies
     const response = new Response(
       JSON.stringify({
         message: "Login successful",
@@ -51,7 +49,6 @@ export async function POST(req: Request) {
       }
     );
 
-    // Nastavení HTTP-only cookie s tokenem (bezpečné, nepřístupné z JavaScriptu)
     const isProduction = process.env.NODE_ENV === "production";
     const secureFlag = isProduction ? "Secure;" : "";
 
@@ -62,7 +59,6 @@ export async function POST(req: Request) {
       }; Path=/`
     );
 
-    // Volitelně můžete přidat i další cookie s user info (bez hesla)
     response.headers.append(
       "Set-Cookie",
       `user=${encodeURIComponent(

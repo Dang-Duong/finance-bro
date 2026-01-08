@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Calendar from "./Calendar";
 
 interface DatePickerProps {
-  value: string | null; // ISO date string or null
+  value: string | null;
   onChange: (date: string | null) => void;
   placeholder?: string;
 }

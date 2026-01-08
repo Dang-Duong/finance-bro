@@ -9,9 +9,7 @@ export default function WelcomeScreen() {
     <main className="min-h-dvh w-full text-white bg-navbar-bg bg-[radial-gradient(1200px_600px_at_50%_120%,rgba(10,102,232,0.25),transparent)] relative">
       <div className="mx-auto max-w-7xl px-4 lg:px-12 py-8 lg:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-10 lg:gap-20">
-          {/* # Text vpravo na desktopu */}
           <section className="text-center lg:text-left">
-            {/* Logo - show on mobile only, hide on desktop */}
             <div className="mb-8 lg:hidden flex justify-center">
               <BrandLogo />
             </div>
@@ -38,13 +36,10 @@ export default function WelcomeScreen() {
             </div>
           </section>
 
-          {/* # Vizuální strana: logo + telefon */}
           <section className="flex flex-col items-center">
-            {/* Logo - hide on mobile, show on desktop */}
             <div className="hidden lg:block mb-6 lg:mb-24">
               <BrandLogo />
             </div>
-            {/* Phone mockup - hide on mobile, show on desktop */}
             <div className="hidden lg:block">
               <PhoneMockup />
             </div>
@@ -52,7 +47,6 @@ export default function WelcomeScreen() {
         </div>
       </div>
 
-      {/* Welcome graph - show on mobile only, positioned at bottom */}
       <div className="lg:hidden absolute bottom-0 left-0 right-0 w-full flex justify-center overflow-hidden pointer-events-none">
         <Image
           src="/welcomeGraph.svg"

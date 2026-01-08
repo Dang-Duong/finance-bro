@@ -7,7 +7,6 @@ export async function GET() {
   try {
     await dbConnect();
 
-    // Získání tokenu z cookies
     const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
 
@@ -17,14 +16,12 @@ export async function GET() {
       });
     }
 
-    // Ověření JWT tokenu
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as {
       username: string;
       email: string;
       userId: string;
     };
 
-    // Nalezení uživatele a ověření, že token existuje v databázi
     const user = await User.findById(decoded.userId);
     if (!user || !user.tokens.includes(token)) {
       return new Response(JSON.stringify({ message: "Invalid token" }), {

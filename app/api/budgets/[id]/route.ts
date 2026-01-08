@@ -28,7 +28,6 @@ export async function PUT(
       );
     }
 
-    // Find budget and verify ownership
     const budget = await Budget.findById(id);
     if (!budget) {
       return NextResponse.json(
@@ -44,7 +43,6 @@ export async function PUT(
       );
     }
 
-    // Update budget
     budget.amount = amount;
     await budget.save();
 
@@ -82,7 +80,6 @@ export async function DELETE(
     await dbConnect();
     const { id } = await params;
 
-    // Find budget and verify ownership
     const budget = await Budget.findById(id);
     if (!budget) {
       return NextResponse.json(
@@ -98,7 +95,6 @@ export async function DELETE(
       );
     }
 
-    // Delete budget
     await Budget.findByIdAndDelete(id);
 
     return NextResponse.json({

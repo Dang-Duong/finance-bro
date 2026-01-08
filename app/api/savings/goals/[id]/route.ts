@@ -22,7 +22,6 @@ export async function PUT(
     const body = await request.json();
     const { name, goalAmount } = body;
 
-    // Find goal and verify ownership
     const goal = await SavingGoal.findById(id);
     if (!goal) {
       return NextResponse.json(
@@ -38,7 +37,6 @@ export async function PUT(
       );
     }
 
-    // Update fields if provided
     if (name !== undefined) {
       goal.name = name.trim();
     }
@@ -91,7 +89,6 @@ export async function DELETE(
     await dbConnect();
     const { id } = await params;
 
-    // Find goal and verify ownership
     const goal = await SavingGoal.findById(id);
     if (!goal) {
       return NextResponse.json(
@@ -107,10 +104,8 @@ export async function DELETE(
       );
     }
 
-    // Cascade delete: Delete all associated deposits
     await SavingDeposit.deleteMany({ goalId: id });
 
-    // Delete the goal
     await SavingGoal.findByIdAndDelete(id);
 
     return NextResponse.json({

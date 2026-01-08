@@ -16,7 +16,6 @@ const navItems = [
 export default function Navbar() {
   const pathname = usePathname();
 
-  // Convert navItems to StaggeredMenuItem format
   const staggeredMenuItems: StaggeredMenuItem[] = navItems.map((item) => ({
     label: item.label.toUpperCase(),
     ariaLabel: item.label,
@@ -31,7 +30,6 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Mobile Staggered Menu */}
       <div className="lg:hidden">
         <StaggeredMenu
           position="right"
@@ -60,7 +58,6 @@ export default function Navbar() {
               priority
             />
 
-            {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-3">
               {navItems.map((item) => {
                 const isActive = pathname === item.href;
@@ -80,7 +77,6 @@ export default function Navbar() {
             </nav>
           </div>
 
-          {/* Desktop User Dropdown */}
           <div className="hidden lg:block">
             <UserDropdown />
           </div>

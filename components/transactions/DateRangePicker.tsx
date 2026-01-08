@@ -34,7 +34,9 @@ export default function DateRangePicker({
 
   const formatRange = () => {
     if (startDate && endDate) {
-      return `${formatDate(new Date(startDate))} - ${formatDate(new Date(endDate))}`;
+      return `${formatDate(new Date(startDate))} - ${formatDate(
+        new Date(endDate)
+      )}`;
     } else if (startDate) {
       return `${formatDate(new Date(startDate))} - ...`;
     } else if (endDate) {
@@ -49,7 +51,6 @@ export default function DateRangePicker({
     const day = String(date.getDate()).padStart(2, "0");
     const dateString = `${year}-${month}-${day}`;
 
-    // If selecting start date and there's already an end date that's before the selected date, swap them
     if (endDate && new Date(dateString) > new Date(endDate)) {
       onChange(dateString, null);
     } else {
@@ -63,7 +64,6 @@ export default function DateRangePicker({
     const day = String(date.getDate()).padStart(2, "0");
     const dateString = `${year}-${month}-${day}`;
 
-    // If selecting end date and it's before start date, swap them
     if (startDate && new Date(dateString) < new Date(startDate)) {
       onChange(null, dateString);
     } else {
@@ -179,7 +179,11 @@ export default function DateRangePicker({
                               startDateObj.getMonth() + 1,
                               1
                             )
-                          : new Date(displayDate.getFullYear(), displayDate.getMonth() + 1, 1))
+                          : new Date(
+                              displayDate.getFullYear(),
+                              displayDate.getMonth() + 1,
+                              1
+                            ))
                       }
                       onDateSelect={handleEndDateSelect}
                       startDate={startDateObj}
@@ -211,9 +215,7 @@ export default function DateRangePicker({
                   {startDate && (
                     <span>Start: {formatDate(new Date(startDate))}</span>
                   )}
-                  {endDate && (
-                    <span>End: {formatDate(new Date(endDate))}</span>
-                  )}
+                  {endDate && <span>End: {formatDate(new Date(endDate))}</span>}
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-6">
@@ -241,7 +243,11 @@ export default function DateRangePicker({
                             startDateObj.getMonth() + 1,
                             1
                           )
-                        : new Date(displayDate.getFullYear(), displayDate.getMonth() + 1, 1))
+                        : new Date(
+                            displayDate.getFullYear(),
+                            displayDate.getMonth() + 1,
+                            1
+                          ))
                     }
                     onDateSelect={handleEndDateSelect}
                     startDate={startDateObj}
@@ -265,4 +271,3 @@ export default function DateRangePicker({
     </div>
   );
 }
-

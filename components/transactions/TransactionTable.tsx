@@ -64,7 +64,6 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
       bg-white dark:bg-white/5
       border-gray-200 dark:border-white/10"
     >
-      {/* Header */}
       <div className="flex items-center justify-between mb-4 lg:mb-6">
         <h2 className="text-base lg:text-lg font-semibold text-gray-900 dark:text-white">
           Transactions
@@ -93,7 +92,6 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
         </div>
       </div>
 
-      {/* MOBILE */}
       <div className="lg:hidden space-y-3">
         {transactions.map((t) => {
           const key = t._id ?? t.id ?? `${formatDate(t.date)}-${t.amount}`;
@@ -192,7 +190,6 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
         )}
       </div>
 
-      {/* DESKTOP */}
       <div className="hidden lg:block overflow-x-auto">
         <table className="w-full text-sm text-left border-separate border-spacing-y-3">
           <thead>
@@ -215,7 +212,6 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
 
               return (
                 <tr key={key}>
-                  {/* Date with delete button on the left */}
                   <td className="py-4 pr-6 rounded-l-2xl bg-gray-100 dark:bg-white/5">
                     <div className="flex items-center gap-2 pl-2">
                       {isEditing && onDelete ? (
@@ -235,21 +231,18 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                     </div>
                   </td>
 
-                  {/* Category */}
                   <td className="py-4 pr-6 bg-gray-100 dark:bg-white/5">
                     <span className="text-sm text-gray-900 dark:text-slate-100">
                       {getCategoryLabel(t.category)}
                     </span>
                   </td>
 
-                  {/* Type */}
                   <td className="py-4 pr-6 bg-gray-100 dark:bg-white/5">
                     <span className="text-sm text-gray-900 dark:text-slate-100">
                       {income ? "Income" : "Expense"}
                     </span>
                   </td>
 
-                  {/* Amount */}
                   <td className="py-4 px-6 border-l border-gray-200 dark:border-white/10 bg-gray-100 dark:bg-white/5">
                     <span
                       className={`font-semibold ${
@@ -260,7 +253,6 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                     </span>
                   </td>
 
-                  {/* Description with edit button on the right */}
                   <td className="py-4 pl-6 rounded-r-2xl bg-gray-100 dark:bg-white/5">
                     <div className="flex items-center justify-between gap-2 pr-2">
                       <span className="text-sm text-gray-900 dark:text-slate-100">

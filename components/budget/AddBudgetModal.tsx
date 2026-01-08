@@ -40,12 +40,11 @@ export default function AddBudgetModal({
   );
   const [error, setError] = useState<string>("");
 
-  // Convert month string "YYYY-MM" to { month: 0-11, year: number }
   const parseMonthString = (monthString: string | null) => {
     if (!monthString) return null;
     const [yearStr, monthStr] = monthString.split("-");
     const year = parseInt(yearStr, 10);
-    const month = parseInt(monthStr, 10) - 1; // Convert to 0-indexed
+    const month = parseInt(monthStr, 10) - 1;
     return { month, year };
   };
 
@@ -55,7 +54,6 @@ export default function AddBudgetModal({
       setSelectedCategoryId(categoryId);
       setAmount(String(editingBudget.amount ?? ""));
 
-      // Set month picker value from editingBudget
       if (
         editingBudget.month !== undefined &&
         editingBudget.year !== undefined
@@ -79,7 +77,6 @@ export default function AddBudgetModal({
     }
   }, [isOpen, editingBudget]);
 
-  // Sync currentYear with selectedMonth
   useEffect(() => {
     if (selectedMonth) {
       const [yearStr] = selectedMonth.split("-");

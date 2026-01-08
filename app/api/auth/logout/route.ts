@@ -7,18 +7,15 @@ export async function POST() {
   try {
     await dbConnect();
 
-    // Získání tokenu z cookies
     const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
 
     if (token) {
-      // Ověření a dekódování tokenu
       try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as {
           userId: string;
         };
 
-        // Odstranění tokenu z databáze
         await User.findByIdAndUpdate(decoded.userId, {
           $pull: { tokens: token },
         });
@@ -27,13 +24,11 @@ export async function POST() {
       }
     }
 
-    // Vytvoření response
     const response = new Response(
       JSON.stringify({ message: "Logged out successfully" }),
       { status: 200 }
     );
 
-    // Smazání cookies
     const isProduction = process.env.NODE_ENV === "production";
     const secureFlag = isProduction ? "Secure;" : "";
 

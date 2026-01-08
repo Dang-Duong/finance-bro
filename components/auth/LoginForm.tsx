@@ -32,7 +32,6 @@ export default function LoginForm() {
 
       if (response.ok) {
         setMessage("Login successful!");
-        // Redirect to dashboard
         window.location.href = "/dashboard";
       } else {
         setMessage(data.error || data.message || "Login failed");

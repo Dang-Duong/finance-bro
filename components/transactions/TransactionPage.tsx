@@ -148,7 +148,6 @@ const TransactionPage = () => {
     }
   };
 
-  // Auto-generate recurring transactions on page load
   useEffect(() => {
     const generateRecurring = async () => {
       try {

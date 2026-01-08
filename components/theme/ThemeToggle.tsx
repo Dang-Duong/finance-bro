@@ -14,7 +14,6 @@ function applyTheme(theme: ThemeMode) {
 }
 
 function getInitialTheme(): ThemeMode {
-  // default je dark 
   if (typeof window === "undefined") return "dark";
 
   const saved = window.localStorage.getItem(STORAGE_KEY);
@@ -41,7 +40,6 @@ export default function ThemeToggle() {
     applyTheme(next);
   };
 
-  
   if (!mounted) return null;
 
   return (
