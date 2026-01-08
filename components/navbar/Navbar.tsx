@@ -43,6 +43,7 @@ export default function Navbar() {
           accentColor="#0a66e8"
           isFixed={true}
           changeMenuColorOnOpen={true}
+          additionalHeaderContent={<UserDropdown />}
         />
       </div>
 
