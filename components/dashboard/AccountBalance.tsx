@@ -78,7 +78,7 @@ export default function AccountBalance() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="rounded-lg p-6 border bg-white dark:bg-white/5 border-gray-200 dark:border-white/10"
+      className="h-full rounded-lg p-6 border bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 flex flex-col"
     >
       <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
         Account Balance
@@ -131,7 +131,7 @@ export default function AccountBalance() {
         </motion.div>
       </div>
 
-      <div className="relative h-64">
+      <div className="relative flex-grow min-h-[16rem]">
         {chartData.length > 0 ? (
           <>
             <ResponsiveContainer width="100%" height="100%">

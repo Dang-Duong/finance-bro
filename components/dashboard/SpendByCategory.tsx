@@ -110,14 +110,14 @@ export default function SpendByCategory() {
   }
 
   return (
-    <motion.div className="rounded-lg p-6 border bg-white dark:bg-white/5 border-gray-200 dark:border-white/10">
+    <motion.div className="h-[440px] rounded-lg p-6 border bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 flex flex-col">
       <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
         Spend by Category
       </h2>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center flex-1 min-h-0">
         {/* Left: Legend */}
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-4 overflow-y-auto h-full pr-2 custom-scrollbar">
           {categoryData.length > 0 ? (
             categoryData.map((item, index) => (
               <motion.div

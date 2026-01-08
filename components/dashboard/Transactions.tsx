@@ -80,6 +80,7 @@ export default function Transactions() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
         className="
+          h-[440px] flex flex-col
           rounded-lg p-6 border relative z-30
           bg-white dark:bg-white/5
           border-gray-200 dark:border-white/10
@@ -100,7 +101,7 @@ export default function Transactions() {
         </div>
 
         {/* Mobile layout */}
-        <div className="lg:hidden space-y-3">
+        <div className="lg:hidden space-y-3 flex-1 overflow-y-auto pr-2 custom-scrollbar">
           {loading ? (
             <div className="py-12 flex justify-center">
               <LoadingSpinner size="md" />
@@ -161,9 +162,9 @@ export default function Transactions() {
         </div>
 
         {/* Desktop table */}
-        <div className="hidden lg:block overflow-x-auto">
-          <table className="w-full">
-            <thead>
+        <div className="hidden lg:block flex-1 overflow-y-auto pr-2 custom-scrollbar">
+          <table className="w-full border-collapse">
+            <thead className="sticky top-0 bg-white dark:bg-[#12293e] z-10">
               <tr className="border-b border-gray-200 dark:border-white/10">
                 {["Date", "Category", "Type", "Amount", "Description"].map(
                   (h) => (
@@ -180,8 +181,10 @@ export default function Transactions() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="py-12">
-                    <LoadingSpinner size="md" />
+                  <td colSpan={5} className="py-12 text-center">
+                    <div className="flex justify-center">
+                      <LoadingSpinner size="md" />
+                    </div>
                   </td>
                 </tr>
               ) : transactions.length === 0 ? (

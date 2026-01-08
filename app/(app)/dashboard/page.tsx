@@ -22,19 +22,19 @@ export default function Dashboard() {
     <main className="min-h-screen bg-navbar-bg p-4 lg:p-6 pt-28 lg:pt-6">
       <div className="mx-auto max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 h-full">
             <AccountBalance />
           </div>
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 h-full">
             <ExpensesVsIncomes />
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div>
+          <div className="h-full">
             <Transactions />
           </div>
-          <div>
+          <div className="h-full">
             <SpendByCategory />
           </div>
         </div>

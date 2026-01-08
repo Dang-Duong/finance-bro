@@ -172,7 +172,7 @@ export default function ExpensesVsIncomes() {
   }
 
   return (
-    <motion.div className="rounded-lg p-6 border bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 lg:col-span-2">
+    <motion.div className="h-full rounded-lg p-6 border bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 lg:col-span-2 flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
           Expenses vs Incomes
@@ -206,7 +206,7 @@ export default function ExpensesVsIncomes() {
         </span>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-grow">
         <div className="grid grid-cols-2 gap-2">
           {chartData.map((item) => (
             <div
@@ -226,7 +226,7 @@ export default function ExpensesVsIncomes() {
           ))}
         </div>
 
-        <div className="h-64">
+        <div className="h-full min-h-[16rem]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
