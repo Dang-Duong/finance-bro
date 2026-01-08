@@ -117,31 +117,33 @@ export default function SpendByCategory() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center flex-1 min-h-0">
         {/* Left: Legend */}
-        <div className="flex flex-col gap-4 overflow-y-auto h-full pr-2 custom-scrollbar">
-          {categoryData.length > 0 ? (
-            categoryData.map((item, index) => (
-              <motion.div
-                key={item.name}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3, delay: 0.5 + index * 0.1 }}
-                className="flex items-center gap-2"
-              >
-                <div
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: item.color }}
-                />
-                <span className="text-sm text-gray-700 dark:text-white/80">
-                  {item.name} {item.value}% (
-                  {item.amount.toLocaleString("en-US")} CZK)
-                </span>
-              </motion.div>
-            ))
-          ) : (
-            <div className="text-gray-600 dark:text-white/60">
-              No expense data
-            </div>
-          )}
+        <div className="overflow-y-auto h-full pr-2 custom-scrollbar">
+          <div className="flex flex-col gap-4 justify-center min-h-full">
+            {categoryData.length > 0 ? (
+              categoryData.map((item, index) => (
+                <motion.div
+                  key={item.name}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: 0.5 + index * 0.1 }}
+                  className="flex items-center gap-2"
+                >
+                  <div
+                    className="w-3 h-3 rounded-full"
+                    style={{ backgroundColor: item.color }}
+                  />
+                  <span className="text-sm text-gray-700 dark:text-white/80">
+                    {item.name} {item.value}% (
+                    {item.amount.toLocaleString("en-US")} CZK)
+                  </span>
+                </motion.div>
+              ))
+            ) : (
+              <div className="text-gray-600 dark:text-white/60">
+                No expense data
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right: Chart */}

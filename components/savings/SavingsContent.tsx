@@ -1,40 +1,27 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import type { LucideIcon } from "lucide-react";
-import {
-  Landmark,
-  Plane,
-  CarFront,
-  Home,
-  GraduationCap,
-  Heart,
-  Briefcase,
-  ShoppingBag,
-  PiggyBank,
-} from "lucide-react";
 import TrashIcon from "@/components/icons/TrashIcon";
 import type { SavingGoal, SavingDeposit } from "@/lib/savingsContext";
 
-const defaultIcons: Array<{
-  Icon: LucideIcon;
+const defaultColors: Array<{
   barColor: string;
-  iconColor: string;
+  color: string;
 }> = [
-  { Icon: Landmark, barColor: "#0b5cf5", iconColor: "#1e88ff" },
-  { Icon: Plane, barColor: "#2ae349", iconColor: "#25c63f" },
-  { Icon: CarFront, barColor: "#9cff3a", iconColor: "#8ae433" },
-  { Icon: Home, barColor: "#ff6b6b", iconColor: "#ff5252" },
-  { Icon: GraduationCap, barColor: "#4ecdc4", iconColor: "#26a69a" },
-  { Icon: Heart, barColor: "#ff9ff3", iconColor: "#f06292" },
-  { Icon: Briefcase, barColor: "#ffe66d", iconColor: "#ffd54f" },
-  { Icon: ShoppingBag, barColor: "#a78bfa", iconColor: "#9575cd" },
-  { Icon: PiggyBank, barColor: "#60a5fa", iconColor: "#42a5f5" },
+  { barColor: "#0b5cf5", color: "#1e88ff" },
+  { barColor: "#2ae349", color: "#25c63f" },
+  { barColor: "#9cff3a", color: "#8ae433" },
+  { barColor: "#ff6b6b", color: "#ff5252" },
+  { barColor: "#4ecdc4", color: "#26a69a" },
+  { barColor: "#ff9ff3", color: "#f06292" },
+  { barColor: "#ffe66d", color: "#ffd54f" },
+  { barColor: "#a78bfa", color: "#9575cd" },
+  { barColor: "#60a5fa", color: "#42a5f5" },
 ];
 
-function getGoalIconConfig(goalName: string, index: number) {
-  const iconIndex = index % defaultIcons.length;
-  return defaultIcons[iconIndex];
+function getGoalColorConfig(index: number) {
+  const colorIndex = index % defaultColors.length;
+  return defaultColors[colorIndex];
 }
 
 interface SavingsContentProps {
@@ -68,11 +55,11 @@ export function SavingsContent({
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
-  const goalNameMap = useMemo(() => {
-    const map = new Map<string, string>();
-    goals.forEach((goal) => {
+  const goalInfoMap = useMemo(() => {
+    const map = new Map<string, { name: string; index: number }>();
+    goals.forEach((goal, index) => {
       const goalId = String(goal._id);
-      map.set(goalId, goal.name);
+      map.set(goalId, { name: goal.name, index });
     });
     return map;
   }, [goals]);
@@ -156,27 +143,41 @@ export function SavingsContent({
               <tbody className="divide-y divide-gray-200 dark:divide-white/5">
                 {sortedDeposits.map((d) => {
                   const date = new Date(d.date);
-                  const shortDate = `${date.getDate()}/${date.getMonth() + 1}`;
                   const fullDate = date.toLocaleDateString("en-GB");
+                  const goalInfo = goalInfoMap.get(String(d.goalId));
+                  const goalName = goalInfo?.name || "Unknown Goal";
+                  const { color } = goalInfo
+                    ? getGoalColorConfig(goalInfo.index)
+                    : { color: "#6b7280" };
 
                   return (
                     <tr key={d._id}>
                       <td className="py-2 sm:py-3 pr-1.5 sm:pr-4 text-gray-700 dark:text-white/80 whitespace-nowrap">
-                        <span className="text-[9px] sm:text-xs">
-                          {shortDate}
+                        <span className="text-[10px] sm:text-xs">
+                          {fullDate}
                         </span>
-                        <span className="hidden sm:inline"> {fullDate}</span>
                       </td>
                       <td className="py-2 sm:py-3 pr-1.5 sm:pr-4 font-semibold text-green-600 whitespace-nowrap">
-                        <span className="text-[9px] sm:text-sm">
+                        <span className="text-[10px] sm:text-sm">
                           {d.amount.toLocaleString("cs-CZ")}
                         </span>
                         <span className="hidden sm:inline"> CZK</span>
                       </td>
                       <td className="py-2 sm:py-3 pr-1.5 sm:pr-4 text-gray-700 dark:text-white/80">
-                        <span className="truncate block max-w-[80px] sm:max-w-none text-[9px] sm:text-xs">
-                          {goalNameMap.get(String(d.goalId)) || "Unknown Goal"}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-[8px] sm:text-[10px]"
+                            style={{
+                              backgroundColor: `${color}20`,
+                              color: color,
+                            }}
+                          >
+                            {goalName.charAt(0).toUpperCase()}
+                          </div>
+                          <span className="truncate block max-w-[80px] sm:max-w-none text-[10px] sm:text-xs">
+                            {goalName}
+                          </span>
+                        </div>
                       </td>
                       {editMode && (
                         <td className="text-right py-2 sm:py-3 pl-1">
@@ -269,16 +270,19 @@ function GoalRow({
       ? 0
       : Math.min(100, (goal.currentAmount / goal.goalAmount) * 100);
 
-  const { Icon, barColor, iconColor } = getGoalIconConfig(goal.name, index);
+  const { barColor, color } = getGoalColorConfig(index);
 
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2 sm:gap-4">
-        <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gray-100 dark:bg-[#031b34] flex items-center justify-center flex-shrink-0">
-          <Icon
-            className="h-4 w-4 sm:h-5 sm:w-5"
-            style={{ color: iconColor }}
-          />
+        <div
+          className="h-8 w-8 sm:h-10 sm:w-10 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-sm sm:text-base"
+          style={{
+            backgroundColor: `${color}20`,
+            color: color,
+          }}
+        >
+          {goal.name.charAt(0).toUpperCase()}
         </div>
 
         <div className="flex-1 min-w-0">
