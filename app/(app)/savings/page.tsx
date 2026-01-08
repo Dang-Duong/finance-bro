@@ -112,13 +112,7 @@ function SavingsPageContent() {
   };
 
   if (loading) {
-    return (
-      <main className="min-h-screen bg-navbar-bg text-white px-4 py-6 md:px-8 pt-28 lg:pt-6 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-lg">Loading savings...</div>
-        </div>
-      </main>
-    );
+    return null;
   }
 
   return (

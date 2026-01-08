@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import { useAuth } from "@/lib/auth";
 
 interface GuestRouteProps {
@@ -19,11 +19,7 @@ export default function GuestRoute({ children }: GuestRouteProps) {
   }, [user, loading, router]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-white">Loading...</p>
-      </div>
-    );
+    return null;
   }
 
   if (user) {

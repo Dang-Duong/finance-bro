@@ -11,6 +11,7 @@ import {
   Sector,
 } from "recharts";
 import { useTransactions } from "@/lib/transactionsContext";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 type CategoryData = {
   name: string;
@@ -101,7 +102,9 @@ export default function SpendByCategory() {
         <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
           Spend by Category
         </h2>
-        <div className="text-gray-600 dark:text-white/60">Loading...</div>
+        <div className="flex items-center justify-center py-8">
+          <LoadingSpinner size="md" />
+        </div>
       </motion.div>
     );
   }

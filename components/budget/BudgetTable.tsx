@@ -3,6 +3,7 @@
 import { useState } from "react";
 import BudgetHeader from "./BudgetHeader";
 import AddBudgetModal from "./AddBudgetModal";
+import LoadingSpinner from "@/components/LoadingSpinner";
 import PencilIcon from "@/components/icons/PencilIcon";
 import TrashIcon from "@/components/icons/TrashIcon";
 import { useBudgets } from "@/lib/budgetsContext";
@@ -108,7 +109,7 @@ export default function BudgetTable() {
           onToggleEdit={() => setIsEditMode(!isEditMode)}
         />
         <div className="flex items-center justify-center py-8">
-          <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+          <LoadingSpinner size="md" />
         </div>
       </div>
     );

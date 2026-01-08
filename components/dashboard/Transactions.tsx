@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import AddTransactionModal from "@/components/transactions/AddTransactionModal";
 import { useTransactions } from "@/lib/transactionsContext";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function Transactions() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -101,8 +102,8 @@ export default function Transactions() {
         {/* Mobile layout */}
         <div className="lg:hidden space-y-3">
           {loading ? (
-            <div className="py-8 text-center text-gray-600 dark:text-white/60">
-              Loading transactions...
+            <div className="py-12 flex justify-center">
+              <LoadingSpinner size="md" />
             </div>
           ) : transactions.length === 0 ? (
             <div className="py-8 text-center text-gray-600 dark:text-white/60">
@@ -179,13 +180,16 @@ export default function Transactions() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-gray-600 dark:text-white/60">
-                    Loading transactions...
+                  <td colSpan={5} className="py-12">
+                    <LoadingSpinner size="md" />
                   </td>
                 </tr>
               ) : transactions.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-gray-600 dark:text-white/60">
+                  <td
+                    colSpan={5}
+                    className="py-8 text-center text-gray-600 dark:text-white/60"
+                  >
                     No transactions yet. Add your first transaction!
                   </td>
                 </tr>

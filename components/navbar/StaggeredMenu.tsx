@@ -4,7 +4,7 @@ import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 
 export interface StaggeredMenuItem {
   label: string;

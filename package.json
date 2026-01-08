@@ -21,6 +21,7 @@
     "lucide-react": "^0.553.0",
     "mongoose": "^8.19.1",
     "next": "15.5.7",
+    "nextjs-toploader": "^3.9.17",
     "react": "19.1.2",
     "react-dom": "19.1.2",
     "recharts": "^3.3.0",

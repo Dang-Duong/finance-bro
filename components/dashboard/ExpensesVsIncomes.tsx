@@ -13,6 +13,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { useTransactions } from "@/lib/transactionsContext";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 type MonthData = {
   month: string;
@@ -158,7 +159,16 @@ export default function ExpensesVsIncomes() {
   const tooltipText = isDark ? "#ffffff" : "#111827";
 
   if (loading) {
-    return null;
+    return (
+      <motion.div className="rounded-lg p-6 border bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 lg:col-span-2">
+        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+          Expenses vs Incomes
+        </h2>
+        <div className="flex items-center justify-center py-12">
+          <LoadingSpinner size="md" />
+        </div>
+      </motion.div>
+    );
   }
 
   return (

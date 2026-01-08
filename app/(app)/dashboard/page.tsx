@@ -16,7 +16,7 @@ export default function Dashboard() {
     }
   }, [user, loading]);
 
-  if (loading || !user) return <p className="p-6 text-white">Loading...</p>;
+  if (loading || !user) return null;
 
   return (
     <main className="min-h-screen bg-navbar-bg p-4 lg:p-6 pt-28 lg:pt-6">
