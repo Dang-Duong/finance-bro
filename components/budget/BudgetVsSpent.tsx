@@ -38,11 +38,6 @@ export default function BudgetVsSpent() {
     }));
   }, [filteredBudgets]);
 
-  const maxValue = useMemo(() => {
-    if (chartData.length === 0) return 1000;
-    return Math.max(...chartData.map((d) => Math.max(d.budget, d.spent)), 1000);
-  }, [chartData]);
-
   return (
     <motion.div
       className="rounded-lg p-6
@@ -93,15 +88,10 @@ export default function BudgetVsSpent() {
                 stroke="currentColor"
                 className="text-gray-700 dark:text-white/60"
                 style={{ fontSize: "12px" }}
-                domain={[0, maxValue * 1.1]}
+                domain={[0, (dataMax: number) => Math.ceil(dataMax * 1.1)]}
+                tickFormatter={(value) => value.toLocaleString()}
               />
               <Tooltip />
-              <Legend
-                wrapperStyle={{
-                  color: "currentColor",
-                }}
-                className="text-gray-700 dark:text-white/80"
-              />
               <Bar dataKey="budget" fill="#3b82f6" radius={[4, 4, 0, 0]} />
               <Bar dataKey="spent" fill="#ef4444" radius={[4, 4, 0, 0]} />
             </BarChart>
