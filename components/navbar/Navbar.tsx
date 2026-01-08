@@ -23,7 +23,7 @@ export default function Navbar() {
   }));
 
   const baseButtonClasses =
-    "rounded-full px-3 lg:px-5 py-1.5 text-xs lg:text-sm font-medium border transition-all whitespace-nowrap";
+    "rounded-full px-3 lg:px-5 py-1.5 text-xs lg:text-sm font-medium border transition-all whitespace-nowrap cursor-pointer";
   const inactiveClasses =
     "bg-nav-inactive text-gray-100 border-transparent hover:bg-nav-inactive-hover";
   const activeClasses = "bg-white text-black border-white shadow";
